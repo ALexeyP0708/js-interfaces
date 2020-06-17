@@ -1448,7 +1448,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         assert.ok(match,'buildInterface');
     }
 
-    // extendsInterfaces
+    // extendInterfaces
     {
         class TestInterface {
             method(){
@@ -1553,7 +1553,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return '1';
             }
         }
-        InterfaceManager.extendsInterfaces(Test3);
+        InterfaceManager.extendInterfaces(Test3);
 
         class Test4 extends Test3{
             method4(a){
@@ -1563,7 +1563,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return '1';
             }
         }
-        InterfaceManager.extendsInterfaces(Test4,TestInterface4,TestInterface5);
+        InterfaceManager.extendInterfaces(Test4,TestInterface4,TestInterface5);
         let match=
                 Test.interfaces.builtProps.protoProps.includes('method')
              && Test2.interfaces.builtProps.protoProps.includes('method2')
@@ -1586,10 +1586,10 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
              && !throwTest(Test4.prototype.method3,1) //  check for availability will take place, but checks during execution will not be performed
              && throwTest(Test4.prototype.method4,1)
              && throwTest(Test4.prototype.method5,1)
-        assert.ok(match,'extendsInterfaces');
+        assert.ok(match,'extendInterfaces');
     }
 
-    // implementsInterfaces
+    // implementInterfaces
     {
         class TestInterface {
             method(){
@@ -1655,21 +1655,21 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return '1';
             }
         }
-        InterfaceManager.extendsInterfaces(Test2);
+        InterfaceManager.extendInterfaces(Test2);
 
         class Test3 extends Test2{
 
         }
         assert.throws(function(){
-            InterfaceManager.implementsInterfaces(Test3,TestInterface3);
+            InterfaceManager.implementInterfaces(Test3,TestInterface3);
         },function(e){
             return e instanceof InterfaceError && e.message.trim() === "[Test3][TestInterface3][.method3] The property must be declared."
-        },'implementsInterfaces');
+        },'implementInterfaces');
     }
 
     // extractOwnDescriptors
     {}
-    // extendsInterfaces + extendClassFromOwnPrototypes
+    // extendInterfaces + extendClassFromOwnPrototypes
     {
         class TestInterface{
             method(){
@@ -1744,7 +1744,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return 2;
             }
         }
-        InterfaceManager.extendsInterfaces(Test2,true,TestInterface);
+        InterfaceManager.extendInterfaces(Test2,true,TestInterface);
         let match=
                Test2.method(0)=== 1
             && Test2.method2(0)=== 2
@@ -1754,7 +1754,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             && throwTest(Test2.method2,'0')
             && throwTest(Test2.prototype.method,'0')
             && throwTest(Test2.prototype.method2,'0');
-        assert.ok(match,'extendsInterfaces + extendClassFromOwnPrototypes');
+        assert.ok(match,'extendInterfaces + extendClassFromOwnPrototypes');
     }
 
     //addGlobalEndPoints / setEndPoint / getEndPoints / getAllEndPoints
@@ -1777,7 +1777,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             method2(){return 1};
             method(){return 1};
         };
-        InterfaceManager.extendsInterfaces(Test);
+        InterfaceManager.extendInterfaces(Test);
         class TestInterface2 extends Test{
             method2(){
                 return {
@@ -1801,7 +1801,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         assert.deepEqual(InterfaceManager.getAllEndPoints(Test2),end_points.concat([Audio,Other]),'setEndPoint(Class)/getAllEndPoints(Class)');
        assert.throws(
             function(){
-                InterfaceManager.implementsInterfaces(Test2,true);
+                InterfaceManager.implementInterfaces(Test2,true);
             },
             function(e){
                 return  e instanceof InterfaceError && e.message.trim()==="[Test2][TestInterface2][.method2] The property must be declared.";
@@ -1944,7 +1944,7 @@ QUnit.test('Проверка сборки интерфейса',function(assert)
     }
     TestInterface3.isInterface=true;
     let test=new Test3();
-    InterfaceManager.implementsInterfaces(test);
+    InterfaceManager.implementInterfaces(test);
     //console.log([Test3,TestInterface3,Test2,Test1,TestInterface2,TestInterface]);
     let match=
         {
