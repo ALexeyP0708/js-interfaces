@@ -1,6 +1,7 @@
-import {InterfaceError,InterfaceManager,CriteriaPropertyType,CriteriaMethodType,CriteriaReactType} from './../../export.js';
+import {InterfaceError,InterfaceManager,CriteriaPropertyType,CriteriaMethodType,CriteriaReactType} from '../../src/export.js';
 
-
+let log=console.log;
+let interfaces=Symbol.for('interfacesData');
 QUnit.module( 'Class InterfaceManager');
 QUnit.test('Methods test InterfaceManager class',function(assert){
     let throwTest=(func,...args)=>{
@@ -29,6 +30,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             staticProps:{},
             end_points:[],
             isBuilt:false,
+            interfaces:[],
             builtProps:{
                 protoProps:[],
                 staticProps:[]
@@ -147,48 +149,50 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             get react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             set react(v){
-                v.typeof='mixed';
+                return {
+                    types:'mixed'
+                }
             }
             static static_method(){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             static get static_react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             static set static_react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
         }
         InterfaceTest.prototype.prop={
-            typeof:'mixed'
+            types:'mixed'
         };
         InterfaceTest.static_prop={
-            typeof:'mixed'
+            types:'mixed'
         };
         InterfaceTest.isInterface=true;
         let staticDescs=InterfaceManager.getDescriptors(InterfaceTest);
@@ -201,41 +205,45 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             staticProps:{
                 static_method:[
                     {
-                        class:InterfaceTest,
-                        criteria:new CriteriaMethodType([{typeof:'mixed'}],{typeof:'mixed'},rules.staticProps.static_method[0].criteria.options)
+                        //class:InterfaceTest,
+                        criteria:new CriteriaMethodType({
+                            arguments:[{types:'mixed'}],
+                            return:{types:'mixed'},
+                            options:rules.staticProps.static_method[0].criteria.options
+                        })
                     }
 
                 ],
                 static_react:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaReactType({typeof: 'mixed'}, {typeof: 'mixed'}, rules.staticProps.static_react[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaReactType({get:{types: 'mixed'},set: {types: 'mixed'}, options:rules.staticProps.static_react[0].criteria.options})
                     }
                 ],
                 static_prop:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaPropertyType('mixed', [], rules.staticProps.static_prop[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaPropertyType({types:'mixed', options: rules.staticProps.static_prop[0].criteria.options})
                     }
                 ]
             },
             protoProps:{
                 method:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaMethodType([{typeof: 'mixed'}], {typeof: 'mixed'}, rules.protoProps.method[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaMethodType({arguments:[{types: 'mixed'}],return: {types: 'mixed'}, options:rules.protoProps.method[0].criteria.options})
                     }
                 ],
                 react:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaReactType({typeof: 'mixed'}, {typeof: 'mixed'}, rules.protoProps.react[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaReactType({get:{types: 'mixed'}, set:{types: 'mixed'}, options:rules.protoProps.react[0].criteria.options})
                     }
                 ],
                 prop:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaPropertyType('mixed', [], rules.protoProps.prop[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaPropertyType({types:'mixed',options: rules.protoProps.prop[0].criteria.options})
                     }
                 ]
             }
@@ -251,92 +259,95 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             get react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             set react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
             static static_method(){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             static get static_react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             static set static_react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
         }
         InterfaceTest.prototype.prop={
-            typeof:'mixed'
+            types:'mixed'
         };
         InterfaceTest.static_prop={
-            typeof:'mixed'
+            types:'mixed'
         };
         InterfaceTest.isInterface=true;
         let staticDescs=InterfaceManager.getDescriptors(InterfaceTest);
         let protoDescs=InterfaceManager.getDescriptors(InterfaceTest.prototype);
         let rules=InterfaceManager.generateRules(InterfaceTest);
         let match={
+            "interfaces": [
+                InterfaceTest
+            ],
             staticProps:{
                 static_method:[
                     {
-                        class:InterfaceTest,
-                        criteria:new CriteriaMethodType([{typeof:'mixed'}],{typeof:'mixed'},rules.staticProps.static_method[0].criteria.options)
+                        //class:InterfaceTest,
+                        criteria:new CriteriaMethodType({arguments:[{types:'mixed'}],return:{types:'mixed'},options:rules.staticProps.static_method[0].criteria.options})
                     }
 
                 ],
                 static_react:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaReactType({typeof: 'mixed'}, {typeof: 'mixed'}, rules.staticProps.static_react[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaReactType({get:{types: 'mixed'}, set:{types: 'mixed'}, options:rules.staticProps.static_react[0].criteria.options})
                     }
                 ],
                 static_prop:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaPropertyType('mixed', [], rules.staticProps.static_prop[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaPropertyType({types:'mixed', options:rules.staticProps.static_prop[0].criteria.options})
                     }
                 ]
             },
             protoProps:{
                 method:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaMethodType([{typeof: 'mixed'}], {typeof: 'mixed'}, rules.protoProps.method[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaMethodType({arguments:[{types: 'mixed'}], return:{types: 'mixed'}, options:rules.protoProps.method[0].criteria.options})
                     }
                 ],
                 react:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaReactType({typeof: 'mixed'}, {typeof: 'mixed'}, rules.protoProps.react[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaReactType({get:{types: 'mixed'}, set:{types: 'mixed'}, options:rules.protoProps.react[0].criteria.options})
                     }
                 ],
                 prop:[
                     {
-                        class: InterfaceTest,
-                        criteria: new CriteriaPropertyType('mixed', [], rules.protoProps.prop[0].criteria.options)
+                        //class: InterfaceTest,
+                        criteria: new CriteriaPropertyType({types:'mixed', options:rules.protoProps.prop[0].criteria.options})
                     }
                 ]
             }
@@ -344,7 +355,82 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         QUnit.dump.maxDepth=7;
         assert.deepEqual(rules,match,'generateRules');
     }
-
+    // compareAndSetRule
+    {
+        class TestInterface {
+            method(){
+                return {
+                    arguments:[
+                        {
+                            types:'number',
+                            includes:[1,2,3]
+                        }
+                    ],
+                    return:{
+                        types:'number',
+                        includes:[1,2,3]
+                    }
+                };
+            }
+            method2(){
+                return {
+                    arguments:[
+                        {
+                            types:'number',
+                            includes:[3,4,5]
+                        }
+                    ],
+                    return:{
+                        types:'number',
+                        includes:[3,4,5]
+                    }
+                };
+            }
+        }
+        TestInterface.isInterface=true;
+        let rules=InterfaceManager.generateRules(TestInterface);
+        class TestInterface2 {
+            method(){ // success
+                return {
+                    arguments:[
+                        {
+                            types:'number',
+                            includes:[2,3]
+                        }
+                    ],
+                    return:{
+                        types:'number',
+                        includes:[1,2]
+                    }
+                };
+            }
+        }
+        TestInterface2.isInterface=true;
+        let rules2=InterfaceManager.generateRules(TestInterface2);
+        for(let prop of Object.getOwnPropertyNames(rules2.protoProps)){
+                InterfaceManager.compareAndSetRule(rules.protoProps,prop,rules2.protoProps[prop][0]);
+        }
+        let match={
+            "interfaces":[
+                TestInterface
+            ],
+            protoProps:{
+                method:[
+                    {
+                        criteria:new CriteriaMethodType({arguments:[{types:'number',includes:[2,3]}],return:{types:'number',includes:[1,2]},options:rules.protoProps.method[0].criteria.options})
+                    }
+                ],
+                method2:[
+                    {
+                        criteria:new CriteriaMethodType({arguments:[{types:'number',includes:[3,4,5]}],return:{types:'number',includes:[3,4,5]},options:rules.protoProps.method2[0].criteria.options})
+                    }
+                ]
+            },
+            staticProps:{}
+        };
+        QUnit.dump.maxDepth=8;
+        assert.deepEqual(rules,match,'compareAndSetRule');
+    }
     // expandAndSetRule
     {
         class TestInterface {
@@ -352,13 +438,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[1,2,3]
+                            types:'mixed',
+                            includes:[1,2,3]
                         }
                     ],
                      return:{
-                        typeof:'mixed',
-                         values:[1,2,3]
+                        types:'mixed',
+                         includes:[1,2,3]
                      }
                 };
             }
@@ -366,13 +452,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[3,4,5]
+                            types:'mixed',
+                            includes:[3,4,5]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
+                        types:'mixed',
+                        includes:[3,4,5]
                     }
                 };
             }
@@ -380,13 +466,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[1,2,3]
+                            types:'mixed',
+                            includes:[1,2,3]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[1,2,3]
+                        types:'mixed',
+                        includes:[1,2,3]
                     }
                 };
             }
@@ -394,13 +480,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[1,2,3]
+                            types:'mixed',
+                            includes:[1,2,3]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[1,2,3]
+                        types:'mixed',
+                        includes:[1,2,3]
                     }
                 };
             }
@@ -411,13 +497,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[3,4,5]
+                            types:'mixed',
+                            includes:[3,4,5]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
+                        types:'mixed',
+                        includes:[3,4,5]
                     }
                 };
             }
@@ -425,13 +511,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[3,4,5]
+                            types:'mixed',
+                            includes:[3,4,5]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
+                        types:'mixed',
+                        includes:[3,4,5]
                     }
                 };
             }
@@ -439,13 +525,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[3,4,5]
+                            types:'mixed',
+                            includes:[3,4,5]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
+                        types:'mixed',
+                        includes:[3,4,5]
                     }
                 };
             }
@@ -453,13 +539,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[3,4,5]
+                            types:'mixed',
+                            includes:[3,4,5]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
+                        types:'mixed',
+                        includes:[3,4,5]
                     }
                 };
             }
@@ -474,43 +560,46 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             InterfaceManager.expandAndSetRule(rules.staticProps,prop,rules2.staticProps[prop][0]);
         }
         let match={
+                "interfaces": [
+                    TestInterface
+                ],
                 protoProps:{
                     method:[
                         {
-                            class:TestInterface2,
-                            criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5,1,2]}],{typeof:'mixed',values:[3,4,5,1,2]},rules.protoProps.method[0].criteria.options)
+                           // class:TestInterface2,
+                            criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[1,2,3,4,5]}],return:{types:'mixed',includes:[1,2,3,4,5]},options:rules.protoProps.method[0].criteria.options})
                         }
                     ],
                     method2:[
                         {
-                            class:TestInterface,
-                            criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5]}],{typeof:'mixed',values:[3,4,5]},rules.protoProps.method2[0].criteria.options)
+                           // class:TestInterface,
+                            criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[3,4,5]}],return:{types:'mixed',includes:[3,4,5]},options:rules.protoProps.method2[0].criteria.options})
                         }
                     ],
                     method3:[
                         {
-                            class:TestInterface2,
-                            criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5]}],{typeof:'mixed',values:[3,4,5]},rules.protoProps.method3[0].criteria.options)
+                           // class:TestInterface2,
+                            criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[3,4,5]}],return:{types:'mixed',includes:[3,4,5]},options:rules.protoProps.method3[0].criteria.options})
                         }
                     ],
                 },
                 staticProps:{
                     static_method:[
                         {
-                            class:TestInterface2,
-                            criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5,1,2]}],{typeof:'mixed',values:[3,4,5,1,2]},rules.staticProps.static_method[0].criteria.options)
+                           // class:TestInterface2,
+                            criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[1,2,3,4,5]}],return:{types:'mixed',includes:[1,2,3,4,5]},options:rules.staticProps.static_method[0].criteria.options})
                         }
                     ],
                     static_method2:[
                         {
-                            class:TestInterface,
-                            criteria:new CriteriaMethodType([{typeof:'mixed',values:[1,2,3]}],{typeof:'mixed',values:[1,2,3]},rules.staticProps.static_method2[0].criteria.options)
+                           // class:TestInterface,
+                            criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[1,2,3]}],return:{types:'mixed',includes:[1,2,3]},options:rules.staticProps.static_method2[0].criteria.options})
                         }
                     ],
                     static_method3:[
                         {
-                            class:TestInterface2,
-                            criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5]}],{typeof:'mixed',values:[3,4,5]},rules.staticProps.static_method3[0].criteria.options)
+                           // class:TestInterface2,
+                            criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[3,4,5]}],return:{types:'mixed',includes:[3,4,5]},options:rules.staticProps.static_method3[0].criteria.options})
                         }
                     ],
                 }
@@ -519,20 +608,20 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         assert.deepEqual(rules,match,'expandAndSetRule');
     }
 
-    // addRules
+    // addRules (compare)
     {
         class TestInterface {
             method(){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[1,2,3]
+                            types:'mixed',
+                            includes:[1,2,3]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[1,2,3]
+                        types:'mixed',
+                        includes:[1,2,3]
                     }
                 };
             }
@@ -540,41 +629,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[3,4,5]
+                            types:'mixed',
+                            includes:[3,4,5]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
-                    }
-                };
-            }
-            static static_method(){
-                return {
-                    arguments:[
-                        {
-                            typeof:'mixed',
-                            values:[1,2,3]
-                        }
-                    ],
-                    return:{
-                        typeof:'mixed',
-                        values:[1,2,3]
-                    }
-                };
-            }
-            static static_method2(){
-                return {
-                    arguments:[
-                        {
-                            typeof:'mixed',
-                            values:[1,2,3]
-                        }
-                    ],
-                    return:{
-                        typeof:'mixed',
-                        values:[1,2,3]
+                        types:'mixed',
+                        includes:[3,4,5]
                     }
                 };
             }
@@ -585,13 +646,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[3,4,5]
+                            types:'mixed',
+                            includes:[1,2]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
+                        types:'mixed',
+                        includes:[1,2]
                     }
                 };
             }
@@ -599,44 +660,17 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed',
-                            values:[3,4,5]
+                            types:'mixed',
+                            includes:[6,7]
                         }
                     ],
                     return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
+                        types:'mixed',
+                        includes:[6,7]
                     }
                 };
             }
-            static static_method(){
-                return {
-                    arguments:[
-                        {
-                            typeof:'mixed',
-                            values:[3,4,5]
-                        }
-                    ],
-                    return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
-                    }
-                };
-            }
-            static static_method3(){
-                return {
-                    arguments:[
-                        {
-                            typeof:'mixed',
-                            values:[3,4,5]
-                        }
-                    ],
-                    return:{
-                        typeof:'mixed',
-                        values:[3,4,5]
-                    }
-                };
-            }
+
         }
         TestInterface2.isInterface=true;
         let rules=InterfaceManager.generateRules(TestInterface);
@@ -645,6 +679,11 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         InterfaceManager.addRules(TestInterface2,rules2);
         rules=InterfaceManager.getInterfaceData(TestInterface2);
         let match={
+            interfaces:[
+                TestInterface,
+                TestInterface2
+
+            ],
             builtProps: {
                 protoProps: [],
                 staticProps: []
@@ -652,48 +691,132 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             protoProps:{
                 method:[
                     {
-                        class:TestInterface2,
-                        criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5,1,2]}],{typeof:'mixed',values:[3,4,5,1,2]},rules.protoProps.method[0].criteria.options)
+                        criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[1,2]}],return:{types:'mixed',includes:[1,2]},options:rules.protoProps.method[0].criteria.options})
                     }
                 ],
                 method2:[
                     {
-                        class:TestInterface,
-                        criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5]}],{typeof:'mixed',values:[3,4,5]},rules.protoProps.method2[0].criteria.options)
+                        criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[3,4,5]}],return:{types:'mixed',includes:[3,4,5]},options:rules.protoProps.method2[0].criteria.options})
                     }
                 ],
                 method3:[
                     {
-                        class:TestInterface2,
-                        criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5]}],{typeof:'mixed',values:[3,4,5]},rules.protoProps.method3[0].criteria.options)
+                        criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[6,7]}],return:{types:'mixed',includes:[6,7]},options:rules.protoProps.method3[0].criteria.options})
                     }
                 ],
             },
-            staticProps:{
-                static_method:[
-                    {
-                        class:TestInterface2,
-                        criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5,1,2]}],{typeof:'mixed',values:[3,4,5,1,2]},rules.staticProps.static_method[0].criteria.options)
-                    }
-                ],
-                static_method2:[
-                    {
-                        class:TestInterface,
-                        criteria:new CriteriaMethodType([{typeof:'mixed',values:[1,2,3]}],{typeof:'mixed',values:[1,2,3]},rules.staticProps.static_method2[0].criteria.options)
-                    }
-                ],
-                static_method3:[
-                    {
-                        class:TestInterface2,
-                        criteria:new CriteriaMethodType([{typeof:'mixed',values:[3,4,5]}],{typeof:'mixed',values:[3,4,5]},rules.staticProps.static_method3[0].criteria.options)
-                    }
-                ],
-            },
+            staticProps: {},
             end_points: [],
             isBuilt:false,
         };
         QUnit.dump.maxDepth=8;
-        assert.deepEqual(rules,match,'addRules');
+        assert.deepEqual(rules,match,'addRules (compare)');
+
+    }
+
+    // addRules (expand)
+    {
+        class TestInterface {
+            method(){
+                return {
+                    arguments:[
+                        {
+                            types:'mixed',
+                            includes:[1,2,3]
+                        }
+                    ],
+                    return:{
+                        types:'mixed',
+                        includes:[1,2,3]
+                    }
+                };
+            }
+            method2(){
+                return {
+                    arguments:[
+                        {
+                            types:'mixed',
+                            includes:[3,4,5]
+                        }
+                    ],
+                    return:{
+                        types:'mixed',
+                        includes:[3,4,5]
+                    }
+                };
+            }
+        }
+        TestInterface.isInterface=true;
+        class TestInterface2 {
+            method(){
+                return {
+                    arguments:[
+                        {
+                            types:'mixed',
+                            includes:[3,4,5]
+                        }
+                    ],
+                    return:{
+                        types:'mixed',
+                        includes:[3,4,5]
+                    }
+                };
+            }
+            method3(){
+                return {
+                    arguments:[
+                        {
+                            types:'mixed',
+                            includes:[6,7]
+                        }
+                    ],
+                    return:{
+                        types:'mixed',
+                        includes:[6,7]
+                    }
+                };
+            }
+
+        }
+        TestInterface2.isInterface=true;
+        let rules=InterfaceManager.generateRules(TestInterface);
+        let rules2=InterfaceManager.generateRules(TestInterface2);
+        InterfaceManager.addRules(TestInterface2,rules,true);
+        InterfaceManager.addRules(TestInterface2,rules2,true);
+        rules=InterfaceManager.getInterfaceData(TestInterface2);
+        let match={
+            interfaces:[
+                TestInterface,
+                TestInterface2
+            ],
+            builtProps: {
+                protoProps: [],
+                staticProps: []
+            },
+            protoProps:{
+                method:[
+                    {
+                        criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[1,2,3,4,5]}],return:{types:'mixed',includes:[1,2,3,4,5]},options:rules.protoProps.method[0].criteria.options})
+                    }
+                ],
+                method2:[
+                    {
+                        criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[3,4,5]}],return:{types:'mixed',includes:[3,4,5]},options:rules.protoProps.method2[0].criteria.options})
+                    }
+                ],
+                method3:[
+                    {
+                        criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[6,7]}],return:{types:'mixed',includes:[6,7]},options:rules.protoProps.method3[0].criteria.options})
+                    }
+                ],
+            },
+            staticProps: {},
+            end_points: [],
+            isBuilt:false,
+        };
+        QUnit.dump.maxDepth=8;
+        assert.deepEqual(rules,match,'addRules (expand)');
+
     }
 
     // clearClass
@@ -703,55 +826,55 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             get react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             set react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
             static static_method(){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             static get static_react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             static set static_react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
         }
         InterfaceTest.prototype.prop={
-            typeof:'mixed'
+            types:'mixed'
         };
         InterfaceTest.static_prop={
-            typeof:'mixed'
+            types:'mixed'
         };
         InterfaceTest.isInterface=true;
         InterfaceManager.initInterfaceData(InterfaceTest);
         InterfaceManager.clearClass(InterfaceTest);
         let match={
             protoProps:['constructor'].sort(),
-            staticProps:["length", "prototype", "name", "isInterface", "interfaces"].sort()
+            staticProps:["length", "prototype", "name", "isInterface"].sort()
         };
         let equal={
             protoProps:Object.getOwnPropertyNames(InterfaceTest.prototype).sort(),
@@ -767,48 +890,48 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             get react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             set react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
             static static_method(){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             static get static_react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             static set static_react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
         }
         InterfaceTest.prototype.prop={
-            typeof:'mixed'
+            types:'mixed'
         };
         InterfaceTest.static_prop={
-            typeof:'mixed'
+            types:'mixed'
         };
         class Test{
             method(){}
@@ -817,7 +940,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         InterfaceTest.isInterface=true;
         let rules=InterfaceManager.initRules(InterfaceTest);
         let matchInterfaces={
-            interfaces:{
+            [Symbol.for('interfacesData')]:{
                 builtProps:{
                     protoProps:[],
                     staticProps:[]
@@ -826,13 +949,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                         method:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaMethodType([{typeof:'mixed'}],{typeof:'mixed'},rules.protoProps.method[0].criteria.options)
+                            criteria:new CriteriaMethodType([{types:'mixed'}],{types:'mixed'},rules.protoProps.method[0].criteria.options)
                         }
                     ],
                     react:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaReactType({typeof:'mixed'},{typeof:'mixed'},rules.protoProps.react[0].criteria.options)
+                            criteria:new CriteriaReactType({types:'mixed'},{types:'mixed'},rules.protoProps.react[0].criteria.options)
                         }
                     ],
                     prop:[
@@ -846,13 +969,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                     static_method:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaMethodType([{typeof:'mixed'}],{typeof:'mixed'},rules.staticProps.static_method[0].criteria.options)
+                            criteria:new CriteriaMethodType([{types:'mixed'}],{types:'mixed'},rules.staticProps.static_method[0].criteria.options)
                         }
                     ],
                     static_react:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaReactType({typeof:'mixed'},{typeof:'mixed'},rules.staticProps.static_react[0].criteria.options)
+                            criteria:new CriteriaReactType({types:'mixed'},{types:'mixed'},rules.staticProps.static_react[0].criteria.options)
                         }
                     ],
                     static_prop:[
@@ -884,7 +1007,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         QUnit.dump.maxDepth=8;
         assert.deepEqual(equal,matchInterfaces,'initRules for interface');
         let matchClass={
-            interfaces:{
+            [Symbol.for('interfacesData')]:{
                 builtProps:{
                     protoProps:[],
                     staticProps:[]
@@ -893,13 +1016,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                     method:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaMethodType([{typeof:'mixed'}],{typeof:'mixed'},rules.protoProps.method[0].criteria.options)
+                            criteria:new CriteriaMethodType([{types:'mixed'}],{types:'mixed'},rules.protoProps.method[0].criteria.options)
                         }
                     ],
                     react:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaReactType({typeof:'mixed'},{typeof:'mixed'},rules.protoProps.react[0].criteria.options)
+                            criteria:new CriteriaReactType({types:'mixed'},{types:'mixed'},rules.protoProps.react[0].criteria.options)
                         }
                     ],
                     prop:[
@@ -913,13 +1036,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                     static_method:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaMethodType([{typeof:'mixed'}],{typeof:'mixed'},rules.staticProps.static_method[0].criteria.options)
+                            criteria:new CriteriaMethodType([{types:'mixed'}],{types:'mixed'},rules.staticProps.static_method[0].criteria.options)
                         }
                     ],
                     static_react:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaReactType({typeof:'mixed'},{typeof:'mixed'},rules.staticProps.static_react[0].criteria.options)
+                            criteria:new CriteriaReactType({types:'mixed'},{types:'mixed'},rules.staticProps.static_react[0].criteria.options)
                         }
                     ],
                     static_prop:[
@@ -960,48 +1083,48 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             /*get react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }*/
             set react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
             static static_method(){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             static get static_react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             static set static_react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
         }
         InterfaceTest.prototype.prop={
-            typeof:'number'
+            types:'number'
         };
         InterfaceTest.static_prop={
-            typeof:'number'
+            types:'number'
         };
         InterfaceTest.isInterface=true;
         let rules=InterfaceManager.initRules(InterfaceTest);
@@ -1013,20 +1136,20 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             let staticDescs=InterfaceManager.getDescriptors(Test);
             let protoDescs=InterfaceManager.getDescriptors(Test.prototype);
             let result={
-                staticProps:InterfaceManager.validateDescriptors(staticDescs,rules.staticProps,['static','Test']),
-                protoProps:InterfaceManager.validateDescriptors(protoDescs,rules.protoProps,['Test'])
+                staticProps:InterfaceManager.validateDescriptors(staticDescs,rules.staticProps),
+                protoProps:InterfaceManager.validateDescriptors(protoDescs,rules.protoProps)
             };
             let match={
                 staticProps:[
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.static_method'],message:'The property must be declared'}),
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.static_react'],message:'The property must be declared'}),
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.static_prop'],message:'The property must be declared'})
+                    new InterfaceError('ValidatePropertyDeclared',{entryPoints:['InterfaceTest','.static_method']}),
+                    new InterfaceError('ValidatePropertyDeclared',{entryPoints:['InterfaceTest','.static_react']}),
+                    new InterfaceError('ValidatePropertyDeclared',{entryPoints:['InterfaceTest','.static_prop']})
                 ],
                 protoProps:[
 
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.method'],message:'The property must be declared'}),
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.react'],message:'The property must be declared'}),
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.prop'],message:'The property must be declared'})
+                    new InterfaceError('ValidatePropertyDeclared',{entryPoints:['InterfaceTest','.method']}),
+                    new InterfaceError('ValidatePropertyDeclared',{entryPoints:['InterfaceTest','.react']}),
+                    new InterfaceError('ValidatePropertyDeclared',{entryPoints:['InterfaceTest','.prop']})
 
                 ]
             };
@@ -1053,19 +1176,19 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             let staticDescs=InterfaceManager.getDescriptors(Test);
             let protoDescs=InterfaceManager.getDescriptors(Test.prototype);
             let result={
-                staticProps:InterfaceManager.validateDescriptors(staticDescs,rules.staticProps,['static','Test']),
-                protoProps:InterfaceManager.validateDescriptors(protoDescs,rules.protoProps,['Test'])
+                staticProps:InterfaceManager.validateDescriptors(staticDescs,rules.staticProps),
+                protoProps:InterfaceManager.validateDescriptors(protoDescs,rules.protoProps)
             };
             let match={
                 staticProps:[
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.static_react'],message:'The property  must be the getter/setter.'}),
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.static_prop'],message:'Expected type of "number"  but defined by "string".'})
+                    new InterfaceError('ValidateReactDeclared',{entryPoints:['InterfaceTest','.static_react']}),
+                    new InterfaceError('ValidateType',{entryPoints:['InterfaceTest','.static_prop']})
                 ],
                 protoProps:[
-                    new InterfaceError('ErrorType',{entryPoints:['Test','InterfaceTest','.method'],message:'The property must be Function.'}),
-                    new InterfaceError('ErrorType',{entryPoints:['Test','InterfaceTest','.react','get'],message:'The property not must be the getter.'}),
-                    new InterfaceError('ErrorType',{entryPoints:['Test','InterfaceTest','.react','set'],message:'The property must be the setter.'}),
-                    new InterfaceError('ErrorType',{entryPoints:['Test','InterfaceTest','.prop'],message:'Expected type of "number"  but defined by "string".'})
+                    new InterfaceError('ValidateMethodDeclared',{entryPoints:['InterfaceTest','.method']}),
+                    new InterfaceError('ValidateReactDeclared',{entryPoints:['InterfaceTest','.react','get']}),
+                    new InterfaceError('ValidateReactDeclared',{entryPoints:['InterfaceTest','.react','set']}),
+                    new InterfaceError('ValidateType',{entryPoints:['InterfaceTest','.prop']})
 
                 ]
             };
@@ -1080,48 +1203,48 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             /*get react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }*/
             set react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
             static static_method(){
                 return {
                     arguments:[
                         {
-                            typeof:'mixed'
+                            types:'mixed'
                         }
                     ],
                     return:{
-                        typeof:'mixed'
+                        types:'mixed'
                     }
                 };
             }
             static get static_react (){
                 return {
-                    typeof:'mixed'
+                    types:'mixed'
                 };
             }
             static set static_react(v){
-                v.typeof='mixed';
+                v.types='mixed';
             }
         }
         InterfaceTest.prototype.prop={
-            typeof:'number'
+            types:'number'
         };
         InterfaceTest.static_prop={
-            typeof:'number'
+            types:'number'
         };
         InterfaceTest.isInterface=true;
         let rules=InterfaceManager.initRules(InterfaceTest);
@@ -1142,25 +1265,12 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         Test.prototype.prop='1';
         Test.static_prop='1';
         InterfaceManager.initRules(Test,rules);
-        let errorsStack=[];
-        try {
-            InterfaceManager.validatePropsClass(Test,rules,errorsStack);
-            assert.ok(false,'validatePropsClass');
-        } catch (e) {
-            if(e instanceof InterfaceError ){
-            let match=[
-                    new InterfaceError('ErrorType',{entryPoints:['Test','InterfaceTest','.method'],message:'The property must be Function.'}),
-                    new InterfaceError('ErrorType',{entryPoints:['Test','InterfaceTest','.react','get'],message:'The property not must be the getter.'}),
-                    new InterfaceError('ErrorType',{entryPoints:['Test','InterfaceTest','.react','set'],message:'The property must be the setter.'}),
-                    new InterfaceError('ErrorType',{entryPoints:['Test','InterfaceTest','.prop'],message:'Expected type of "number"  but defined by "string".'}),
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.static_react'],message:'The property  must be the getter/setter.'}),
-                    new InterfaceError('ErrorType',{entryPoints:['static','Test','InterfaceTest','.static_prop'],message:'Expected type of "number"  but defined by "string".'})
-                ];
-            assert.deepEqual(errorsStack,match,'validatePropsClass - test other throws error (Warn:reproduces the match by error message.)');
-            } else {
-                throw e;
-            }
-        }
+        let errors=[];
+        assert.throws(function(){
+            InterfaceManager.validatePropsClass(Test,rules,errors);
+        },function (e) {
+            return e instanceof InterfaceError && e.type==='Validate_BadProperties'
+        },'validatePropsClass');
     }
 
     // buildPropsDescriptors
@@ -1170,41 +1280,41 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number'
+                            types:'number'
                         }
                     ],
                     return:{
-                        typeof:'number'
+                        types:'number'
                     }
                 };
             }
             get react (){
                 return {
-                    typeof:'number'
+                    types:'number'
                 };
             }
             set react(v){
-                v.typeof='number';
+                v.types='number';
             }
             /*static static_method(){
                 return {
                     arguments:[
                         {
-                            typeof:'number'
+                            types:'number'
                         }
                     ],
                     return:{
-                        typeof:'number'
+                        types:'number'
                     }
                 };
             }
             static get static_react (){
                 return {
-                    typeof:'number'
+                    types:'number'
                 };
             }
             static set static_react(v){
-                v.typeof='number';
+                v.types='number';
             }*/
         }
         class Test{
@@ -1258,31 +1368,31 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number'
+                            types:'number'
                         }
                     ],
                     return:{
-                        typeof:'number'
+                        types:'number'
                     }
                 };
             }
             get react (){
                 return {
-                    typeof:'number'
+                    types:'number'
                 };
             }
             set react(v){
-                v.typeof='number';
+                v.types='number';
             }
             static static_method(){
                 return {
                     arguments:[
                         {
-                            typeof:'number'
+                            types:'number'
                         }
                     ],
                     return:{
-                        typeof:'number'
+                        types:'number'
                     }
                 };
             }
@@ -1333,13 +1443,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1347,13 +1457,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1373,13 +1483,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1387,13 +1497,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1408,14 +1518,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             }
         }
         InterfaceManager.buildInterface(Test2);
-
         let match=
-            Test2.interfaces.builtProps.protoProps.includes('method2')
-            && Test2.interfaces.builtProps.staticProps.includes('static_method2')
-            && Test2.interfaces.protoProps.method[0].class === TestInterface
-            && Test2.interfaces.protoProps.method2[0].class === TestInterface2
-            && Test2.interfaces.staticProps.static_method[0].class === TestInterface
-            && Test2.interfaces.staticProps.static_method2[0].class === TestInterface2
+            Test2[interfaces].builtProps.protoProps.includes('method2')
+            && Test2[interfaces].builtProps.staticProps.includes('static_method2')
+            && Test2[interfaces].protoProps.method[0].criteria.getOwner() === TestInterface
+            && Test2[interfaces].protoProps.method2[0].criteria.getOwner() === TestInterface2
+            && Test2[interfaces].staticProps.static_method[0].criteria.getOwner() === TestInterface
+            && Test2[interfaces].staticProps.static_method2[0].criteria.getOwner() === TestInterface2
             && throwTest(Test2.prototype.method,'1')
             && throwTest(Test2.prototype.method,1)
             && throwTest(Test2.prototype.method2,'1')
@@ -1429,14 +1538,14 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             && ! Test2.hasOwnProperty('static_method')
             && Test2.static_method === Test.static_method
 
-            && Test.interfaces.builtProps.protoProps.includes('method')
-            && !Test.interfaces.builtProps.protoProps.includes('method2')
-            && Test.interfaces.builtProps.staticProps.includes('static_method')
-            && !Test.interfaces.builtProps.staticProps.includes('static_method2')
-            && Test.interfaces.protoProps.method[0].class === TestInterface
-            && !('method2' in Test.interfaces.protoProps)
-            && Test.interfaces.staticProps.static_method[0].class === TestInterface
-            && !('static_method2' in Test.interfaces.staticProps)
+            && Test[interfaces].builtProps.protoProps.includes('method')
+            && !Test[interfaces].builtProps.protoProps.includes('method2')
+            && Test[interfaces].builtProps.staticProps.includes('static_method')
+            && !Test[interfaces].builtProps.staticProps.includes('static_method2')
+            && Test[interfaces].protoProps.method[0].criteria.getOwner() === TestInterface
+            && !('method2' in Test[interfaces].protoProps)
+            && Test[interfaces].staticProps.static_method[0].criteria.getOwner() === TestInterface
+            && !('static_method2' in Test[interfaces].staticProps)
             && throwTest(Test.prototype.method,'1')
             && throwTest(Test.prototype.method,1)
             && throwTest(Test.static_method,'1')
@@ -1447,7 +1556,6 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         ;
         assert.ok(match,'buildInterface');
     }
-
     // extendInterfaces
     {
         class TestInterface {
@@ -1455,13 +1563,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1478,13 +1586,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1496,13 +1604,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1514,13 +1622,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1531,13 +1639,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1565,17 +1673,17 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         }
         InterfaceManager.extendInterfaces(Test4,TestInterface4,TestInterface5);
         let match=
-                Test.interfaces.builtProps.protoProps.includes('method')
-             && Test2.interfaces.builtProps.protoProps.includes('method2')
-             && !Test3.interfaces.builtProps.protoProps.includes('method3')
-             && !Test4.interfaces.builtProps.protoProps.includes('method3')
-             && Test4.interfaces.builtProps.protoProps.includes('method4')
-             && Test4.interfaces.builtProps.protoProps.includes('method5')
-             && Test4.interfaces.protoProps.method[0].class === TestInterface
-             && Test4.interfaces.protoProps.method2[0].class === TestInterface2
-             && Test4.interfaces.protoProps.method3[0].class === TestInterface3
-             && Test4.interfaces.protoProps.method4[0].class === TestInterface4
-             && Test4.interfaces.protoProps.method5[0].class === TestInterface5
+                Test[interfaces].builtProps.protoProps.includes('method')
+             && Test2[interfaces].builtProps.protoProps.includes('method2')
+             && !Test3[interfaces].builtProps.protoProps.includes('method3')
+             && !Test4[interfaces].builtProps.protoProps.includes('method3')
+             && Test4[interfaces].builtProps.protoProps.includes('method4')
+             && Test4[interfaces].builtProps.protoProps.includes('method5')
+             && Test4[interfaces].protoProps.method[0].criteria.getOwner() === TestInterface
+             && Test4[interfaces].protoProps.method2[0].criteria.getOwner() === TestInterface2
+             && Test4[interfaces].protoProps.method3[0].criteria.getOwner() === TestInterface3
+             && Test4[interfaces].protoProps.method4[0].criteria.getOwner() === TestInterface4
+             && Test4[interfaces].protoProps.method5[0].criteria.getOwner() === TestInterface5
              && ('method'in Test4.prototype)
              && ('method2'in Test4.prototype)
              && ('method3'in Test4.prototype)
@@ -1589,6 +1697,12 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         assert.ok(match,'extendInterfaces');
     }
 
+    // expandInterfaces
+    {
+
+    }
+
+
     // implementInterfaces
     {
         class TestInterface {
@@ -1596,13 +1710,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1616,13 +1730,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1635,13 +1749,13 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number',
+                            types:'number',
 
                         }
                     ],
                     return:{
-                        typeof:'number',
-                        values:[1]
+                        types:'number',
+                        includes:[1]
                     }
                 };
             }
@@ -1663,12 +1777,14 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         assert.throws(function(){
             InterfaceManager.implementInterfaces(Test3,TestInterface3);
         },function(e){
-            return e instanceof InterfaceError && e.message.trim() === "[Test3][TestInterface3][.method3] The property must be declared."
+            return e instanceof InterfaceError && e.type === "Validate_BadProperties"
         },'implementInterfaces');
     }
 
     // extractOwnDescriptors
-    {}
+    {
+
+    }
     // extendInterfaces + extendClassFromOwnPrototypes
     {
         class TestInterface{
@@ -1676,11 +1792,11 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number'
+                            types:'number'
                         }
                     ],
                     return:{
-                        typeof:'number'
+                        types:'number'
                     }
                 }
             }
@@ -1688,11 +1804,11 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number'
+                            types:'number'
                         }
                     ],
                     return:{
-                        typeof:'number'
+                        types:'number'
                     }
                 }
             }
@@ -1700,11 +1816,11 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number'
+                            types:'number'
                         }
                     ],
                     return:{
-                        typeof:'number'
+                        types:'number'
                     }
                 }
             }
@@ -1712,11 +1828,11 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return {
                     arguments:[
                         {
-                            typeof:'number'
+                            types:'number'
                         }
                     ],
                     return:{
-                        typeof:'number'
+                        types:'number'
                     }
                 }
             }
@@ -1744,7 +1860,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
                 return 2;
             }
         }
-        InterfaceManager.extendInterfaces(Test2,true,TestInterface);
+        let rules=InterfaceManager.extendInterfaces(Test2,false,true,TestInterface);
         let match=
                Test2.method(0)=== 1
             && Test2.method2(0)=== 2
@@ -1757,16 +1873,16 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
         assert.ok(match,'extendInterfaces + extendClassFromOwnPrototypes');
     }
 
-    //addGlobalEndPoints / setEndPoint / getEndPoints / getAllEndPoints
+    //addGlobalEndPoints / setEndPoints / getEndPoints / getAllEndPoints
     {
         let end_points = Object.assign([],InterfaceManager.end_points);
         class TestInterface{
             method(){
                 return {
                     arguments:[{
-                        typeof:'number'
+                        types:'number'
                     }],
-                    return:{ typeof:'number'}
+                    return:{ types:'number'}
                 };
             };
         };
@@ -1782,300 +1898,96 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             method2(){
                 return {
                     arguments:[{
-                        typeof:'number'
+                        types:'number'
                     }],
-                    return:{ typeof:'number'}
+                    return:{ types:'number'}
                 };
             };
         };
         TestInterface2.isInterface=true;
-        InterfaceManager.setEndPoint(TestInterface2,Test);
+        InterfaceManager.setEndPoints(TestInterface2,[Test]);
 
         class Test2 extends TestInterface2 {
 
         };
         class Other{}
-        InterfaceManager.setEndPoint(Test2,Other);
+        InterfaceManager.setEndPoints(Test2,[Other]);
         InterfaceManager.addGlobalEndPoints([Audio]);
         assert.deepEqual(InterfaceManager.getAllEndPoints(),end_points.concat([Audio]),'addGlobalEndPoints/getAllEndPoints(undefined)');
-        assert.deepEqual(InterfaceManager.getAllEndPoints(Test2),end_points.concat([Audio,Other]),'setEndPoint(Class)/getAllEndPoints(Class)');
-       assert.throws(
-            function(){
-                InterfaceManager.implementInterfaces(Test2,true);
-            },
-            function(e){
-                return  e instanceof InterfaceError && e.message.trim()==="[Test2][TestInterface2][.method2] The property must be declared.";
-            },
-            'Test end points for class (validate)'
+        assert.deepEqual(InterfaceManager.getAllEndPoints(Test2),end_points.concat([Audio,Other]),'setEndPoints(Class)/getAllEndPoints(Class)');
+        assert.throws(
+                function(){
+                    InterfaceManager.implementInterfaces(Test2,true);
+                },
+                function(e){
+                    return  e instanceof InterfaceError && e.type==="Validate_BadProperties";
+                },
+                'Test end points for class (validate)'
         );
         assert.ok(!Test2.prototype.hasOwnProperty('method')&&!Test2.prototype.hasOwnProperty('method2'),'end points: check if methods are extended ');
-}
+    }
+    // instanceOfInterface
+    {
+        class TestInterface {
+            method(){}
+        }
+        TestInterface.isInterface=true;
+        class Test extends TestInterface {
+            method(){}
+        }
+        class TestInterface2 extends Test{
+            method2(){}
+        }
+        TestInterface2.isInterface=true;
+
+        class TestInterface3 extends Test {
+            method3(){}
+        }
+        TestInterface3.isInterface=true;
+
+        class TestInterface4 {
+            method4(){}
+        }
+        TestInterface4.isInterface=true;
+
+        class TestInterface5 {
+            method5(){}
+        }
+        TestInterface5.isInterface=true;
+
+        class TestInterface6{
+            method6(){}
+        }
+        TestInterface6.isInterface=true;
+
+        class Test2{
+
+        };
+        InterfaceManager.extendInterfaces(Test2,TestInterface6);
+        class CoreTest extends TestInterface2{
+            method2(){}
+            method3(){}
+            method4(){}
+            method6(){}
+        }
+        let rules=InterfaceManager.implementInterfaces(CoreTest,TestInterface3,TestInterface4,Test2);
+        let test = new CoreTest();
+        let match=
+            InterfaceManager.instanceOfInterface(test,TestInterface)
+            && InterfaceManager.instanceOfInterface(test,TestInterface2)
+            && InterfaceManager.instanceOfInterface(test,TestInterface3)
+            && InterfaceManager.instanceOfInterface(test,TestInterface4)
+            && InterfaceManager.instanceOfInterface(test,TestInterface6)
+            && !InterfaceManager.instanceOfInterface(test,TestInterface5)
+            && !InterfaceManager.instanceOfInterface(test,Test2)
+        ;
+        assert.ok(match,'instanceOfInterface');
+    }
+    // test
+    {
+        class TestInterface {
+            method(){}
+        }
+    }
 });
 
-QUnit.test('Проверка сборки интерфейса',function(assert){
-    class TestInterface {
-        method(){
-            return {
-                arguments:[
-                    {
-                        typeof:'string'
-                    }
-                ],
-                return:{
-                    typeof:'string'
-                }
-            };
-        }
-        method2(){
-            return {
-                arguments:[
-                    {
-                        typeof:'string'
-                    }
-                ],
-                return:{
-                    typeof:'string'
-                }
-            };
-        }
-        static methodTestStatic(){
-            return {
-                arguments:[
-                    {typeof:'string',values:['ok','error']},
-                    {typeof:'number',values:[0,1]}
-                ],
-                return :{
-                    typeof:'mixed'
-                }
-            };
-        };
-        static methodTestStatic2(){
-            return new CriteriaMethodType(
-                [
-                    {typeof:'string',values:['ok','error']},
-                    {typeof:'number',values:[0,1]}
-                ],
-                {
-                    typeof:'mixed'
-                }
-            );
-        };
-
-    }
-    TestInterface.isInterface=true;
-    class TestInterface2 extends TestInterface {
-        method2(){
-            return {
-                arguments:[
-                    {
-                        typeof:'string'
-                    }
-                ],
-                return:{
-                    typeof:'string'
-                }
-            };
-        }
-        method3(){
-            return {
-                arguments:[
-                    {
-                        typeof:'string'
-                    }
-                ],
-                return:{
-                    typeof:'string'
-                }
-            };
-        }
-        static methodTestStatic2(){
-            return new CriteriaMethodType(
-                [
-                    {typeof:'string',values:['ok','error']},
-                    {typeof:'number',values:[0,1]}
-                ],
-                {
-                    typeof:'mixed'
-                }
-            );
-        };
-        static methodTestStatic3(){
-            return new CriteriaMethodType(
-                [
-                    {typeof:'string',values:['ok','error']},
-                    {typeof:'number',values:[0,1]}
-                ],
-                {
-                    typeof:'number'
-                }
-            );
-        };
-    }
-    TestInterface2.isInterface=true;
-    class Test1 extends TestInterface2 {
-        method(a='string'){
-            return a;
-        }
-        method2(a='string'){
-            return a;
-        }
-        static methodTestStatic(a='string'){
-            return 0;
-        };
-    }
-    class Test2 extends Test1 {
-        method3(a='string'){
-            return a;
-        }
-        static methodTestStatic2(a='string'){
-            return 1;
-        }
-    }
-    class TestInterface3 extends Test2 {
-        method4(){
-        }
-    }
-    class Test3 extends TestInterface3 {
-        method4(){
-        }
-        static methodTestStatic3(a='string'){
-            return 1;
-        }
-    }
-    TestInterface3.isInterface=true;
-    let test=new Test3();
-    InterfaceManager.implementInterfaces(test);
-    //console.log([Test3,TestInterface3,Test2,Test1,TestInterface2,TestInterface]);
-    let match=
-        {
-            "proto": {
-                "Test1": [
-                    "constructor",
-                    "method",
-                    "method2"
-                ],
-                "Test2": [
-                    "constructor",
-                    "method3"
-                ],
-                "Test3": [
-                    "constructor",
-                    "method4"
-                ],
-                "TestInterface": [
-                    "constructor"
-                ],
-                "TestInterface2": [
-                    "constructor"
-                ],
-                "TestInterface3": [
-                    "constructor"
-                ]
-            },
-            "static": {
-                "Test1": [
-                    "length",
-                    "prototype",
-                    "methodTestStatic",
-                    "name",
-                    "interfaces"
-                ].sort(),
-                "Test2": [
-                    "length",
-                    "prototype",
-                    "methodTestStatic2",
-                    "name",
-                    "interfaces"
-                ].sort(),
-                "Test3": [
-                    "length",
-                    "prototype",
-                    "methodTestStatic3",
-                    "name",
-                    "interfaces"
-                ].sort(),
-                "TestInterface": [
-                    "length",
-                    "prototype",
-                    "name",
-                    "isInterface",
-                    "interfaces"
-                ].sort(),
-                "TestInterface2": [
-                    "length",
-                    "prototype",
-                    "name",
-                    "isInterface",
-                    "interfaces"
-                ].sort(),
-                "TestInterface3": [
-                    "length",
-                    "prototype",
-                    "name",
-                    "isInterface",
-                    "interfaces"
-                ].sort()
-            }
-        };
-    let result={
-        proto:{},
-        static:{}
-    };
-    let proto=Object.getPrototypeOf(test);
-    do{
-        let proto_keys=Object.getOwnPropertyNames(proto);
-        result.proto[proto.constructor.name]=proto_keys.sort();
-        proto=Object.getPrototypeOf(proto);
-    } while(proto.constructor!==Object);
-    proto=Object.getPrototypeOf(test).constructor;
-    do{
-        let proto_keys=Object.getOwnPropertyNames(proto);
-        result.static[proto.name]=proto_keys.sort();
-        proto=Object.getPrototypeOf(proto);
-    } while(! proto.hasOwnProperty('constructor'));
-    assert.deepEqual(result,match,'checking properties object in a prototypes');
-    assert.ok((()=>{
-        let proto=Object.getPrototypeOf(test);
-        let check=true;
-        do{
-            let proto_keys=Object.getOwnPropertyNames(proto.constructor);
-            if(!proto_keys.includes('interfaces')){
-                check=false;
-                break;
-            }
-            proto=Object.getPrototypeOf(proto);
-        } while(proto.constructor!==Object);
-        return check;
-    })(),'checking if the class has an "interfaces" property');
-});
-/*
-
-QUnit.test('Сборка Примеры',function(assert){
-    // Обьявление интерфейса
-    // Интерфейс, это класс который помечен как интерфейс.
-    // В интерфейсе Методы/свойства/реактивные свойства являются н
-    class TestInterface {
-        // обьявление метода
-        // - если метод указан в интерфейсе, то будет обязательным для класса
-        method(){
-            // возвращаем критерии для метода
-            return {
-                // Критерии для аргументов. массив - каждый элемент массива, это критерии для соответствующего аргумента метода
-                arguments:[
-                    {
-                        typeof:'mixed', // определяет тип передаваемых данных
-                        values:[] // определяет значения которые необходимо передавать
-                    }
-                ],
-                //критерий для  возвращаемого значения методом
-                return:{
-
-                }
-            };
-        }
-        // возвращаем критерии для статического метода
-        static static_method(){
-            return ; // или return {}; -  эквивалентно {arguments:[], return:{typeof:mixed}}
-        }
-    }
-});*/

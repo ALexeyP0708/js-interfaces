@@ -1,4 +1,4 @@
-import {CriteriaType,InterfaceError} from './../../export.js';
+import {CriteriaType,InterfaceError} from '../../src/export.js';
 QUnit.module( 'Class TypeCriteria');
 
 QUnit.test('Check type of criteria',function(assert){

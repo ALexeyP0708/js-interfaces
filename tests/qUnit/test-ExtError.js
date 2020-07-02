@@ -1,4 +1,4 @@
-import {ExtError} from './../../ExtError.js';
+//import {ExtError} from './../../ExtError.js';
 QUnit.module( 'Class ExtError',{
     before:function (assert) {
     }
@@ -18,7 +18,7 @@ QUnit.test('Error type defined as default',function(assert){
         throw new ExtError();
     }catch(error){
         assert.equal(error.type,'default','{ExtError}.type');
-        assert.equal(error.message,'no message','{ExtError}.message');
+        assert.equal(error.message,'','{ExtError}.message');
         assert.equal(error.name,'ExtError','{ExtError}.name');
         assert.ok(true,error.stack);
     }
@@ -39,8 +39,7 @@ QUnit.test('Error type not defined',function(assert){
     try{
         throw new ExtError('type not defined',{types:{typeTest:'success'}});;
     }catch(error){
-        assert.equal(error.type,'no_type','{ExtError}.type');
-        assert.equal(error.message,'type not defined','{ExtError}.message');
+        assert.equal(error.type,'type not defined','{ExtError}.type');
         assert.equal(error.name,'ExtError','{ExtError}.name');
         assert.ok(true,error.stack);
     }

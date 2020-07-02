@@ -1,5 +1,5 @@
 import {InterfaceError,CriteriaMethodType,CriteriaReactType,CriteriaPropertyType} from "./export.js";
-
+let interfacesData=Symbol.for('interfacesData');
 export class InterfaceManager {
 
     /**
@@ -8,8 +8,9 @@ export class InterfaceManager {
      * @returns {object|undefined}
      */
     static getInterfaceData(ProtoClass){
-        if(ProtoClass.hasOwnProperty('interfaces')){
-            return ProtoClass.interfaces;
+
+        if(ProtoClass.hasOwnProperty(interfacesData)){
+            return ProtoClass[interfacesData];
         }
         return undefined;
     }
@@ -20,7 +21,7 @@ export class InterfaceManager {
      * @param {object} data
      */
     static setInterfaceData(ProtoClass,data){
-        ProtoClass.interfaces=data;
+        ProtoClass[interfacesData]=data;
     }
 
     /**
@@ -29,7 +30,7 @@ export class InterfaceManager {
      * @returns {boolean}
      */
     static hasInterfaceData(ProtoClass){
-        return ProtoClass.hasOwnProperty('interfaces');
+        return ProtoClass.hasOwnProperty(interfacesData);
     }
 
     /**
@@ -41,6 +42,7 @@ export class InterfaceManager {
         if(!this.hasInterfaceData(ProtoClass)){
             this.setInterfaceData(ProtoClass,{
                 isBuilt:false,
+                interfaces:[],
                 protoProps:{},
                 staticProps:{},
                 builtProps:{
@@ -82,7 +84,7 @@ export class InterfaceManager {
             delete descriptors.name;
             delete descriptors.prototype;
             delete descriptors.isInterface;
-            delete descriptors.interfaces;
+            delete descriptors[interfacesData];
             ProtoClass=object;
         } else {
             if(descriptors.hasOwnProperty('constructor')){
@@ -179,15 +181,14 @@ export class InterfaceManager {
     /**
      * Generates interface rules from descriptors of the Class that is the interface.
      * @param {object}descriptors See {@InterfaceManager.getDescriptors}
-     * @param {Array} entryPointsBuf  Entry points. Indicate the labels where the method was called,
      * so that in case of an error, refer to them.
      * @returns {object} rules interface
      */
-    static generateDescriptorsRules(descriptors,entryPointsBuf=['not_defined']){
+    static generateDescriptorsRules(descriptors){
         let rules={};
         for (let prop of Object.getOwnPropertyNames(descriptors)){
             let desc=descriptors[prop];
-            let entryPoints=entryPointsBuf.concat([descriptors[prop].constructor.name,`.${prop}`]);
+            let entryPoints=[descriptors[prop].constructor.name,`.${prop}`];
             if('get' in desc || 'set' in desc){
                 let getCriteria;
                 if( desc.get!==undefined){
@@ -200,40 +201,31 @@ export class InterfaceManager {
                 if(desc.set!==undefined){
                     setCriteria={};
                     let rtrn=desc.set(setCriteria);
-                    if(rtrn!==undefined){
+                    if(typeof rtrn ==='object' && getCriteria!==null){
                         setCriteria=rtrn;
                     }
                 }
-                let criteria=new CriteriaReactType(getCriteria,setCriteria,{entryPoints});
-                this.expandAndSetRule(rules,prop,{class:descriptors[prop].constructor,criteria});
+                let criteria=new CriteriaReactType({get:getCriteria,set:setCriteria,options:{entryPoints,owner:descriptors[prop].constructor}});
+                this.compareAndSetRule(rules,prop,{criteria});
             } else if(typeof desc.value === 'function'){
-                let methodRules=desc.value();
-                if(typeof methodRules!=='object' || methodRules===null){
-                    methodRules={};
+                let criteria=desc.value();
+                if(typeof criteria!=='object' || criteria===null){
+                    criteria={};
                 }
-                if(!Array.isArray(methodRules)){
-                    methodRules=[methodRules];
+                if(criteria.options===undefined){
+                    criteria.options={};
                 }
-                for(let methodRule of methodRules){
-                    if(!(methodRule instanceof CriteriaMethodType)){
-                        methodRule= new CriteriaMethodType(methodRule,{},{entryPoints});
-                    }
-                    this.expandAndSetRule(rules,prop,{class:descriptors[prop].constructor,criteria:methodRule});
-               }
+                criteria.options=Object.assign({},criteria.options,{entryPoints,owner:descriptors[prop].constructor});
+                criteria= new CriteriaMethodType(criteria);
+                this.compareAndSetRule(rules,prop,{criteria});
             } else {
-                let propertyRules=desc.value;
-                if(typeof propertyRules!=='object' || propertyRules===null){
-                    propertyRules={};
+                let criteria=desc.value;
+                if(typeof criteria!=='object' || criteria===null){
+                    criteria={};
                 }
-                if(!Array.isArray(propertyRules)){
-                    propertyRules=[propertyRules];
-                }
-                for(let propertyRule of propertyRules){
-                    if(!(propertyRule instanceof CriteriaPropertyType)){
-                        propertyRule= new CriteriaPropertyType(propertyRule,[],{entryPoints});
-                    }
-                    this.expandAndSetRule(rules,prop,{class:descriptors[prop].constructor,criteria:propertyRule});
-                }
+                criteria.options=Object.assign({},criteria.options,{entryPoints,owner:descriptors[prop].constructor});
+                criteria= new CriteriaPropertyType(criteria,{entryPoints});
+                this.compareAndSetRule(rules,prop,{criteria});
             }
         }
         return rules;
@@ -246,15 +238,17 @@ export class InterfaceManager {
      */
     static generateRules(ProtoClass){
         let rules={
+            interfaces:[],
             protoProps:{},
             staticProps:{}
         };
         let proto=ProtoClass.prototype;
         if(ProtoClass.hasOwnProperty('isInterface') && ProtoClass.isInterface){
             let descriptors=this.getDescriptors(proto);
-            rules.protoProps=this.generateDescriptorsRules(descriptors,[]);
+            rules.protoProps=this.generateDescriptorsRules(descriptors);
             let staticDescriptors=this.getDescriptors(ProtoClass);
-            rules.staticProps=this.generateDescriptorsRules(staticDescriptors,['static']);
+            rules.staticProps=this.generateDescriptorsRules(staticDescriptors);
+            rules.interfaces.push(ProtoClass);
         }
         return rules;
     }
@@ -264,18 +258,31 @@ export class InterfaceManager {
      * @param rules
      * @param prop
      * @param rule
+     * @param OwnerClass
      */
-    static  expandAndSetRule(rules,prop,rule){
+    static  expandAndSetRule(rules,prop,rule,OwnerClass){
+        let criteria=rule.criteria;
+        let cls=criteria.getOwner();
         if(prop in rules){
-            let entryPoints=[`${rules[prop][0].class.name}`,`${rule.class.name}`,`.${prop}`];
-            rule.criteria.expand( rules[prop][0].criteria,entryPoints);
+            let last_cls=rules[prop][0].criteria.getOwner();
+            let entryPoints=[`${last_cls.name}`,`${cls.name}`,`.${prop}`];
+            rules[prop][0].criteria.expand(criteria,entryPoints);
+        } else {
+            let CriteriaClass=Object.getPrototypeOf(criteria).constructor;
+            criteria=new CriteriaClass(criteria);
+            if(OwnerClass!==undefined){criteria.setOwner(OwnerClass);}
+            rules[prop]=[{criteria}];
         }
-        rules[prop]=[rule];
     }
     static compareAndSetRule(rules,prop,rule){
+        let criteria=rule.criteria;
+        let cls=criteria.getOwner();
         if(prop in rules){
-            let entryPoints=[`${rules[prop][0].class.name}`,`${rule.class.name}`,`.${prop}`];
-            rules[prop][0].criteria.compare(rule.criteria,entryPoints);
+            let last_cls=rules[prop][0].criteria.getOwner();
+            let entryPoints=[`${last_cls.name}`,`${cls.name}`,`.${prop}`];
+            rules[prop][0].criteria.compare(criteria,entryPoints);
+            //criteria.compare(rules[prop][0].criteria,entryPoints);
+            //rules[prop][0].criteria.compareOwnTo(criteria,entryPoints);
         }
         rules[prop]=[rule];
     }
@@ -284,25 +291,32 @@ export class InterfaceManager {
      * @param {class} ProtoClass
      * @param  {object|undefined} rules
      * @param  {boolean} isExpand
+     * @return {object}
      */
-    static addRules(ProtoClass,rules={protoProps:{},staticProps:{}},isExpand=false){
-        let interfaces=this.initInterfaceData(ProtoClass);
+    static addRules(ProtoClass,rules={interfaces:[],protoProps:{},staticProps:{}},isExpand=false){
+        let interfaceData=this.initInterfaceData(ProtoClass);
         for(let prop of Object.getOwnPropertyNames(rules.protoProps)){
             let rule=rules.protoProps[prop];
             if(isExpand){
-                this.expandAndSetRule(interfaces.protoProps,prop,rule[0]);
-            }else{
-                this.compareAndSetRule(interfaces.protoProps,prop,rule[0]);
+                this.expandAndSetRule(interfaceData.protoProps,prop,rule[0],ProtoClass);
+            } else {
+                this.compareAndSetRule(interfaceData.protoProps,prop,rule[0]);
             }
         }
         for(let prop of Object.getOwnPropertyNames(rules.staticProps)){
             let rule=rules.staticProps[prop];
             if(isExpand){
-                this.expandAndSetRule(interfaces.staticProps,prop,rule[0]);
+                this.expandAndSetRule(interfaceData.staticProps,prop,rule[0],ProtoClass);
             } else {
-                this.compareAndSetRule(interfaces.staticProps,prop,rule[0]);
+                this.compareAndSetRule(interfaceData.staticProps,prop,rule[0]);
             }
         }
+        for(let val of rules.interfaces){
+            if(!interfaceData.interfaces.includes(val)){
+                interfaceData.interfaces.push(val);
+            }
+        }
+        return interfaceData;
     }
 
     /**
@@ -316,7 +330,7 @@ export class InterfaceManager {
             delete proto[prop];
         }
         for(let prop of Object.getOwnPropertyNames(ProtoClass)){
-            if(['length','name','prototype','isInterface','interfaces'].includes(prop)){continue;}
+            if(['length','name','prototype','isInterface',interfacesData].includes(prop)){continue;}
             delete ProtoClass[prop];
         }
     }
@@ -327,76 +341,65 @@ export class InterfaceManager {
      * @param {object|undefined} rules
      * @returns {Object} new rules
      */
-    static initRules(ProtoClass,rules=undefined) {
-        this.addRules(ProtoClass, rules);
-        if(ProtoClass.hasOwnProperty('isInterface') && ProtoClass.isInterface){
+    static initRules(ProtoClass,rules) {
+        let interfaceData=this.addRules(ProtoClass, rules);
+        if(ProtoClass.hasOwnProperty('isInterface') && ProtoClass.isInterface && !interfaceData.interfaces.includes(ProtoClass)){
            rules=this.generateRules(ProtoClass);
-           this.addRules(ProtoClass, rules);
+           interfaceData=this.addRules(ProtoClass, rules);
            this.clearClass(ProtoClass);
         }
-        return this.getInterfaceData(ProtoClass);
+        return interfaceData;
     }
 
     /**
      * Checks descriptors according to interface rules
      * @param descriptors See {@InterfaceManager.getDescriptors}
      * @param rules Rules interface for prototype to class or   for  properties to class (static)
-     * @param entryPointsBuf
      * @return {Array} errors stack
      */
-    static validateDescriptors(descriptors,rules={},entryPointsBuf=['not_defined']){
-        let errorsStack=[];
+    static validateDescriptors(descriptors,rules={}){
+        let errors=[];
         for(let prop of Object.getOwnPropertyNames(rules)){
             let last=rules[prop].length-1;
-            if(!Object.getOwnPropertyNames(descriptors).includes(prop)){
-                let message=`The property must be declared.`;
-                let entryPoints=entryPointsBuf.concat([rules[prop][last].class.name,`.${prop}`]);
-                let error=new InterfaceError('ErrorType',{entryPoints,message});
-                errorsStack.push(error);
+            if(!descriptors.hasOwnProperty(prop)){;
+                let entryPoints=[rules[prop][last].criteria.getOwner().name,`.${prop}`];
+                let error=new InterfaceError('ValidatePropertyDeclared',{entryPoints});
+                errors.push(error);
                 continue;
             }
             for(let rule of rules[prop]){
-                let entryPoints=entryPointsBuf.concat([descriptors[prop].constructor.name,`.${prop}`]);
+                let entryPoints=[rule.criteria.getOwner().name,`.${prop}`];
                 if(rule.criteria instanceof CriteriaReactType){
-                    let entryPointsSet=entryPoints.concat(['set']);
-                    let entryPointsGet=entryPoints.concat(['get']);
                     if(!('get' in descriptors[prop]) && !('set' in descriptors[prop])){
-                        let message=` The property  must be the getter/setter.`;
-                        let error =new InterfaceError('ErrorType',{entryPoints,message});
-                        errorsStack.push(error);
+                        let error =new InterfaceError('ValidateReactDeclared',{entryPoints:entryPoints.concat(['get/set']),react_type:'getter/setter'});
+                        errors.push(error);
                         continue;
                     }
                     if(rule.criteria.get!==undefined && descriptors[prop].get===undefined){
-                        let message=`The property must be the getter`;
-                        let error =new InterfaceError('ErrorType',{entryPoints:entryPointsGet,message});
-                        errorsStack.push(error.message);
+                        let error =new InterfaceError('ValidateReactDeclared',{entryPoints:entryPoints.concat(['get']),react_type:'getter'});
+                        errors.push(error.message);
                     } else if(rule.criteria.get===undefined && descriptors[prop].get!==undefined){
-                        let message=`The property not must be the getter.`;
-                        let error =new InterfaceError('ErrorType',{entryPoints:entryPointsGet,message});
-                        errorsStack.push(error);
+                        let error =new InterfaceError('ValidateReactDeclared',{entryPoints:entryPoints.concat(['get']),not:'not',react_type:'getter'});
+                        errors.push(error);
                     }
                     if(rule.criteria.set!==undefined && descriptors[prop].set===undefined){
-                        let message=`The property must be the setter.`;
-                        let error =new InterfaceError('ErrorType',{entryPoints:entryPointsSet,message});
-                        errorsStack.push(error);
+                        let error =new InterfaceError('ValidateReactDeclared',{entryPoints:entryPoints.concat(['set']),react_type:'setter'});
+                        errors.push(error);
                     } else if(rule.criteria.set===undefined && descriptors[prop].set!==undefined){
-                        let message=`The property  not must be the setter.`;
-                        let error =new InterfaceError('ErrorType',{entryPoints:entryPointsSet,message});
-                        errorsStack.push(error);
+                        let error =new InterfaceError('ValidateReactDeclared',{entryPoints:entryPoints.concat(['set']),not:'not',react_type:'setter'});
+                        errors.push(error);
                     }
                 } else if(rule.criteria instanceof CriteriaMethodType){
                     if(typeof descriptors[prop].value!=='function'){
-                        let message=`The property must be Function.`;
-                        //errorsStack[prop].errorDeclaredFunction.push(message);
-                        let error =new InterfaceError('ErrorType',{entryPoints,message});
-                        errorsStack.push(error);
+                        let error =new InterfaceError('ValidateMethodDeclared',{entryPoints});
+                        errors.push(error);
                     }
                 } else if(rule.criteria instanceof CriteriaPropertyType){
                     try {
                         rule.criteria.validate(descriptors[prop].value,entryPoints);
                     }catch (error) {
                         if(error instanceof  InterfaceError){
-                            errorsStack.push(error);
+                            errors.push(error);
                         } else {
                             throw error;
                         }
@@ -404,7 +407,7 @@ export class InterfaceManager {
                 }
             }
         }
-        return errorsStack;
+        return errors;
     }
     /**
      * Checks if the Class passes the established rules.
@@ -412,26 +415,21 @@ export class InterfaceManager {
      * @param {object} rules {class,criteria}
      *          class- constructor Interface that generated the criteria
      *          criteria -  CriteriaPropertyType|CriteriaMethodType|CriteriaReactType []
-     * @param {Array} errorsStack
      * @throws {InterfaceError} -  Throws if properties validation fails
 
      */
-    static validatePropsClass(ProtoClass,rules={protoProps:{},staticProps:{}},errorsStack=[]){
+    static validatePropsClass(ProtoClass,rules={protoProps:{},staticProps:{}}){
         let proto=ProtoClass.prototype;
         let descs=this.getProtoDescriptors(proto);
         let staticDescs=this.getProtoDescriptors(ProtoClass);
-        let protoErrorsStack=this.validateDescriptors(descs,rules.protoProps,[ProtoClass.name]);
-        let staticErrorsStack =this.validateDescriptors(staticDescs,rules.staticProps,['static',ProtoClass.name]);
-        //errorsStack=errorsStack.concat(protoErrorsStack,staticErrorsStack);
-        errorsStack.splice(errorsStack.length,0,...protoErrorsStack);
-        errorsStack.splice(errorsStack.length,0,...staticErrorsStack);
-        if(errorsStack.length>0){
-            let message="\n";
-            for(let error of errorsStack){
-                message+=error.message+"\n";
-            }
-            //let message="\n"+errorsStack.message.join("\n");
-            throw new InterfaceError('ErrorType',{message});
+        let entryPoints=[ProtoClass.name];
+        let protoErrorsStack=this.validateDescriptors(descs,rules.protoProps);
+        let staticErrorsStack =this.validateDescriptors(staticDescs,rules.staticProps);
+        let errors=[];
+        errors.splice(errors.length,0,...protoErrorsStack);
+        errors.splice(errors.length,0,...staticErrorsStack);
+        if(errors.length>0){
+            throw new InterfaceError('Validate_BadProperties',{errors,entryPoints});
         }
     }
 
@@ -443,14 +441,14 @@ export class InterfaceManager {
      * @param entryPointsBuf
      * @returns {object} new descriptors  See {@InterfaceManager.getDescriptors}
      */
-    static buildPropsDescriptors(descriptors,rules={},entryPointsBuf=['not_defined']){
+    static buildPropsDescriptors(descriptors,rules={}){
         for(let prop of Object.getOwnPropertyNames(rules)){
             if(prop in descriptors){
                 for(let rule of rules[prop]){
-                    let entryPoints=entryPointsBuf.concat([`${rule.class.name}`,`${descriptors[prop].constructor.name}`,`.${prop}`]);
+                    let entryPoints=[`${descriptors[prop].constructor.name}`,`${rule.criteria.getOwner().name}`,`.${prop}`];
                     if(rule.criteria instanceof CriteriaReactType){
                         if(descriptors[prop].get!==undefined){
-                            let entryPointsGet=entryPoints.concat(['get']);
+                            //let entryPointsGet=entryPoints.concat(['get']);
                             let get=descriptors[prop].get;
                             if(descriptors[prop].isBuilt===true){
                                 get=get(Symbol.for('get_own_descriptor'));
@@ -460,12 +458,13 @@ export class InterfaceManager {
                                     return get;
                                 }
                                 let answer=get.call(this);
-                                rule.criteria.validateGet(answer,entryPointsGet);
+                                //rule.criteria.validateGet(answer,entryPointsGet);
+                                rule.criteria.validateGet(answer,entryPoints);
                                 return answer;
                             };
                         }
                         if(descriptors[prop].set!==undefined){
-                            let entryPointsSet=entryPoints.concat(['set']);
+                            //let entryPointsSet=entryPoints.concat(['set']);
                             let set=descriptors[prop].set;
                             if(descriptors[prop].isBuilt===true){
                                 set=set(Symbol.for('get_own_descriptor'));
@@ -474,7 +473,8 @@ export class InterfaceManager {
                                 if(value===Symbol.for('get_own_descriptor')){
                                     return set;
                                 }
-                                rule.criteria.validateSet(value,entryPointsSet);
+                                //rule.criteria.validateSet(value,entryPointsSet);
+                                rule.criteria.validateSet(value,entryPoints);
                                 set.call(this,value);
                             }
                         }
@@ -513,13 +513,16 @@ export class InterfaceManager {
      * @param rules
      */
     static buildPropsClass(ProtoClass,rules={protoProps:{},staticProps:{}}){
+        if(ProtoClass.hasOwnProperty('isInterface') && ProtoClass.isInterface){
+            return;
+        }
         let proto=ProtoClass.prototype;
         let builtProps={
                 protoProps:[],
                 staticProps:[]
             };
         let descs=this.getDescriptors(proto);
-        descs=this.buildPropsDescriptors(descs,rules.protoProps,[]);
+        descs=this.buildPropsDescriptors(descs,rules.protoProps);
         for(let prop of Object.getOwnPropertyNames(descs)){
             if(descs[prop].isBuilt===true){
                 builtProps.protoProps.push(prop);
@@ -527,15 +530,15 @@ export class InterfaceManager {
         }
         Object.defineProperties(proto,descs);
         let staticDescs=this.getDescriptors(ProtoClass);
-        staticDescs=this.buildPropsDescriptors(staticDescs,rules.staticProps,['static']);
+        staticDescs=this.buildPropsDescriptors(staticDescs,rules.staticProps);
         for(let prop of Object.getOwnPropertyNames(staticDescs)){
             if(staticDescs[prop].isBuilt===true){
                 builtProps.staticProps.push(prop);
             }
         }
         Object.defineProperties(ProtoClass,staticDescs);
-        let interfaces=this.initInterfaceData(ProtoClass);
-        interfaces.builtProps=builtProps;
+        let interfacesData=this.initInterfaceData(ProtoClass);
+        interfacesData.builtProps=builtProps;
     }
 
     /**
@@ -588,9 +591,9 @@ export class InterfaceManager {
             let rules=recurs(Object.getPrototypeOf(proto).constructor);
             rules=self.initRules(ProtoClass,rules);
             self.buildPropsClass(ProtoClass,rules);
-            let interfaces=self.getInterfaceData(ProtoClass); //rules;
-            interfaces.isBuilt=true;
-            return interfaces;
+            let interfacesData=self.getInterfaceData(ProtoClass); //rules;
+            interfacesData.isBuilt=true;
+            return interfacesData;
         };
         return recurs(ProtoClass);
     }
@@ -598,24 +601,37 @@ export class InterfaceManager {
     /**
      * Extends the class with interfaces.
      * @param ProtoClass
-     * @param {class[]} RestInterfaces. If the first element of the array is "true" (boolean type), then apply extendClassFromOwnPrototypes before final assembly of ProtoClass
+     * @param {class[]} RestInterfaces.
+     *If the  RestInterfaces[0] of the array is "true" (boolean type), then  extends custom  interface for class  the specified interfaces
+     * If the  RestInterfaces[1] of the array is "true" (boolean type), then apply extendClassFromOwnPrototypes before final assembly of ProtoClass. (then element[0] must be boolean type)
      */
     static extendInterfaces(ProtoClass,...RestInterfaces){
         let rules=this.buildInterface(ProtoClass);
         let isExtend=false;
+        let isExpand=false;
         if(typeof RestInterfaces[0] === 'boolean'){
-            isExtend=RestInterfaces[0];
+            isExpand=RestInterfaces[0];
+            if(typeof RestInterfaces[1] === 'boolean'){
+                isExtend=RestInterfaces[1];
+                RestInterfaces.splice(1,1);
+            } else if(Array.isArray(RestInterfaces[1])){
+
+            }
             RestInterfaces.splice(0,1);
+        } else if(typeof RestInterfaces[1] === 'boolean'){
+            RestInterfaces.splice(1,1);
         }
         if(RestInterfaces.length>0){
             for(let Interface of RestInterfaces){
-                let rulesInterface=this.buildInterface(Interface);
-                this.addRules(ProtoClass, rulesInterface);
+                if(!rules.interfaces.includes(Interface)){
+                    let rulesInterface=this.buildInterface(Interface);
+                    rules=this.addRules(ProtoClass, rulesInterface,isExpand);
+                }
             }
             rules=this.getInterfaceData(ProtoClass);
             if(isExtend){
                 let staticProps=Object.getOwnPropertyNames(rules.staticProps);
-                let protoProps=Object.getOwnPropertyNames(rules.staticProps);
+                let protoProps=Object.getOwnPropertyNames(rules.protoProps);
                 this.extendOwnPropertiesFromPrototypes(ProtoClass,protoProps,staticProps);
             }
             this.buildPropsClass(ProtoClass,rules);
@@ -629,31 +645,37 @@ export class InterfaceManager {
     }
 
     static expandInterfaces(ProtoClass,...RestInterfaces){
-
+        if(RestInterfaces.length>0){
+            if(typeof RestInterfaces[0]!=='boolean'){
+                RestInterfaces.splice(0,0,true);
+            } else {
+                RestInterfaces[0]=true;
+            }
+        }
+        InterfaceManager.extendInterfaces(ProtoClass,...RestInterfaces);
     }
 
     /**
      * Implements Interfaces in the class
      * Расширить правила Класса
      * @param {class}ProtoClass
-     * @param {class[]} RestInterfaces . If the first element of the array is "true" (boolean type), then apply extendClassFromOwnPrototypes before final assembly of ProtoClass
+     * @param {class[]} RestInterfaces .
+     * If the  RestInterfaces[0] of the array is "true" (boolean type), then  extends custom  interface for class  the specified interfaces
+     * If the  RestInterfaces[1] of the array is "true" (boolean type), then apply extendClassFromOwnPrototypes before final assembly of ProtoClass. (then element[0] must be boolean type)
+
      */
-    static  implementInterfaces (ProtoClass,RestInterfaces,isExpand=false){
+    static  implementInterfaces (ProtoClass,...RestInterfaces){
         if(typeof ProtoClass!=='function'){
             ProtoClass=Object.getPrototypeOf(ProtoClass).constructor;
         }
+
+        //=[],isExpand=false
         if(Object.getOwnPropertyNames(ProtoClass).includes('isInterface') && ProtoClass.isInterface){
             let message=`Cannot create instance from interface`;
             let entryPoints=[ProtoClass.name];
             throw new InterfaceError('ErrorType',{message,entryPoints});
         }
-        let rules;
-        if(isExpand){
-            rules=this.expandInterfaces(ProtoClass,...RestInterfaces);
-        } else{
-            rules=this.extendInterfaces(ProtoClass,...RestInterfaces);
-        }
-
+        let rules=this.extendInterfaces(ProtoClass,...RestInterfaces);
         this.validatePropsClass(ProtoClass,rules);
         return this.getInterfaceData(ProtoClass);
     }
@@ -668,9 +690,9 @@ export class InterfaceManager {
     /**
      * Регестрируем Класс - как конечную точку.  Т.е. дальше указанного класса по прототипам анализ и сборка не будет происходить.
      */
-    static setEndPoint(ProtoClass,EndPointClass){
-        let interfaces=this.initInterfaceData(ProtoClass);
-        interfaces.end_points=[EndPointClass];
+    static setEndPoints(ProtoClass,EndPoints=[]){
+        let interfacesData=this.initInterfaceData(ProtoClass);
+        interfacesData.end_points=EndPoints;
     }
     static getEndPoints(ProtoClass){
         if(this.hasInterfaceData(ProtoClass)){
@@ -686,8 +708,49 @@ export class InterfaceManager {
         }
         return end_points;
     }
+    static instanceOfInterface(object,Interface){
+        let ProtoClass=object;
+        let to=typeof object;
+        if(to==='object' && object!==null){
+            ProtoClass=Object.getPrototypeOf(object).constructor;
+        } else if(to!=='function'){
+            return false;
+        }
+        let interfacesData=InterfaceManager.getInterfaceData(ProtoClass);
+        if(interfacesData===undefined){
+            return false;
+        }
+        for(let iface of interfacesData.interfaces){
+            if(typeof iface==='function' && (iface===Interface || Interface.isPrototypeOf(iface))){
+                return true;
+            }
+        }
+        return false;
+    }
+    static freezePropСlass(ProtoClass,props=[]){
+       // запретить обьявленым свойствам класса перезаписываться и изменять конфигурацию
+        let descs=this.getDescriptors(ProtoClass.prototype);
+        for(let desc of descs){
+            desc.writable=false;
+            desc.configurable=false;
+        }
+        Object.defineProperties(ProtoClass.prototype,descs);
+
+        descs=this.getDescriptors(ProtoClass);
+        for(let desc of descs){
+            desc.writable=false;
+            desc.configurable=false;
+        }
+        Object.defineProperties(ProtoClass,descs);
+    }
+
 }
 InterfaceManager.end_points=[
     Object,
-    Function
+    Function,
+    InterfaceError,
+    InterfaceManager,
+    CriteriaReactType,
+    CriteriaMethodType,
+    CriteriaPropertyType
 ];

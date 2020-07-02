@@ -1,24 +1,38 @@
-import {InterfaceError} from './../../export.js';
+import {InterfaceError} from '../../src/export.js';
 InterfaceError.types.test='message test';
 QUnit.module( 'Class InterfaceError');
 
-QUnit.test('throw Interface Error for default type',function(assert){
-    try{
-        throw new InterfaceError();
-    }catch(e){
-        assert.equal(e.type,'default','{InterfaceError}.type');
-        assert.equal(e.message,'no message','{InterfaceError}.message');
-        assert.equal(e.name,'InterfaceError','{InterfaceError}.name');
-        assert.ok(true,e.stack);
-    };
-});
-QUnit.test('throw Interface Error',function(assert){
-    try{
-        throw new InterfaceError('test');
-    }catch(e){
-        assert.equal(e.type,'test','{InterfaceError}.type');
-        assert.equal(e.message,'message test','{InterfaceError}.message');
-        assert.equal(e.name,'InterfaceError','{InterfaceError}.name');
-        assert.ok(true,e.stack);
-    };
+QUnit.test('Test Constructor',function(assert){
+    assert.throws(function(){
+        throw new InterfaceError('NO_TYPE');
+    },function(e){
+        return e.type === 'NO_TYPE' && e.message === "NO_TYPE:  - ";
+    },'test default type Error');
+
+    assert.throws(function(){
+        throw new InterfaceError('NO_TYPE',{entryPoints:['points1','points2']});
+    },function(e){
+        return e.type === 'NO_TYPE' && e.message === "NO_TYPE: [points1][points2] - ";
+    },'test vars.entryPoints');
+
+
+    assert.throws(function(){
+        throw new InterfaceError('NO_TYPE',{errors:['errorString','errorString']});
+    },function(e){
+        return e.type === 'NO_TYPE' && e.message === "NO_TYPE:  - \n   errorString\n   errorString";
+    },'test vars.errors');
+
+    assert.throws(function(){
+        throw new InterfaceError('NO_TYPE',{errors:[new InterfaceError('NO_TYPE2',{message:'error message'}),new InterfaceError('NO_TYPE2',{message:'error message'})]});
+    },function(e){
+        return e.type === 'NO_TYPE' && e.message === "NO_TYPE:  - \n" +
+            "   NO_TYPE2:  - error message\n" +
+            "   NO_TYPE2:  - error message";
+    },'test vars.errors 2');
+    assert.throws(function(){
+        throw new InterfaceError('ErrorType',{message:'error type'});
+    },function(e){
+        console.log([e]);
+        return e.type === 'ErrorType' && e.message === "ErrorType:  - error type";
+    },'test ErrorType type');
 });

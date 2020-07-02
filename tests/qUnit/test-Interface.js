@@ -1,4 +1,4 @@
-import {InterfaceManager} from './../../export.js';
+import {InterfaceManager} from '../../src/export.js';
 
 QUnit.module( 'Class InterfaceError');
 
