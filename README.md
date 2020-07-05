@@ -8,4 +8,4 @@
 # Documentation
 
 [Russian](docs/ru)
-[English](docs/en)
+[English](https://github.com/ALexeyP0708/Js-Interfaces/wiki)

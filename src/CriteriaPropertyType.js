@@ -89,7 +89,7 @@ export class CriteriaPropertyType {
             }
             let entryPoints = [`types[${k}]`];
             let tt = typeof types[k];
-            if (!(['function'].includes(tt) || tt === 'string' && ['null', 'undefined', 'object', 'boolean', 'number', 'string', 'symbol', 'function', 'mixed'].includes(types[k]))) {
+            if (!(['function','object'].includes(tt) || tt === 'string' && ['null', 'undefined', 'object', 'boolean', 'number', 'string', 'symbol', 'function', 'mixed'].includes(types[k]))) {
                 let error = new InterfaceError('InitTypes_badType', {entryPoints, className:Object.getPrototypeOf(this).constructor.name});
                 errors.push(error);
             }
@@ -207,14 +207,17 @@ export class CriteriaPropertyType {
         let check = false;
         for (let type of this.types) {
             let tt = typeof type;
+            if(type===null){tt='null';}
             if (tt === 'string') {
                 types_string.push(type);
+            } else  if (tt === 'object') {
+                types_string.push(`[object ${Object.getPrototypeOf(type).constructor.name}]`);
             } else {
                 types_string.push(`[function ${type.name}]`);
             }
             if (
                 tt === 'string' && (type === 'mixed' || tv === type)
-                || tt === 'function' && this.instanceOf(value, type)
+                ||  this.instanceOf(value, type)
             ) {
                 check = true;
                 break;
@@ -236,12 +239,12 @@ export class CriteriaPropertyType {
             let check = false;
             for (let equal of equalValues) {
                 let te = typeof equal;
-                if (te === 'function') {
-                    if (this.instanceOf(value, equal)) {
-                        check = true;
+                if (te === 'function' || te === 'object' && equal!==null) {
+                    if(this.instanceOf(value, equal)){
+                        check =true;
                         break;
                     }
-                } else if (value === equal) {
+                } else if(value === equal){
                     check = true;
                     break;
                 }
@@ -279,13 +282,13 @@ export class CriteriaPropertyType {
             let check = false;
             for (let equal of equalValues) {
                 let te = typeof equal;
-                if (te === 'function') {
-                    if (this.instanceOf(value, equal)) {
-                        check = true;
-                        break;
+                if (te === 'function' || te === 'object' && equal!==null) {
+                    if(this.instanceOf(value, equal)){
+                        check =true;
                     }
-                } else if (value === equal) {
-                    check = true;
+                    break;
+                } else if( value === equal) {
+                    check =true;
                     break;
                 }
             }
@@ -315,12 +318,12 @@ export class CriteriaPropertyType {
             let check = true;
             for (let equal of equalValues) {
                 let te = typeof equal;
-                if (te === 'function') {
-                    if (this.instanceOf(value, equal)) {
-                        check = false;
+                if (te === 'function' || te === 'object' && equal!==null) {
+                    if(this.instanceOf(value, equal)){
+                        check =false;
                         break;
                     }
-                } else if (value === equal) {
+                } else  if(value === equal){
                     check = false;
                     break;
                 }
@@ -448,15 +451,19 @@ export class CriteriaPropertyType {
     }
     instanceOf(value, EqualClass) {
         let tv=typeof value;
+        let te=typeof EqualClass;
         if(tv==='object' && value!== null || tv==='function'){
-            return value === EqualClass || value instanceof EqualClass || EqualClass.isPrototypeOf(value) || this.instanceOfInterface(value, EqualClass)
+            return value === EqualClass
+                || te==='function' && value instanceof EqualClass
+                || EqualClass.isPrototypeOf(value)
+                || this.instanceOfInterface(value, EqualClass)
+        } else if(te==='function' && ['boolean','number','string','symbol'].includes(tv)){
+            return Object.getPrototypeOf(value).constructor===EqualClass;
         }
         return false;
     }
 
     instanceOfInterface(value, EqualClass) {
-        // извлекаем интерфейсы из value,
-        // сопостовляем Интерфейсы классу
         return InterfaceManager.instanceOfInterface(value,EqualClass);
     }
 

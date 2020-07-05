@@ -32,7 +32,6 @@ QUnit.test('Test Constructor',function(assert){
     assert.throws(function(){
         throw new InterfaceError('ErrorType',{message:'error type'});
     },function(e){
-        console.log([e]);
         return e.type === 'ErrorType' && e.message === "ErrorType:  - error type";
     },'test ErrorType type');
 });

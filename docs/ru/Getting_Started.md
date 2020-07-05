@@ -697,18 +697,18 @@ InterfaceManager.extendInterfaces(MyInterface2);
 ```js
 class MyInterface{
 	get react(){ // шаблон CriteriaPropertyType
-		return:{
+		return {
 			types:['number','string']
 		} 
 	}
 	set react(v){ // шаблон CriteriaPropertyType
-		return{
-				types:'number'
-			} 
-		}
+		return {
+            types:'number'
+        } 
+		
 	}
 	get react2(){ // шаблон CriteriaMethodType {return:{}}
-		return{
+		return {
 			return:{
 				types:'number'
 			} 
