@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    "plugins/markdown",
+    "../@alexeyp0708/jsdoc_plugin_short_to_long_name/short_to_long_name.js"
+  ],
+  "opts": {
+    "template": "../node_modules/minami"
+  }
+}

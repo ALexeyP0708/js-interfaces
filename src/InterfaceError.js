@@ -58,7 +58,7 @@ InterfaceError.types={
     //InitIncludes:"",
     //InitExcludes:"",
     //Validate:"",
-    ValidateType:`{$type}: {$entryPoints} - Expected type of "{$expectedTypes}"  but defined by "{$definedType}".`,
+    ValidateType:`{$type}: {$entryPoints} - Expected type of "{$expectedTypes}"  but defined by "{$definedType}".{$errors}`,
     ValidateInValues:"{$type}: {$entryPoints} - \"{$value}\" does not match the values ​​in stack",
     ValidateInIncludes:"{$type}: {$entryPoints} - \"{$value}\" is not present in 'includes' stack",
     ValidateInExcludes:"{$type}: {$entryPoints} - \"{$value}\" is not present in 'excludes' stack",

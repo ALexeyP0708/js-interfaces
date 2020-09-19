@@ -1,6 +1,9 @@
 import {InterfaceError} from "./InterfaceError.js";
 export {InterfaceError};
 
+import {CriteriaType} from "./CriteriaType.js";
+export {CriteriaType};
+
 import {CriteriaPropertyType} from "./CriteriaPropertyType.js";
 export {CriteriaPropertyType};
 
@@ -10,8 +13,9 @@ export {CriteriaMethodType};
 import {CriteriaReactType} from "./CriteriaReactType.js";
 export {CriteriaReactType};
 
-//import {CriteriaType} from "./CriteriaType.js";
-//export {CriteriaType};
-
 import {InterfaceManager} from "./InterfaceManager.js";
 export {InterfaceManager};
+
+import {CriteriaMirrorInterface} from "./CriteriaMirrorInterface.js";
+export {CriteriaMirrorInterface};
+

@@ -1911,6 +1911,7 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
 
         };
         class Other{}
+        let Audio=()=>{};
         InterfaceManager.setEndPoints(Test2,[Other]);
         InterfaceManager.addGlobalEndPoints([Audio]);
         assert.deepEqual(InterfaceManager.getAllEndPoints(),end_points.concat([Audio]),'addGlobalEndPoints/getAllEndPoints(undefined)');

@@ -1,0 +1,32 @@
+{
+  "name": "@alexeyp0708/interface-manager",
+  "version": "1.0.0",
+  "description": "Interface simulation for classes",
+  "type": "module",
+  "main": "./src/export.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "npx qunit-m tests/qunit/test-*.js",
+    "jsdoc": "npx jsdoc ./src ./README.md src -d docs -c docs/jsdoc_conf.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ALexeyP0708/js-interfaces.git"
+  },
+  "devDependencies": {
+    "@alexeyp0708/qunit_run_module_es6": "^1.0.1",
+    "minami": "1.2.3"
+  },
+  "author": "Alexey Pakhomov (alexeyp0708@gmail.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ALexeyP0708/js-interfaces/issues"
+  },
+  "homepage": "https://github.com/ALexeyP0708/js-interfaces",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}

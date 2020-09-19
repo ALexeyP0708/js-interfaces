@@ -1,7 +1,69 @@
-import {InterfaceError,CriteriaPropertyType} from "./export.js";
+/**
+ * @module @alexeyp0708/interface-manager
+ */
 
-export class CriteriaMethodType{
+import {InterfaceError,CriteriaPropertyType,CriteriaType} from "./export.js";
+
+/**
+ * An instance of the CriteriaMethodType class stores the criteria for a method
+ * @prop {CriteriaPropertyType[]} arguments - Criteria for arguments
+ * ```js
+ * {
+ *      arguments:[
+ *          CriteriaPropertyType { 
+ *              types,
+ *              includes,
+ *              excludes,
+ *              options
+ *          },
+ *           CriteriaPropertyType { 
+ *              types,
+ *              includes,
+ *              excludes,
+ *              options
+ *          },
+ *          ...
+ *      
+ *      ]
+ *}
+ * ```
+ * @prop {CriteriaPropertyType} return - Criteria for return result
+ * ```js
+ * {
+ *     return : CriteriaPropertyType { 
+ *              types,
+ *              includes,
+ *              excludes,
+ *              options
+ *      }
+ * }
+ * ```
+ * @prop {object} options - settings for criteria
+ * ```js
+ * {
+ *     options:{entryPoints:[],owner:''}
+ * }
+ * ```
+ */
+export class CriteriaMethodType extends CriteriaType{
+    /**
+     * @param {object} criteria   The object is passed the criteria for the method. 
+     * The object must repeat the construction of an instance of the CriteriaMethodType class.
+     * Example:
+     * ```js
+     * {
+     *     arguments:[
+     *         {types:'number'}
+     *     ],
+     *     return:{
+     *         types:'number'
+     *     }
+     * }
+     * ```
+     * @throws {InterfaceError}  InterfaceError.type==='Init_BadArgumentsOrReturn'
+     */
     constructor(criteria={}){
+        super(criteria);
         Object.defineProperties(this,{
             arguments:{
                 enumerable:true,
@@ -14,15 +76,8 @@ export class CriteriaMethodType{
                 configurable:true,
                 writable:true,
                 value:{}
-            },
-            options: {
-                enumerable: true,
-                configurable: true,
-                writable: true,
-                value: {}
             }
         });
-        this.initOptions(criteria.options);
         let errors=[];
         try {
             this.initArguments(criteria.arguments,[]);
@@ -45,23 +100,24 @@ export class CriteriaMethodType{
         if (errors.length > 0) {
             throw new InterfaceError('Init_BadArgumentsOrReturn', {entryPoints: this.options.entryPoints, errors});
         }
-        //this.freeze();
     }
-    initOptions(options={}){
-        this.options={};
-        this.options.entryPoints='entryPoints' in options?options.entryPoints:['not_defined'];
-        this.options.owner=options.hasOwnProperty('owner')?options.owner:class not_defined {};
-    }
+    /**
+     * @inheritdoc
+     */
     setOwner(owner){
-        this.options.owner=owner;
+        super.setOwner(owner);
         for(let argument of this.arguments){
             argument.setOwner(owner);
         }
         this.return.setOwner(owner);
     }
-    getOwner(){
-        return this.options.owner;
-    }
+
+    /**
+     * Initializes criteria for arguments in the current object
+     * @param {[]} args
+     * @param {[]} entryPoints  Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError.type==='InitArguments'
+     */
     initArguments(args=[],entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
         if(!Array.isArray(args)){
@@ -82,6 +138,13 @@ export class CriteriaMethodType{
             this.arguments.push(criteria);
         }
     }
+
+    /**
+     * Initializes criteria for the return value in the current object
+     * @param {object} rtrn
+     * @param {[]} entryPoints  Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError.type==='InitReturn'
+     */
     initReturn(rtrn={},entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
         if(typeof rtrn !=='object' || rtrn==null){
@@ -98,6 +161,13 @@ export class CriteriaMethodType{
         criteria=new CriteriaPropertyType(criteria);
         this.return=criteria;
     }
+
+    /**
+     * checks method arguments according to criteria
+     * @param {[]} args
+     * @param {[]} entryPoints  Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError.typw==='ValidateArguments'
+     */
     validateArguments(args,entryPoints=['not_defined']){
         let errors=[];
         entryPoints=Object.assign([],entryPoints);
@@ -115,10 +185,25 @@ export class CriteriaMethodType{
             throw new InterfaceError('ValidateArguments',{errors,entryPoints});
         }
     }
+
+    /**
+     * checks method return data according to criteria
+     * @param rtrn
+     * @param entryPoints Indicate where the method call came from
+     * @throws {InterfaceError} 
+     */
     validateReturn(rtrn,entryPoints=['not_defined']){
         entryPoints=entryPoints.concat(['return']);
         this.return.validate(rtrn,entryPoints);
     }
+
+    /**
+     * Compares criteria. Necessary when expanding criteria
+     * @param {CriteriaMethodType|CriteriaType} criteria  If the criteria do not match the CriteriaMethodType type 
+     * then a BadCriteria error will be thrown
+     * @param entryPoints Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError=== 'BadCriteria|Compare_badArgument|CompareMethod_badParams'
+     */ 
     compare(criteria,entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
         let errors=[];
@@ -157,6 +242,14 @@ export class CriteriaMethodType{
             throw new InterfaceError('CompareMethod_badParams',{errors,entryPoints});
         }
     }
+
+    /**
+     * Expands the current object with the passed
+     * @param criteria  If the criteria do not match the CriteriaMethodType type
+     * then a BadCriteria error will be thrown
+     * @param entryPoints Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError.type===BadCriteria|ExpandMethod_badParams
+     */
     expand(criteria,entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
         let errors=[];
@@ -191,8 +284,5 @@ export class CriteriaMethodType{
         if(errors.length>0){
             throw new InterfaceError('ExpandMethod_badParams',{errors,entryPoints});
         }
-    }
-    freeze(){
-        Object.freeze(this);
     }
 }
