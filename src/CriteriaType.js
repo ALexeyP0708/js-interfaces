@@ -1,4 +1,7 @@
-import {} from  "./export.js";;
+/**
+ * @module @alexeyp0708/interface-manager
+ */
+//import {} from  "./export.js";;
 
 export class CriteriaType{
     constructor (criteria){
@@ -15,11 +18,11 @@ export class CriteriaType{
     }
     /**
      * Sets options and settings for the current object
-     * @param options
+     * @param {object} options
      * ```js
      * {
-     *   entryPoints:'string',
-     *   owner: class OwnerCriteria{} 
+     *      entryPoints:'string',
+     *      owner: class OwnerCriteria{ } 
      * }
      * ```
      */

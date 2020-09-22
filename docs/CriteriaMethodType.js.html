@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>CriteriaMethodType.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html">CriteriaMethodType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#compare">compare</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#expand">expand</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#initArguments">initArguments</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#initReturn">initReturn</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#setOwner">setOwner</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#validateArguments">validateArguments</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#validateReturn">validateReturn</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMirrorInterface.html">CriteriaMirrorInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMirrorInterface.html#.createInterface">createInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMirrorInterface.html#.validate">validate</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html">CriteriaPropertyType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#compare">compare</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#compareExcludes">compareExcludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#compareIncludes">compareIncludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#compareType">compareType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#expand">expand</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#freeze">freeze</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#initExcludes">initExcludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#initIncludes">initIncludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#initTypes">initTypes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#instanceOf">instanceOf</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#instanceOfInterface">instanceOfInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#isIncludeInValues">isIncludeInValues</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#validate">validate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#validateInExcludes">validateInExcludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#validateInIncludes">validateInIncludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#validateType">validateType</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html">CriteriaReactType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#compare">compare</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#expand">expand</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#initGet">initGet</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#initSet">initSet</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#setOwner">setOwner</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#validateGet">validateGet</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#validateSet">validateSet</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceError.html">InterfaceError</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html">InterfaceManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.addGlobalEndPoints">addGlobalEndPoints</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.addRules">addRules</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.buildInterface">buildInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.buildPropsClass">buildPropsClass</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.buildPropsDescriptors">buildPropsDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.clearClass">clearClass</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.expandAndSetRule">expandAndSetRule</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.extendInterfaces">extendInterfaces</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.extendOwnPropertiesFromPrototypes">extendOwnPropertiesFromPrototypes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.extractOwnDescriptors">extractOwnDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.freezeProp%25D0%25A1lass">freezePropСlass</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.generateDescriptorsRules">generateDescriptorsRules</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.generateRules">generateRules</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getAllEndPoints">getAllEndPoints</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getDescriptors">getDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getEndPoints">getEndPoints</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getInterfaceData">getInterfaceData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getProtoDescriptors">getProtoDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.hasInterfaceData">hasInterfaceData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.implementInterfaces">implementInterfaces</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.initInterfaceData">initInterfaceData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.initRules">initRules</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.instanceOfInterface">instanceOfInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.setEndPoints">setEndPoints</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.setInterfaceData">setInterfaceData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.validateDescriptors">validateDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.validatePropsClass">validatePropsClass</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.validatePropsObject">validatePropsObject</a></span></li><li class="nav-heading">Modules</li><li class="nav-heading"><span class="nav-item-type type-module">M</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.html">@alexeyp0708/interface-manager</a></span></li><li class="nav-heading">Namespaces</li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceError.types.html">types</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">CriteriaMethodType.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module @alexeyp0708/interface-manager
+ */
+
+import {InterfaceError,CriteriaPropertyType,CriteriaType} from "./export.js";
+
+/**
+ * An instance of the CriteriaMethodType class stores the criteria for a method
+ * @prop {CriteriaPropertyType[]} arguments - Criteria for arguments
+ * ```js
+ * {
+ *      arguments:[
+ *          CriteriaPropertyType { 
+ *              types,
+ *              includes,
+ *              excludes,
+ *              options
+ *          },
+ *           CriteriaPropertyType { 
+ *              types,
+ *              includes,
+ *              excludes,
+ *              options
+ *          },
+ *          ...
+ *      
+ *      ]
+ *}
+ * ```
+ * @prop {CriteriaPropertyType} return - Criteria for return result
+ * ```js
+ * {
+ *     return : CriteriaPropertyType { 
+ *              types,
+ *              includes,
+ *              excludes,
+ *              options
+ *      }
+ * }
+ * ```
+ * @prop {object} options - settings for criteria
+ * ```js
+ * {
+ *     options:{
+ *          entryPoints:[],
+ *          owner:''
+ *     }
+ * }
+ * ```
+ */
+export class CriteriaMethodType extends CriteriaType{
+    /**
+     * @param {object} criteria   The object is passed the criteria for the method.  
+     * The object must repeat the construction of an instance of the CriteriaMethodType class.    
+     *```js
+     *  {
+     *     arguments:[
+     *         { 
+     *              types:'number' 
+     *         }
+     *     ],
+     *     return:{
+     *         types:'number'
+     *     }
+     *  }
+     * ```
+     * @throws {InterfaceError}  Errors {@link .InterfaceError.types.default default}  {@link .InterfaceError.types#default default}
+     */
+    constructor(criteria={}){
+        super(criteria);
+        Object.defineProperties(this,{
+            arguments:{
+                enumerable:true,
+                configurable:true,
+                writable:true,
+                value:[]
+            },
+            return:{
+                enumerable:true,
+                configurable:true,
+                writable:true,
+                value:{}
+            }
+        });
+        let errors=[];
+        try {
+            this.initArguments(criteria.arguments,[]);
+        } catch (e) {
+            if (e instanceof InterfaceError) {
+                errors.push(e);
+            } else {
+                throw e;
+            }
+        };
+        try {
+            this.initReturn(criteria.return,[]);
+        } catch (e) {
+            if (e instanceof InterfaceError) {
+                errors.push(e);
+            } else {
+                throw e;
+            }
+        };
+        if (errors.length > 0) {
+            throw new InterfaceError('Init_BadArgumentsOrReturn', {entryPoints: this.options.entryPoints, errors});
+        }
+    }
+    /**
+     * @inheritdoc
+     */
+    setOwner(owner){
+        super.setOwner(owner);
+        for(let argument of this.arguments){
+            argument.setOwner(owner);
+        }
+        this.return.setOwner(owner);
+    }
+
+    /**
+     * Initializes criteria for arguments in the current object
+     * @param {Array} args
+     * @param {Array} entryPoints  Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError.type==='InitArguments'
+     */
+    initArguments(args=[],entryPoints=['not_defined']){
+        entryPoints=Object.assign([],entryPoints);
+        if(!Array.isArray(args)){
+            throw new InterfaceError('InitArguments',{entryPoints,className:Object.getPrototypeOf(this).constructor.name});
+        }
+        for(let arg of args) {
+            if(arg===undefined){
+                arg={
+                    types:['undefined']
+                };
+            }
+            let criteria=Object.assign({},arg);
+            if(criteria.options===undefined){
+                criteria.options={};
+            }
+            criteria.options=Object.assign({},this.options,criteria.options,{entryPoints:entryPoints});
+            criteria=new CriteriaPropertyType(criteria);
+            this.arguments.push(criteria);
+        }
+    }
+
+    /**
+     * Initializes criteria for the return value in the current object
+     * @param {object} rtrn
+     * @param {Array} entryPoints  Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError.type==='InitReturn'
+     */
+    initReturn(rtrn={},entryPoints=['not_defined']){
+        entryPoints=Object.assign([],entryPoints);
+        if(typeof rtrn !=='object' || rtrn==null){
+            throw new InterfaceError('InitReturn',{entryPoints,className:Object.getPrototypeOf(this).constructor.name});
+        }
+        let criteria=Object.assign({},rtrn);
+        if(criteria.types===undefined){
+            criteria.types=['mixed'];
+        }
+        if(criteria.options===undefined){
+            criteria.options={};
+        }
+        criteria.options=Object.assign({},this.options,criteria.options,{entryPoints:entryPoints});
+        criteria=new CriteriaPropertyType(criteria);
+        this.return=criteria;
+    }
+
+    /**
+     * Validation for method arguments according to criteria
+     * @param {Array} args
+     * @param {Array} entryPoints  Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError.typw==='ValidateArguments'
+     */
+    validateArguments(args,entryPoints=['not_defined']){
+        let errors=[];
+        entryPoints=Object.assign([],entryPoints);
+        for(let n in this.arguments){
+            n=Number(n);
+            try{
+                this.arguments[n].validate(args[n],[`arguments[${n+1}]`]);
+            } catch(e){
+                if(e instanceof InterfaceError ){
+                    errors.push(e);
+                }
+            }
+        }
+        if(errors.length>0){
+            throw new InterfaceError('ValidateArguments',{errors,entryPoints});
+        }
+    }
+
+    /**
+     * Validation for method return data according to criteria
+     * @param rtrn
+     * @param {Array} entryPoints  Indicate where the method call came from
+     * @throws {InterfaceError} 
+     */
+    validateReturn(rtrn,entryPoints=['not_defined']){
+        entryPoints=entryPoints.concat(['return']);
+        this.return.validate(rtrn,entryPoints);
+    }
+
+    /**
+     * Compares criteria. Necessary when expanding criteria  
+     * Rules:  
+     * - The number of arguments in the passed criteria must be at least in the current criteria(object)
+     * - The criteria for the arguments of the passed object must match the criteria for the arguments of the current object
+     * - The criteria for the returned object must match the criteria for the current object
+     * @param {CriteriaMethodType|CriteriaType} criteria  If the criteria do not match the CriteriaMethodType type 
+     * then a BadCriteria error will be thrown
+     * @param entryPoints Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError=== 'BadCriteria|Compare_badArgument|CompareMethod_badParams'
+     */ 
+    compare(criteria,entryPoints=['not_defined']){
+        entryPoints=Object.assign([],entryPoints);
+        let errors=[];
+        if(!(criteria instanceof Object.getPrototypeOf(this).constructor)){
+            throw new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(this).constructor.name});
+        }
+        for(let k=0; k&lt;this.arguments.length;k++){
+            if(!(k in criteria.arguments)){
+                if(!this.arguments[k].types.includes('mixed') &amp;&amp; !this.arguments[k].types.includes('undefined')){
+                    let error= new InterfaceError('Compare_badArgument',{entryPoints:[`argument ${k+1}`]});
+                    errors.push(error.message);
+                }
+            } else {
+                try {
+                    this.arguments[k].compare(criteria.arguments[k],[`argument ${k+1}`]);
+                }catch (error) {
+                    if(error instanceof InterfaceError){
+                        errors.push(error);
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+        }
+        try {
+            this.return.compare(criteria.return,[`return`]);
+        } catch (error) {
+            if(error instanceof InterfaceError){
+                errors.push(error);
+            } else {
+                throw error;
+            }
+        }
+        if(errors.length>0){
+            throw new InterfaceError('CompareMethod_badParams',{errors,entryPoints});
+        }
+    }
+
+    /**
+     * Expands the current object with the passed
+     * @param criteria  If the criteria do not match the CriteriaMethodType type
+     * then a BadCriteria error will be thrown
+     * @param entryPoints Indicate where the method call came from
+     * @throws {InterfaceError} InterfaceError.type===BadCriteria|ExpandMethod_badParams
+     */
+    expand(criteria,entryPoints=['not_defined']){
+        entryPoints=Object.assign([],entryPoints);
+        let errors=[];
+        if(!(this instanceof Object.getPrototypeOf(criteria).constructor)){
+            throw new InterfaceError('BadCriteria',{className:Object.getPrototypeOf(criteria).constructor.name,entryPoints});
+        }
+        for(let k in criteria.arguments){
+            k=Number(k);
+            if(!(k in this.arguments)){
+               this.arguments.push(criteria.arguments[k]);
+            } else {
+                try {
+                    this.arguments[k].expand(criteria.arguments[k],[`argument ${k+1}`]);
+                } catch (error) {
+                    if(error instanceof InterfaceError){
+                        errors.push(error);
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+        }
+        try {
+            this.return.expand(criteria.return,[`return`]);
+        } catch (error) {
+            if(error instanceof InterfaceError){
+                errors.push(error);
+            } else {
+                throw error;
+            }
+        }
+        if(errors.length>0){
+            throw new InterfaceError('ExpandMethod_badParams',{errors,entryPoints});
+        }
+    }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.5</a> on Mon Sep 21 2020 01:23:18 GMT+0500 (Екатеринбург, стандартное время) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

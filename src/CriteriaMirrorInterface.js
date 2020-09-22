@@ -1,5 +1,21 @@
+/**
+ * @module @alexeyp0708/interface-manager
+ */
+
 import{InterfaceManager,InterfaceError} from "./export.js";
+
+/**
+ * An interface that is inherited by other interfaces in order to create a "mirror" check for objects or classes.
+ * Object / Class will match the mirror rules.
+ * The mirror interface assigns rules, but does not make changes to the object / class being checked. 
+ * Thus, it will not be possible to validate arguments and return values ​​for methods and reactive properties.
+ */
 export class CriteriaMirrorInterface {
+    /**
+     * Validation the object for matching properties according to the criteria of the current interface
+     * @param {object|Function} object
+     * @param entryPoints
+     */
    static validate (object,entryPoints = ['not_defined']){
        //let ProtoClass=Object.getPrototypeOf(this);// parent
        let ProtoClass=this;//this.prototype.constructor;
@@ -8,23 +24,32 @@ export class CriteriaMirrorInterface {
            InterfaceManager.extendInterfaces(ProtoClass);
        }
        let rules=InterfaceManager.getInterfaceData(ProtoClass);
-       InterfaceManager.getInterfaceData(ProtoClass);
-       let errors=InterfaceManager.validatePropsObject(object,rules.protoProps);
+       let errors=[];
+       if(typeof object === 'function' ){
+           try{
+               InterfaceManager.validatePropsClass(object,rules);
+           } catch(e){
+               if(!(e instanceof InterfaceError)){
+                   throw e;
+               }
+               errors.push(e);
+           }
+       } else {
+           errors=InterfaceManager.validatePropsObject(object,rules.protoProps);
+       }
        if (errors.length > 0) {
            throw new InterfaceError('Validate_BadMirrorProperties', {errors, entryPoints});
        }
    }
 
     /**
-     * 
-     * @param {string|class|undefined} ProtoClass
-     * @param protoProp
-     * @param staticProp
+     * Creates an interface that inherits the current interface (class CriteriaMirrorInterface) 
+     * Creates a class if string, and assigns instance properties and static properties to this class.
+     * @param {string|class|undefined} ProtoClass  Class name or class. 
+     * @param {} protoProp
+     * @param {} staticProp
      */
    static createInterface(ProtoClass,protoProp={},staticProp={}){
-      
-        
-       //------
        let tc= typeof ProtoClass;
        if(tc===undefined){
            [ProtoClass]=[class extends CriteriaMirrorInterface{}];

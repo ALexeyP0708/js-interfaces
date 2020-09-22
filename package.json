@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "npx qunit-m tests/qunit/test-*.js",
-    "jsdoc": "npx jsdoc ./src ./README.md src -d docs -c docs/jsdoc_conf.json"
+    "jsdoc": "npx jsdoc ./src ./README.md -d docs -c docs/jsdoc_conf.json"
   },
   "repository": {
     "type": "git",

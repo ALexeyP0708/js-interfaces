@@ -1,5 +1,13 @@
 import {CriteriaPropertyType,InterfaceError} from '../../src/export.js';
-
+Object.defineProperty(Object.prototype,'copy',{
+    value:function(){
+        let obj={};
+        if(this instanceof Array){
+            obj=[];
+        }
+        return Object.assign(obj,this);
+    }
+});
 
 QUnit.module( 'Class CriteriaPropertyType');
 QUnit.test('test methods CriteriaPropertyType',function(assert){
@@ -140,23 +148,7 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
             return e instanceof InterfaceError;
         },'throw validateInIncludes');
     }
-    // validateInValues
 
-    {
-        criteria.validateInValues(10,criteria.includes);
-        criteria.validateInValues(null,criteria.includes);
-        criteria.validateInValues(undefined,criteria.includes);
-        criteria.validateInValues(new A,criteria.includes);
-        criteria.validateInValues(A,criteria.includes);
-        criteria.validateInValues(new B,criteria.includes);
-        criteria.validateInValues(B,criteria.includes);
-        assert.ok(true,'validateInValues');
-        assert.throws(function(){
-            criteria.validateInValues(11,criteria.includes);
-        },function(e){
-            return e instanceof InterfaceError;
-        },'throw validateInValues');
-    }
 
     // initExcludes
 
@@ -233,7 +225,6 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     {
         {
             let criteria2=new CriteriaPropertyType({
-
                 types:[A],
                 includes:[A],
                 excludes:[B]

@@ -2,6 +2,7 @@ import {CriteriaMirrorInterface,InterfaceError, InterfaceManager} from '../../sr
 
 QUnit.module( 'Class CriteriaMirrorInterface');
 QUnit.test('test methods CriteriaMirrorInterface',function(assert){
+    
     {
         class MirrorTest extends CriteriaMirrorInterface {
 
@@ -25,6 +26,7 @@ QUnit.test('test methods CriteriaMirrorInterface',function(assert){
             return false;
         },'CriteriaMirrorInterface.validate method');
     }
+    
     {
         class MirrorTest extends CriteriaMirrorInterface {
         };
@@ -80,6 +82,72 @@ QUnit.test('test methods CriteriaMirrorInterface',function(assert){
             }
             return false;
         },'CriteriaMirrorInterface.validate method 3');
+    }
+//
+    {
+       class Mirror extends CriteriaMirrorInterface{
+           
+       }
+        CriteriaMirrorInterface.createInterface(Mirror,{
+            method(){
+                return {
+                    arguments:[
+                        {
+                            types:['number']
+                        }
+                    ]
+                };
+            }
+        },{
+            method2(){
+                return {
+                    arguments:[
+                        {
+                            types:['number']
+                        }
+                    ]
+                };
+            }
+        });
+       class InterfaceTest{
+           static test(){
+                return {
+                    arguments:[
+                        {
+                            types:[Mirror]
+                        }
+                    ]
+                };
+            }   
+       };
+        InterfaceTest.isInterface=true;
+        class Factory{
+            static test(Class){
+                console.log([Class]);
+                Class.method2('hello');
+            }
+        };  
+        InterfaceManager.extendInterfaces(Factory,InterfaceTest);
+        class Hello{
+            method(arg){}
+        };
+        class SubHello extends Hello {
+            //static method2(arg){}
+        }
+        assert.throws(
+            function(){
+                Factory.test(SubHello);
+            },
+            function(e){
+                if(e instanceof InterfaceError && e.type==='ValidateArguments'){
+                    return true;
+                }
+                return false;
+            },'check mirror class  properties'
+            
+        );
+       
+       
     }
     
     

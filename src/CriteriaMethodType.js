@@ -41,26 +41,30 @@ import {InterfaceError,CriteriaPropertyType,CriteriaType} from "./export.js";
  * @prop {object} options - settings for criteria
  * ```js
  * {
- *     options:{entryPoints:[],owner:''}
+ *     options:{
+ *          entryPoints:[],
+ *          owner:''
+ *     }
  * }
  * ```
  */
 export class CriteriaMethodType extends CriteriaType{
     /**
-     * @param {object} criteria   The object is passed the criteria for the method. 
-     * The object must repeat the construction of an instance of the CriteriaMethodType class.
-     * Example:
-     * ```js
-     * {
+     * @param {object} criteria   The object is passed the criteria for the method.  
+     * The object must repeat the construction of an instance of the CriteriaMethodType class.    
+     *```js
+     *  {
      *     arguments:[
-     *         {types:'number'}
+     *         { 
+     *              types:'number' 
+     *         }
      *     ],
      *     return:{
      *         types:'number'
      *     }
-     * }
+     *  }
      * ```
-     * @throws {InterfaceError}  InterfaceError.type==='Init_BadArgumentsOrReturn'
+     * @throws {InterfaceError}  Errors {@link .InterfaceError.types.default default}  {@link .InterfaceError.types#default default}
      */
     constructor(criteria={}){
         super(criteria);
@@ -114,8 +118,8 @@ export class CriteriaMethodType extends CriteriaType{
 
     /**
      * Initializes criteria for arguments in the current object
-     * @param {[]} args
-     * @param {[]} entryPoints  Indicate where the method call came from
+     * @param {Array} args
+     * @param {Array} entryPoints  Indicate where the method call came from
      * @throws {InterfaceError} InterfaceError.type==='InitArguments'
      */
     initArguments(args=[],entryPoints=['not_defined']){
@@ -142,7 +146,7 @@ export class CriteriaMethodType extends CriteriaType{
     /**
      * Initializes criteria for the return value in the current object
      * @param {object} rtrn
-     * @param {[]} entryPoints  Indicate where the method call came from
+     * @param {Array} entryPoints  Indicate where the method call came from
      * @throws {InterfaceError} InterfaceError.type==='InitReturn'
      */
     initReturn(rtrn={},entryPoints=['not_defined']){
@@ -163,9 +167,9 @@ export class CriteriaMethodType extends CriteriaType{
     }
 
     /**
-     * checks method arguments according to criteria
-     * @param {[]} args
-     * @param {[]} entryPoints  Indicate where the method call came from
+     * Validation for method arguments according to criteria
+     * @param {Array} args
+     * @param {Array} entryPoints  Indicate where the method call came from
      * @throws {InterfaceError} InterfaceError.typw==='ValidateArguments'
      */
     validateArguments(args,entryPoints=['not_defined']){
@@ -187,9 +191,9 @@ export class CriteriaMethodType extends CriteriaType{
     }
 
     /**
-     * checks method return data according to criteria
+     * Validation for method return data according to criteria
      * @param rtrn
-     * @param entryPoints Indicate where the method call came from
+     * @param {Array} entryPoints  Indicate where the method call came from
      * @throws {InterfaceError} 
      */
     validateReturn(rtrn,entryPoints=['not_defined']){
@@ -198,7 +202,11 @@ export class CriteriaMethodType extends CriteriaType{
     }
 
     /**
-     * Compares criteria. Necessary when expanding criteria
+     * Compares criteria. Necessary when expanding criteria  
+     * Rules:  
+     * - The number of arguments in the passed criteria must be at least in the current criteria(object)
+     * - The criteria for the arguments of the passed object must match the criteria for the arguments of the current object
+     * - The criteria for the returned object must match the criteria for the current object
      * @param {CriteriaMethodType|CriteriaType} criteria  If the criteria do not match the CriteriaMethodType type 
      * then a BadCriteria error will be thrown
      * @param entryPoints Indicate where the method call came from
@@ -210,8 +218,7 @@ export class CriteriaMethodType extends CriteriaType{
         if(!(criteria instanceof Object.getPrototypeOf(this).constructor)){
             throw new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(this).constructor.name});
         }
-        for(let k in this.arguments){
-            k=Number(k);
+        for(let k=0; k<this.arguments.length;k++){
             if(!(k in criteria.arguments)){
                 if(!this.arguments[k].types.includes('mixed') && !this.arguments[k].types.includes('undefined')){
                     let error= new InterfaceError('Compare_badArgument',{entryPoints:[`argument ${k+1}`]});

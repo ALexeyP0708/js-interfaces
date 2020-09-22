@@ -13,5 +13,5 @@
 
 # Documentation
 
-[Russian](docs/ru)
+[Russian](docs/_old/ru)
 [English](https://github.com/ALexeyP0708/Js-Interfaces/wiki)

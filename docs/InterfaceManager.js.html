@@ -1,4 +1,45 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>InterfaceManager.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html">CriteriaMethodType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#compare">compare</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#expand">expand</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#initArguments">initArguments</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#initReturn">initReturn</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#setOwner">setOwner</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#validateArguments">validateArguments</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMethodType.html#validateReturn">validateReturn</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMirrorInterface.html">CriteriaMirrorInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMirrorInterface.html#.createInterface">createInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaMirrorInterface.html#.validate">validate</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html">CriteriaPropertyType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#compare">compare</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#compareExcludes">compareExcludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#compareIncludes">compareIncludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#compareType">compareType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#expand">expand</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#freeze">freeze</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#initExcludes">initExcludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#initIncludes">initIncludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#initTypes">initTypes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#instanceOf">instanceOf</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#instanceOfInterface">instanceOfInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#isIncludeInValues">isIncludeInValues</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#validate">validate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#validateInExcludes">validateInExcludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#validateInIncludes">validateInIncludes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaPropertyType.html#validateType">validateType</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html">CriteriaReactType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#compare">compare</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#expand">expand</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#initGet">initGet</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#initSet">initSet</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#setOwner">setOwner</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#validateGet">validateGet</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.CriteriaReactType.html#validateSet">validateSet</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceError.html">InterfaceError</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html">InterfaceManager</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.addGlobalEndPoints">addGlobalEndPoints</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.addRules">addRules</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.buildInterface">buildInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.buildPropsClass">buildPropsClass</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.buildPropsDescriptors">buildPropsDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.clearClass">clearClass</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.expandAndSetRule">expandAndSetRule</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.extendInterfaces">extendInterfaces</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.extendOwnPropertiesFromPrototypes">extendOwnPropertiesFromPrototypes</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.extractOwnDescriptors">extractOwnDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.freezeProp%25D0%25A1lass">freezePropСlass</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.generateDescriptorsRules">generateDescriptorsRules</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.generateRules">generateRules</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getAllEndPoints">getAllEndPoints</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getDescriptors">getDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getEndPoints">getEndPoints</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getInterfaceData">getInterfaceData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.getProtoDescriptors">getProtoDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.hasInterfaceData">hasInterfaceData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.implementInterfaces">implementInterfaces</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.initInterfaceData">initInterfaceData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.initRules">initRules</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.instanceOfInterface">instanceOfInterface</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.setEndPoints">setEndPoints</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.setInterfaceData">setInterfaceData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.validateDescriptors">validateDescriptors</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.validatePropsClass">validatePropsClass</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceManager.html#.validatePropsObject">validatePropsObject</a></span></li><li class="nav-heading">Modules</li><li class="nav-heading"><span class="nav-item-type type-module">M</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.html">@alexeyp0708/interface-manager</a></span></li><li class="nav-heading">Namespaces</li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="module-@alexeyp0708_interface-manager.InterfaceError.types.html">types</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">InterfaceManager.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @module @alexeyp0708/interface-manager
  */
 import {
@@ -166,7 +207,7 @@ export class InterfaceManager {
                 }
             }
             proto = Object.getPrototypeOf(proto);
-        } while (!(proto.hasOwnProperty('constructor') && end_points.includes(proto.constructor)));
+        } while (!(proto.hasOwnProperty('constructor') &amp;&amp; end_points.includes(proto.constructor)));
         return descriptors;
     }
 
@@ -186,7 +227,7 @@ export class InterfaceManager {
                 if (desc.set !== undefined) {
                     desc.set = desc.set(Symbol.for('get_own_descriptor'));
                 }
-                if (desc.value !== undefined && typeof desc.value === 'function') {
+                if (desc.value !== undefined &amp;&amp; typeof desc.value === 'function') {
                     desc.value = desc.value(Symbol.for('get_own_descriptor'));
                 }
             }
@@ -218,7 +259,7 @@ export class InterfaceManager {
                 if (desc.set !== undefined) {
                     setCriteria = {};
                     let rtrn = desc.set(setCriteria);
-                    if (typeof rtrn === 'object' && getCriteria !== null) {
+                    if (typeof rtrn === 'object' &amp;&amp; getCriteria !== null) {
                         setCriteria = rtrn;
                     }
                 }
@@ -270,7 +311,7 @@ export class InterfaceManager {
             staticProps: {}
         };
         let proto = ProtoClass.prototype;
-        if (ProtoClass.hasOwnProperty('isInterface') && ProtoClass.isInterface) {
+        if (ProtoClass.hasOwnProperty('isInterface') &amp;&amp; ProtoClass.isInterface) {
             let descriptors = this.getDescriptors(proto);
             rules.protoProps = this.generateDescriptorsRules(descriptors);
             let staticDescriptors = this.getDescriptors(ProtoClass);
@@ -378,7 +419,7 @@ export class InterfaceManager {
      */
     static initRules(ProtoClass, rules) {
         let interfaceData = this.addRules(ProtoClass, rules);
-        if (ProtoClass.hasOwnProperty('isInterface') && ProtoClass.isInterface && !interfaceData.interfaces.includes(ProtoClass)) {
+        if (ProtoClass.hasOwnProperty('isInterface') &amp;&amp; ProtoClass.isInterface &amp;&amp; !interfaceData.interfaces.includes(ProtoClass)) {
             rules = this.generateRules(ProtoClass);
             interfaceData = this.addRules(ProtoClass, rules);
             this.clearClass(ProtoClass);
@@ -406,7 +447,7 @@ export class InterfaceManager {
             for (let rule of rules[prop]) {
                 let entryPoints = [rule.criteria.getOwner().name, `${prefix}${prop}`];
                 if (rule.criteria instanceof CriteriaReactType) {
-                    if (!('get' in descriptors[prop]) && !('set' in descriptors[prop])) {
+                    if (!('get' in descriptors[prop]) &amp;&amp; !('set' in descriptors[prop])) {
                         let error = new InterfaceError('ValidateReactDeclared', {
                             entryPoints: entryPoints.concat(['get/set']),
                             react_type: 'getter/setter'
@@ -414,13 +455,13 @@ export class InterfaceManager {
                         errors.push(error);
                         continue;
                     }
-                    if (rule.criteria.get !== undefined && descriptors[prop].get === undefined) {
+                    if (rule.criteria.get !== undefined &amp;&amp; descriptors[prop].get === undefined) {
                         let error = new InterfaceError('ValidateReactDeclared', {
                             entryPoints: entryPoints.concat(['get']),
                             react_type: 'getter'
                         });
                         errors.push(error.message);
-                    } else if (rule.criteria.get === undefined && descriptors[prop].get !== undefined) {
+                    } else if (rule.criteria.get === undefined &amp;&amp; descriptors[prop].get !== undefined) {
                         let error = new InterfaceError('ValidateReactDeclared', {
                             entryPoints: entryPoints.concat(['get']),
                             not: 'not',
@@ -428,13 +469,13 @@ export class InterfaceManager {
                         });
                         errors.push(error);
                     }
-                    if (rule.criteria.set !== undefined && descriptors[prop].set === undefined) {
+                    if (rule.criteria.set !== undefined &amp;&amp; descriptors[prop].set === undefined) {
                         let error = new InterfaceError('ValidateReactDeclared', {
                             entryPoints: entryPoints.concat(['set']),
                             react_type: 'setter'
                         });
                         errors.push(error);
-                    } else if (rule.criteria.set === undefined && descriptors[prop].set !== undefined) {
+                    } else if (rule.criteria.set === undefined &amp;&amp; descriptors[prop].set !== undefined) {
                         let error = new InterfaceError('ValidateReactDeclared', {
                             entryPoints: entryPoints.concat(['set']),
                             not: 'not',
@@ -576,7 +617,7 @@ export class InterfaceManager {
      * @param { {protoProps: {}, staticProps: {}} } rules
      */
     static buildPropsClass(ProtoClass, rules = {protoProps: {}, staticProps: {}}) {
-        if (ProtoClass.hasOwnProperty('isInterface') && ProtoClass.isInterface) {
+        if (ProtoClass.hasOwnProperty('isInterface') &amp;&amp; ProtoClass.isInterface) {
             return;
         }
         let proto = ProtoClass.prototype;
@@ -619,7 +660,7 @@ export class InterfaceManager {
         protoDescs = this.extractOwnDescriptors(protoDescs);
         for (let prop of Object.getOwnPropertyNames(protoDescs)) {
             let desc = protoDescs[prop];
-            if (!protoProps.includes(prop) && (!Array.isArray(extendProtoProps) || extendProtoProps.includes(prop))) {
+            if (!protoProps.includes(prop) &amp;&amp; (!Array.isArray(extendProtoProps) || extendProtoProps.includes(prop))) {
                 Object.defineProperty(ProtoClass.prototype, prop, desc);
             }
         }
@@ -627,7 +668,7 @@ export class InterfaceManager {
         staticDescs = this.extractOwnDescriptors(staticDescs);
         for (let prop of Object.getOwnPropertyNames(staticDescs)) {
             let desc = staticDescs[prop];
-            if (!staticProps.includes(prop) && (!Array.isArray(extendsStaticProps) || extendsStaticProps.includes(prop))) {
+            if (!staticProps.includes(prop) &amp;&amp; (!Array.isArray(extendsStaticProps) || extendsStaticProps.includes(prop))) {
                 Object.defineProperty(ProtoClass, prop, desc);
             }
         }
@@ -649,7 +690,7 @@ export class InterfaceManager {
                 return undefined;
             }
             end_points.splice(end_points.length, 0, ...self.getEndPoints(ProtoClass));
-            if (self.hasInterfaceData(ProtoClass) && self.getInterfaceData(ProtoClass).isBuilt && !forceBuild) {
+            if (self.hasInterfaceData(ProtoClass) &amp;&amp; self.getInterfaceData(ProtoClass).isBuilt &amp;&amp; !forceBuild) {
                 return self.getInterfaceData(ProtoClass);
             }
             let rules = recurs(Object.getPrototypeOf(proto).constructor);
@@ -733,7 +774,7 @@ export class InterfaceManager {
         }
 
         //=[],isExpand=false
-        if (Object.getOwnPropertyNames(ProtoClass).includes('isInterface') && ProtoClass.isInterface) {
+        if (Object.getOwnPropertyNames(ProtoClass).includes('isInterface') &amp;&amp; ProtoClass.isInterface) {
             let message = `Cannot create instance from interface`;
             let entryPoints = [ProtoClass.name];
             throw new InterfaceError('ImplementInterfaceError', {message, entryPoints});
@@ -801,7 +842,7 @@ export class InterfaceManager {
     static instanceOfInterface(object, Interface) {
         let ProtoClass = object;
         let to = typeof object;
-        if (to === 'object' && object !== null) {
+        if (to === 'object' &amp;&amp; object !== null) {
             ProtoClass = Object.getPrototypeOf(object).constructor;
         } else if (to !== 'function') {
             return false;
@@ -811,7 +852,7 @@ export class InterfaceManager {
             return false;
         }
         for (let iface of interfacesData.interfaces) {
-            if (typeof iface === 'function' && (iface === Interface || Interface.isPrototypeOf(iface))) {
+            if (typeof iface === 'function' &amp;&amp; (iface === Interface || Interface.isPrototypeOf(iface))) {
                 return true;
             }
         }
@@ -853,4 +894,22 @@ InterfaceManager.end_points = [
     CriteriaReactType,
     CriteriaMethodType,
     CriteriaPropertyType
-];
+];</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.5</a> on Mon Sep 21 2020 01:23:18 GMT+0500 (Екатеринбург, стандартное время) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

@@ -132,7 +132,7 @@ export class CriteriaReactType extends CriteriaType {
     /**
      * Initializes the getter
      * @param {object} criteria 
-     * @param {[]} entryPoints Indicate where the method call came from
+     * @param {Array} entryPoints Indicate where the method call came from
      * @throws {InterfaceError}
      */
     initGet(criteria={},entryPoints=['not_defined']){
@@ -160,7 +160,7 @@ export class CriteriaReactType extends CriteriaType {
     /**
      * Initializes the setter
      * @param {object} criteria
-     * @param {[]} entryPoints Indicate where the method call came from
+     * @param {Array} entryPoints Indicate where the method call came from
      * @throws {InterfaceError}
      */
     initSet(criteria={},entryPoints=['not_defined']){
@@ -187,8 +187,9 @@ export class CriteriaReactType extends CriteriaType {
 
     /**
      * Seter validation according to criteria
+     * If the seter is not set by the criteria, then an error will
      * @param val
-     * @param {[]} entryPoints Indicate where the method call came from
+     * @param {Array} entryPoints Indicate where the method call came from
      * @throws {InterfaceError} InterfaceError.type ===ValidateReactDeclared
      */
     validateSet(val,entryPoints=['not_defined']){
@@ -201,8 +202,9 @@ export class CriteriaReactType extends CriteriaType {
 
     /**
      * Geter validation according to criteria
+     * If the geter is not set by the criteria, then an error will
      * @param val
-     * @param {[]} entryPoints Indicate where the method call came from
+     * @param {Array} entryPoints Indicate where the method call came from
      * @throws {InterfaceError} InterfaceError.type ===ValidateReactDeclared
      */
     validateGet(val,entryPoints=['not_defined']){
@@ -214,7 +216,10 @@ export class CriteriaReactType extends CriteriaType {
     }
 
     /**
-     * Compares criteria. Necessary when expanding criteria
+     * Compares criteria. Necessary when expanding criteria  
+     * Rules:
+     * - Getter/Setter must be present in the compared criteria, if the getter/setter is declared in the current object
+     * - Getter/Setter not must be present in the compared criteria, if the getter/setter is not declared in the current object
      * @param {CriteriaReactType|CriteriaType} criteria If the criteria do not match the CriteriaReactType type
      * then a BadCriteria error will be thrown
      * @param entryPoints Indicate where the method call came from
@@ -228,7 +233,6 @@ export class CriteriaReactType extends CriteriaType {
         }
         if(this.hasOwnProperty('get')){
             if(!criteria.hasOwnProperty('get')){
-                // ошибка
                 errors.push(new InterfaceError('ValidateReactDeclared',{entryPoints:['get'],react_type:'getter'}));
             } else {
                 try{
