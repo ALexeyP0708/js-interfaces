@@ -10,12 +10,30 @@
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
 <script  src="lib/qunit-2.9.2.js"></script>
+<script type="module">
+    import {SilentConsole,buffer} from '../../src/export.js';
+    let sc =new SilentConsole(buffer.console);
+    buffer.bufferVars.sc=sc;
+    QUnit.begin(()=>{
+       sc.denyToSpeak();
+    });
+</script>
+<script type="module" src="test-SilentConsole.js"></script>
 <script type="module" src="test-InterfaceError.js"></script>
 <script type="module" src="test-CriteriaPropertyType.js"></script>
 <script type="module" src="test-CriteriaMethodType.js"></script>
 <script type="module" src="test-CriteriaReactType.js"></script>
 <script type="module" src="test-CriteriaMirrorInterface.js"></script>
-<script type="module" src="test-InterfaceManager.js"></script><!--
+<script type="module" src="test-InterfaceManager.js"></script>
+<script type="module" src="test-errors.js"></script>
+<!--
 <script type="module" src="test-basicAPI.js"></script>-->
+<script type="module">
+    import {buffer} from '../../src/export.js';
+    let sc=buffer.bufferVars.sc;
+    QUnit.done(()=>{
+        sc.allowToSpeak();
+    });
+</script>
 </body>
 </html>

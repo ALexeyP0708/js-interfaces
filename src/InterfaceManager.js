@@ -5,7 +5,8 @@ import {
     CriteriaMethodType,
     CriteriaPropertyType,
     CriteriaReactType,
-    InterfaceError
+    InterfaceError,
+    SilentConsole
 } from "./export.js";
 
 let interfacesData = Symbol.for('interfacesData');
@@ -395,14 +396,21 @@ export class InterfaceManager {
     static validateDescriptors(descriptors, rules = {},isStatic=false) {
         let errors = [];
         let prefix=isStatic?'.':'#';
+
+        //let sc=new SilentConsole();
+        //sc.denyToSpeak();
         for (let prop of Object.getOwnPropertyNames(rules)) {
             let last = rules[prop].length - 1;
             if (!descriptors.hasOwnProperty(prop)) {
-                let entryPoints = [rules[prop][last].criteria.getOwner().name, `${prefix}${prop}`];
-                let error = new InterfaceError('ValidatePropertyDeclared', {entryPoints});
-                errors.push(error);
+                if(!(rules[prop][0] instanceof CriteriaPropertyType) ||  
+                    !rules[prop][0].types.includes('undefined') && !rules[prop][0].types.includes('mixed')){
+                    let entryPoints = [rules[prop][last].criteria.getOwner().name, `${prefix}${prop}`];
+                    let error = new InterfaceError('ValidateMemberDeclared', {entryPoints});
+                    errors.push(error);
+                } 
                 continue;
             }
+            
             for (let rule of rules[prop]) {
                 let entryPoints = [rule.criteria.getOwner().name, `${prefix}${prop}`];
                 if (rule.criteria instanceof CriteriaReactType) {
@@ -454,12 +462,14 @@ export class InterfaceManager {
                         if (error instanceof InterfaceError) {
                             errors.push(error);
                         } else {
+                            //sc.allowToSpeak();
                             throw error;
                         }
                     }
                 }
             }
         }
+        //sc.allowToSpeak();
         return errors;
     }
 
@@ -492,7 +502,15 @@ export class InterfaceManager {
         errors.splice(errors.length, 0, ...protoErrorsStack);
         errors.splice(errors.length, 0, ...staticErrorsStack);
         if (errors.length > 0) {
-            throw new InterfaceError('Validate_BadProperties', {errors, entryPoints});
+            try{
+                new InterfaceError('Validate_BadMembers', {errors, entryPoints}).throw(true);
+            }catch(e){
+                if(e instanceof InterfaceError){
+                    e.renderErrors();
+                }
+                throw e;
+            }
+            
         }
     }
 
@@ -521,7 +539,14 @@ export class InterfaceManager {
                                 }
                                 let answer = get.call(this);
                                 //rule.criteria.validateGet(answer,entryPointsGet);
-                                rule.criteria.validateGet(answer, entryPoints);
+                                try{
+                                    rule.criteria.validateGet(answer, entryPoints);
+                                }catch(e){
+                                    if(e instanceof InterfaceError){
+                                        e.renderErrors();
+                                    }
+                                    throw e;
+                                }
                                 return answer;
                             };
                         }
@@ -536,7 +561,14 @@ export class InterfaceManager {
                                     return set;
                                 }
                                 //rule.criteria.validateSet(value,entryPointsSet);
-                                rule.criteria.validateSet(value, entryPoints);
+                                try{
+                                    rule.criteria.validateSet(value, entryPoints);
+                                }catch(e){
+                                    if(e instanceof InterfaceError){
+                                        e.renderErrors();
+                                    }
+                                    throw e;
+                                }
                                 set.call(this, value);
                             }
                         }
@@ -553,9 +585,23 @@ export class InterfaceManager {
                                 if (args[0] === Symbol.for('get_own_descriptor')) {
                                     return call;
                                 }
-                                rule.criteria.validateArguments(args, entryPoints);
+                                try{
+                                    rule.criteria.validateArguments(args, entryPoints);
+                                }catch(e){
+                                    if(e instanceof InterfaceError){
+                                        e.renderErrors();
+                                    }
+                                    throw e;
+                                }
                                 let answer = call.call(this, ...args);
-                                rule.criteria.validateReturn(answer, entryPoints);
+                                try{
+                                    rule.criteria.validateReturn(answer, entryPoints);
+                                }catch(e){
+                                    if(e instanceof InterfaceError){
+                                        e.renderErrors();
+                                    }
+                                    throw e;
+                                }
                                 return answer;
                             };
                             descriptors[prop].isBuilt = true;
@@ -722,9 +768,9 @@ export class InterfaceManager {
     /**
      * Implements Interfaces in the class
      * @param {class}ProtoClass
-     * @param {class[]} RestInterfaces .
-     * If the  RestInterfaces[0] of the array is "true" (boolean type), then  extends custom  interface for class  the specified interfaces
-     * If the  RestInterfaces[1] of the array is "true" (boolean type), then apply extendClassFromOwnPrototypes before final assembly of ProtoClass. (then element[0] must be boolean type)
+     * @param {class[]} RestInterfaces.  
+     * If the  RestInterfaces[0] of the array is "true" (boolean type), then  extends custom  interface for class  the specified interfaces  
+     * If the  RestInterfaces[1] of the array is "true" (boolean type), then apply extendClassFromOwnPrototypes before final assembly of ProtoClass. (then element[0] must be boolean type)  
 
      */
     static implementInterfaces(ProtoClass, ...RestInterfaces) {
@@ -736,7 +782,7 @@ export class InterfaceManager {
         if (Object.getOwnPropertyNames(ProtoClass).includes('isInterface') && ProtoClass.isInterface) {
             let message = `Cannot create instance from interface`;
             let entryPoints = [ProtoClass.name];
-            throw new InterfaceError('ImplementInterfaceError', {message, entryPoints});
+            new InterfaceError('ImplementInterfaceError', {message, entryPoints}).throw();
         }
         let rules = this.extendInterfaces(ProtoClass, ...RestInterfaces);
         this.validatePropsClass(ProtoClass, rules);

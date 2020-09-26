@@ -2,7 +2,7 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import {InterfaceError,CriteriaPropertyType,CriteriaType} from "./export.js";
+import {InterfaceError,CriteriaPropertyType,CriteriaType,SilentConsole} from "./export.js";
 
 /**
  * An instance of the CriteriaMethodType class stores the criteria for a method
@@ -83,12 +83,15 @@ export class CriteriaMethodType extends CriteriaType{
             }
         });
         let errors=[];
+        //let sc=new SilentConsole(console);
+        //sc.denyToSpeak();
         try {
             this.initArguments(criteria.arguments,[]);
         } catch (e) {
             if (e instanceof InterfaceError) {
                 errors.push(e);
             } else {
+                //sc.allowToSpeak();
                 throw e;
             }
         };
@@ -98,11 +101,13 @@ export class CriteriaMethodType extends CriteriaType{
             if (e instanceof InterfaceError) {
                 errors.push(e);
             } else {
+                //sc.allowToSpeak();
                 throw e;
             }
         };
+        //sc.allowToSpeak();
         if (errors.length > 0) {
-            throw new InterfaceError('Init_BadArgumentsOrReturn', {entryPoints: this.options.entryPoints, errors});
+            new InterfaceError('Init_BadArgumentsOrReturn', {entryPoints: this.options.entryPoints, errors}).throw(true);
         }
     }
     /**
@@ -120,12 +125,12 @@ export class CriteriaMethodType extends CriteriaType{
      * Initializes criteria for arguments in the current object
      * @param {Array} args
      * @param {Array} entryPoints  Indicate where the method call came from
-     * @throws {InterfaceError} InterfaceError.type==='InitArguments'
+     * @throws {InterfaceError} 
      */
     initArguments(args=[],entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
         if(!Array.isArray(args)){
-            throw new InterfaceError('InitArguments',{entryPoints,className:Object.getPrototypeOf(this).constructor.name});
+            new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(this).constructor.name}).throw();
         }
         for(let arg of args) {
             if(arg===undefined){
@@ -152,7 +157,7 @@ export class CriteriaMethodType extends CriteriaType{
     initReturn(rtrn={},entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
         if(typeof rtrn !=='object' || rtrn==null){
-            throw new InterfaceError('InitReturn',{entryPoints,className:Object.getPrototypeOf(this).constructor.name});
+            new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(this).constructor.name}).throw();
         }
         let criteria=Object.assign({},rtrn);
         if(criteria.types===undefined){
@@ -175,6 +180,8 @@ export class CriteriaMethodType extends CriteriaType{
     validateArguments(args,entryPoints=['not_defined']){
         let errors=[];
         entryPoints=Object.assign([],entryPoints);
+        //let sc=new SilentConsole(console);
+        //sc.denyToSpeak();
         for(let n in this.arguments){
             n=Number(n);
             try{
@@ -185,8 +192,9 @@ export class CriteriaMethodType extends CriteriaType{
                 }
             }
         }
+        //sc.allowToSpeak();
         if(errors.length>0){
-            throw new InterfaceError('ValidateArguments',{errors,entryPoints});
+            new InterfaceError('ValidateArguments',{errors,entryPoints}).throw(true);
         }
     }
 
@@ -210,18 +218,20 @@ export class CriteriaMethodType extends CriteriaType{
      * @param {CriteriaMethodType|CriteriaType} criteria  If the criteria do not match the CriteriaMethodType type 
      * then a BadCriteria error will be thrown
      * @param entryPoints Indicate where the method call came from
-     * @throws {InterfaceError} InterfaceError=== 'BadCriteria|Compare_badArgument|CompareMethod_badParams'
+     * @throws {InterfaceError} 
      */ 
     compare(criteria,entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
         let errors=[];
         if(!(criteria instanceof Object.getPrototypeOf(this).constructor)){
-            throw new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(this).constructor.name});
+            new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(this).constructor.name}).throw();
         }
+        //let sc=new SilentConsole(console);
+        //sc.denyToSpeak();
         for(let k=0; k<this.arguments.length;k++){
             if(!(k in criteria.arguments)){
                 if(!this.arguments[k].types.includes('mixed') && !this.arguments[k].types.includes('undefined')){
-                    let error= new InterfaceError('Compare_badArgument',{entryPoints:[`argument ${k+1}`]});
+                    let error= new InterfaceError('CompareMethod_ArgumentUnDeclared',{entryPoints:[`argument ${k+1}`]});
                     errors.push(error.message);
                 }
             } else {
@@ -231,6 +241,7 @@ export class CriteriaMethodType extends CriteriaType{
                     if(error instanceof InterfaceError){
                         errors.push(error);
                     } else {
+                        //sc.allowToSpeak();
                         throw error;
                     }
                 }
@@ -242,11 +253,13 @@ export class CriteriaMethodType extends CriteriaType{
             if(error instanceof InterfaceError){
                 errors.push(error);
             } else {
+                //sc.allowToSpeak();
                 throw error;
             }
         }
+        //sc.allowToSpeak();
         if(errors.length>0){
-            throw new InterfaceError('CompareMethod_badParams',{errors,entryPoints});
+            new InterfaceError('CompareMethod_badParams',{errors,entryPoints}).throw(true);
         }
     }
 
@@ -261,10 +274,12 @@ export class CriteriaMethodType extends CriteriaType{
         entryPoints=Object.assign([],entryPoints);
         let errors=[];
         if(!(this instanceof Object.getPrototypeOf(criteria).constructor)){
-            throw new InterfaceError('BadCriteria',{className:Object.getPrototypeOf(criteria).constructor.name,entryPoints});
+            new InterfaceError('BadCriteria',{className:Object.getPrototypeOf(criteria).constructor.name,entryPoints}).throw();
         }
-        for(let k in criteria.arguments){
-            k=Number(k);
+
+        //let sc=new SilentConsole();
+        //sc.denyToSpeak();
+        for(let k=0; k< criteria.arguments.length; k++){
             if(!(k in this.arguments)){
                this.arguments.push(criteria.arguments[k]);
             } else {
@@ -274,6 +289,7 @@ export class CriteriaMethodType extends CriteriaType{
                     if(error instanceof InterfaceError){
                         errors.push(error);
                     } else {
+                        //sc.allowToSpeak();
                         throw error;
                     }
                 }
@@ -285,11 +301,13 @@ export class CriteriaMethodType extends CriteriaType{
             if(error instanceof InterfaceError){
                 errors.push(error);
             } else {
+                //sc.allowToSpeak();
                 throw error;
             }
         }
+        //sc.allowToSpeak();
         if(errors.length>0){
-            throw new InterfaceError('ExpandMethod_badParams',{errors,entryPoints});
+            new InterfaceError('ExpandMethod_badParams',{errors,entryPoints}).throw(true);
         }
     }
 }

@@ -1,11 +1,12 @@
 /**
  * @module @alexeyp0708/interface-manager
  */
-let helpLink='http://sites/NodeJS/Interfaces/docs/module-@alexeyp0708_interface-manager.InterfaceError.types.html#.';
+
+import {buffer,SilentConsole} from './export.js';
 /**
  * 
  */
-
+let console=buffer.console;
 export class InterfaceError extends Error {
     constructor (type='default',vars={}){
         let errors=vars.errors??[];
@@ -114,6 +115,9 @@ export class InterfaceError extends Error {
         for(let k=0; k<errors.length; k++){
             result.push(errors[k]);
             let tv=typeof errors[k];
+            if(errors[k] instanceof InterfaceError){
+                result[k]=errors[k].vars.buildedMessage;
+            } else 
             if(errors[k] instanceof Error){
                 result[k]=errors[k].message;
             }
@@ -121,6 +125,7 @@ export class InterfaceError extends Error {
         }
         return "\n   "+result.join("\n   ");
     }
+    
     /**
      * Собирает переданные переменные. Если переменная масив строк или ошибок, то преобразует в читаемую строку.
      * Также соблюдает табуляцию пр переходе строк.
@@ -142,30 +147,44 @@ export class InterfaceError extends Error {
      * Создает собственный выводимый формат и выбрасывает исключение.
      *
      */
-    throw(){
-        if(!InterfaceError.isNode()){
+    throw(overwriteErrorsInConsole=false){
+        if(InterfaceError.consoleNotification && !InterfaceError.isNode()){
+
             // for browsers
+            
+            let constructor=Object.getPrototypeOf(this).constructor;
+            let sc=constructor.sc;
+            if(overwriteErrorsInConsole){
+                sc.clearStack();
+            }
+            if(!sc.isDenied()){
+                sc.denyToSpeak(true);
+            } 
             this.throwFront('error');
         }  else {
             this.throwBack();
-
+        }
+    }
+    renderErrors(){
+        if(InterfaceError.consoleNotification && !InterfaceError.isNode()){
+            let constructor=Object.getPrototypeOf(this).constructor;
+            let sc=constructor.sc;
+            sc.allowToSpeak(true);
+        }
+    }
+    clearErrors(){
+        if(InterfaceError.consoleNotification && !InterfaceError.isNode()){
+            let constructor=Object.getPrototypeOf(this).constructor;
+            let sc=constructor.sc;
+            sc.clearStack();
         }
     }
     throwFront(typeMsg='warn'){
         let errors=Object.assign([],this.errors);
         let levels=[];
-        let self=this;
-        /*let link=(type)=>{ return {
-            get help(){
-                let link=`${helpLink}#.${type}`;
-                window.open(link);
-                return link;
-            }
-        }};*/
         let buildVars=InterfaceError.buildVars(this.vars);
         let msg=InterfaceError.buildMessage('consoleGroup',buildVars);
-        console.group(`%c ${msg}`,'background:#FFF0F0;color:#FF3434;');
-
+        console.groupCollapsed(`%c ${msg}`,'background:#FFF0F0;color:#FF3434;');
         msg=InterfaceError.buildMessage('consoleMessage',buildVars);
         console[typeMsg](msg);
         for(let key=0; key<errors.length; key++){
@@ -204,7 +223,7 @@ export class InterfaceError extends Error {
         let isNode=false;
         try{
             isNode=Boolean(process);
-            if(process.release!=='node' && process.node===undefined){
+            if(process.versions.node===undefined){
                 isNode=false;
             }
         } catch (e) {
@@ -217,55 +236,273 @@ Object.defineProperty(InterfaceError.prototype,'name',{
     enumerable:false,
     value:'InterfaceError'
 });
+
+let helpLink='http://sites/NodeJS/Interfaces/docs/module-@alexeyp0708_interface-manager.InterfaceError.types.html#.';
 /**
  * @namespace
  */
 InterfaceError.types={
+
+    /**
+     *  Template for the header of grouped error messages
+     */
+    consoleGroup:"{$type}:",
+
+    /**
+     * Console error message template.
+     */
+    consoleMessage:`help => {$helpLink}\n\n{$buildedMessage}\n------\nStack\n------\n{$stack}`,
+    
     /** Template for errors when no error is defined */
     default:`{$type}: {$entryPoints} - {$message}{$errors}`,
 
     /**
-     * An error is thrown when the criteria for an invalid form are passed.  
-     * The criteria must match (repeat) [object CriteriaPropertyType] or [object CriteriaMethodType] or [object CriteriaReactType].  
-     * The error message will clarify such data
+     * An error is thrown in the following cases:  
+     * -  when forming an interface member, if the object for the criteria does not match the criteria template
+     * ([template  .CriteriaPropertyType], [template .CriteriaMethodType], [template .CriteriaReactType])  
+     * - Criteria are not comparable when comparing interfaces  
      */
     BadCriteria:"{$type}: {$entryPoints} - Criteria must meet [object {$className}].",
-    //BadIncludesOrExcludes:"{$type}: {$entryPoints} - {$errors}",
+
+    /**
+     * An error is thrown in the following cases:  
+     * - when forming an interface member, if the criteria "includes" or "excludes" are incorrect  
+     *   
+     * Accompanied by errors: {@link ...InitIncludes},  {@link ...InitExcludes}
+     */
+    Init_BadIncludesOrExcludes:undefined, //"{$type}: {$entryPoints} - {$errors}"
+    
+    /**
+     * 
+     * An error is thrown in the following cases:  
+     * - when forming an interface member, if the passed types for the criteria are not correct.  
+     *  
+     * Groups errors of all invalid types   
+     *   
+     * Accompanied by errors: {@link ...InitTypes_badType}    
+     *  
+     */
     InitTypes:"{$type}: {$entryPoints} - Invalid parameter passed to {$className}.types.",
-    //InitTypes_badType:"{$type}: {$entryPoints} - {$errors}",
-    //InitIncludes:"",
-    //InitExcludes:"",
-    //Validate:"",
+    
+    /**
+     * An error is thrown in the following cases:  
+     * -when forming an interface member, if an inappropriate type is passed.  
+     */
+    InitTypes_badType:"{$type}: {$entryPoints} - {$errors}",
+    
+    /**
+     * An error is thrown in the following cases:  
+     *  - when forming an interface member,  if the passed "includes" values ​​for the criteria are not correct.  
+     *  
+     *  Groups errors of all invalid "includes" values.
+     *  
+     *  Accompanied by errors: {@link ...ValidateType}
+     */
+    InitIncludes:undefined,
+    
+    /**
+     * An error is thrown in the following cases:  
+     *  - when forming an interface member,  if the passed "excludes" values ​​for the criteria are not correct.  
+     * 
+     * Groups errors of all invalid "excludes" values.
+     *  
+     * Accompanied by errors:  {@link ...ValidateType}
+     */
+    InitExcludes:undefined,
+
+    /**
+     * An error is thrown in the following cases:
+     *  - when forming an interface member (method), if the criteria for arguments and/or return values ​​are not correct  
+     *    
+     *  Groups errors.  
+     *   
+     * Accompanied by errors: {@link ...BadCriteria} {@link ...InitTypes} {@link ...Init_BadIncludesOrExcludes}
+     */
+    Init_BadArgumentsOrReturn:undefined,
+    
+    /**
+     * An error is thrown in the following cases:
+     * - When checking class members for an interface (matching criteria),
+     * if the member value (property, method arguments, method return values,
+     * reactive properties) does not meet the criteria
+     * Groups errors the criteria
+     * 
+     * Accompanied by errors: {@link ...ValidateInIncludes}, {@link ...validateInExcludes}
+     */
+    Validate:undefined,
+    
+    /**
+     * An error is thrown in the following cases:  
+     * -  When validate class members according to interface criteria , If the value does not match the types from the interface criteria   
+     * 
+     * Accompanied by errors:  {@link ...Validate_BadMirrorProperties} (if one of the types is extends [class  .CriteriaMirrorInterface])  
+     */
     ValidateType:`{$type}: {$entryPoints} - Expected type of "{$expectedTypes}"  but defined by "{$definedType}".{$errors}`,
-    ValidateInValues:"{$type}: {$entryPoints} - \"{$value}\" does not match the values ​​in stack",
+    
+    /**
+     * An error is thrown in the following cases:  
+     * -When validate class members according to interface criteria , if the value does not match the value on the "includes" stack 
+     */
+
     ValidateInIncludes:"{$type}: {$entryPoints} - \"{$value}\" is not present in 'includes' stack",
-    ValidateInExcludes:"{$type}: {$entryPoints} - \"{$value}\" is not present in 'excludes' stack",
-    Compare_badValues:"{$type}: {$entryPoints} - Criteria must be of values in \"{$name}\"",
-    //Compare_badType:"",
-    //Compare_badParams:"",
 
-    InitArguments:"{$type}: {$entryPoints} - Invalid parameter passed to {$className}.arguments. Must be of type Array.",
-    InitReturn:"{$type}: {$entryPoints} - Invalid parameter passed to {$class_name}.return. Must be of type Object.",
-    //ValidateArguments:"",
-    //CompareMethod:"",
-    Compare_badArgument:"{$type}: {$entryPoints} - Argument undeclared",
-    ValidateReact:"{$type}: {$entryPoints} - The {$react_type} interface is not defined, but there is a call to the {$react_type}.",
-    ValidateReactDeclared:"{$type}: {$entryPoints} - \"{$react_type}\" {$not} must be declared",
-    ValidatePropertyDeclared:"{$type}: {$entryPoints} - The property must be declared.",
+    /**
+     * An error is thrown in the following cases:
+     *  -When validate class members according to interface criteria , if the value matches one of the values ​​on the "excludes" stack
+     */
+    ValidateInExcludes:"{$type}: {$entryPoints} - \"{$value}\" is present in 'excludes' stack",
+
+
+    /**
+     * An error is thrown in the following cases:
+     * -When validated  class members from criteria, if class member is not a method.
+     */
     ValidateMethodDeclared:"{$type}: {$entryPoints} - The property must be Function.",
-    //CompareReact_badParams:"",
-    //Validate_BadProps:"",
+ 
+    /**
+     * An error is thrown in the following cases:
+     *  -When validation the arguments of the class methods according to the interface criteria, if the argument does not meet the criteria.
+     *  
+     *  Groups errors for arguments
+     *  
+     *  Accompanied by errors:  {@link ...Validate}, {@link ...ValidateType}
+     */
+    ValidateArguments:undefined,
 
-    //----
-    //ErrorTypeCriteria:"The type of criteria should be comparable to the list ['property', 'react', 'method']",
-    //ErrorTypeofValues:"In {CriteriaType}.values property, one of the values ​​does not match the declared type in {CriteriaType}.typeof property",
 
-    //ErrorConflictCriteria:'ErrorConflictCriteria:{$message}',
-    //ConflictProperty:'{$message}',
-    //TypeMismatch:'TypeMismatch:{$message}',
-    //badArgumentMethod:'[$entryPoints]The argument "{$argument}"  does not match the expected type',
-    //badReturnMethod:'',
-    Init_BadArgumentsOrReturn:'',
-    ImplementInterfaceError:undefined
+    /**
+     *  An error is thrown in the following cases:
+     *  -when validated the reactive property values ​​,if getter / setter should be declared or not declared,
+     *  - when a reactive property is to be declared.
+     */
+    ValidateReactDeclared:"{$type}: {$entryPoints} - \"{$react_type}\" {$not} must be declared",
 
+    /**
+     * An error is thrown in the following cases:
+     * -When validated  class members from criteria, if there is no member in the class.
+     */
+    ValidateMemberDeclared:"{$type}: {$entryPoints} - The member must be declared.",
+    
+    /**
+     * An error is thrown in the following cases:
+     * -when the class fails validation.
+     * 
+     * Groups errors
+     * 
+     * Accompanied by errors: 
+     * {@link ...ValidateMemberDeclared},
+     * {@link ...ValidateReactDeclared},
+     * {@link ...ValidateMethodDeclared},
+     * {@link ...Validate}
+     * {@link ...ValidateType}
+     */
+    Validate_BadMembers:undefined,
+
+    /**
+     * An error is thrown in the following cases:
+     * -When a class or object is validated against  mirror interface.
+     * 
+     * Accompanied by errors: {@link ...Validate_BadMembers}
+     */
+    Validate_BadMirrorProperties:undefined,
+    
+    
+    /**
+     * An error is thrown in the following cases:
+     * -When comparing criteria for interface members, relevant criteria must be specified
+     *
+     * */
+    Compare_emptyStack:"{$type}: {$entryPoints} - Criteria must be of values in \"{$name}\"",
+
+    /**
+     * An error is thrown in the following cases:
+     * - When comparing criteria for interface members, types of criteria do not match
+     *
+     * Groups errors
+     *
+     * Accompanied by errors: {@link ...Compare_ValidateInTypes}
+     */
+    Compare_badTypes:undefined,
+    /**
+     * An error is thrown in the following cases:
+     * - When comparing criteria for interface members, if the criteria "types" do not match
+     */
+    Compare_ValidateInTypes:"{$type}: {$entryPoints} - \"{$value}\" is not present in 'types' stack",
+
+    /**
+     * An error is thrown in the following cases:
+     * -When comparing criteria for interface members,if the interfaces do not match the criteria  
+     *   
+     * Groups errors the criteria when compare  
+     *   
+     * Accompanied by errors:  {@link ...Compare_badIncludes}, {@link ...Compare_badExcludes}  
+     */
+    Compare_badParams:undefined,
+
+    /**
+     * An error is thrown in the following cases:  
+     * - When comparing criteria for interface members, if the criteria "includes" do not match
+     * Accompanied by errors: {@link ...ValidateInIncludes}, {@link ...Compare_emptyStack}
+     */
+    Compare_badIncludes:undefined,
+
+    /**
+     * An error is thrown in the following cases:
+     * - When comparing criteria for interface members, if the criteria "excludes" do not match
+     * Accompanied by errors: {@link ...ValidateInExcludes}, {@link ...Compare_emptyStack}
+     */
+    Compare_badExcludes:undefined,
+    
+    /**
+     * An error is thrown in the following cases:  
+     * -When comparing criteria for interface members, if  methods do not match  criteria for arguments and/or criteria for return values.
+     *  Accompanied by errors:  {@link ...CompareMethod_ArgumentUnDeclared}, {@link ...Compare_badParams}, 
+     */
+    CompareMethod_badParams:undefined,
+    
+    /**
+     *  An error is thrown in the following cases:
+     *  -When comparing criteria for interface members,if the method lacks required arguments
+     * 
+     */
+    CompareMethod_ArgumentUnDeclared:"{$type}: {$entryPoints} - Argument undeclared",
+
+
+    /**
+     * An error is thrown in the following cases:
+     * -When comparing criteria for interface members, if reactive properties are compared  
+     * 
+     *  Accompanied by errors:  {@link ...ValidateReactDeclared},  {@link ...CompareMethod_badParams}
+     */
+    CompareReact_badParams:undefined,
+    
+
+    
+    /**
+     *  An error is thrown in the following cases:
+     *  -When expanding criteria for interface members,if  methods do not match  criteria for arguments and/or criteria for return values.
+     *
+     *  It does not throw errors according to the logic of working off. For internal control purposes only.
+     */
+    ExpandMethod_badParams:undefined,
+
+
+    /**
+     *  An error is thrown in the following cases:
+     *  -When expanding criteria for interface members,if  methods do not match  criteria for getter/setter criteria.
+     *
+     *  It does not throw errors according to the logic of working off. For internal control purposes only.
+     */
+    ExpandReact_badParams:undefined,
+
+
+    /**
+     * An error is thrown in the following cases:
+     * - When  [method .InterfaceManager.implementInterfaces] is called and the first argument is an interface.
+     * Build and validation happens only for classes.
+     */
+
+    ImplementInterfaceError:undefined,
 };
+InterfaceError.consoleNotification=true;
+InterfaceError.sc=new SilentConsole(console);

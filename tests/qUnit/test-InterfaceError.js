@@ -14,8 +14,6 @@ QUnit.test('Test Constructor',function(assert){
     },function(e){
         return e.type === 'NO_TYPE' && e.message === "NO_TYPE: [points1][points2] - ";
     },'test vars.entryPoints');
-
-
     assert.throws(function(){
         throw new InterfaceError('NO_TYPE',{errors:['errorString','errorString']});
     },function(e){

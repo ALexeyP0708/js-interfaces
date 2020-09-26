@@ -123,7 +123,6 @@ QUnit.test('test methods CriteriaMirrorInterface',function(assert){
         InterfaceTest.isInterface=true;
         class Factory{
             static test(Class){
-                console.log([Class]);
                 Class.method2('hello');
             }
         };  

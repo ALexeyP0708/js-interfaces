@@ -1,3 +1,9 @@
+import * as buffer from "./buffer.js";
+export {buffer};
+
+import {SilentConsole} from "./SilentConsole.js";
+export {SilentConsole};
+
 import {InterfaceError} from "./InterfaceError.js";
 export {InterfaceError};
 
@@ -18,4 +24,7 @@ export {InterfaceManager};
 
 import {CriteriaMirrorInterface} from "./CriteriaMirrorInterface.js";
 export {CriteriaMirrorInterface};
+
+
+
 

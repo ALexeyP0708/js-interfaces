@@ -2,7 +2,7 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import {CriteriaMethodType,CriteriaType,InterfaceError} from "./export.js";
+import {CriteriaMethodType,CriteriaType,InterfaceError,SilentConsole} from "./export.js";
 
 /**
  *  An instance of the CriteriaMethodType class stores the criteria for a reactive properties
@@ -195,13 +195,13 @@ export class CriteriaReactType extends CriteriaType {
     validateSet(val,entryPoints=['not_defined']){
         entryPoints=entryPoints.concat(['set']);
         if(! ('set' in this)){
-            throw new InterfaceError('ValidateReactDeclared',{entryPoints,not:'not',react_type:'setter'});
+            new InterfaceError('ValidateReactDeclared',{entryPoints,not:'not',react_type:'setter'}).throw();
         }
         this.set.validateArguments([val],entryPoints);
     }
 
     /**
-     * Geter validation according to criteria
+     * Getter validation according to criteria
      * If the geter is not set by the criteria, then an error will
      * @param val
      * @param {Array} entryPoints Indicate where the method call came from
@@ -210,7 +210,7 @@ export class CriteriaReactType extends CriteriaType {
     validateGet(val,entryPoints=['not_defined']){
         entryPoints=entryPoints.concat(['get']);
         if(! ('get' in this)){
-            throw new InterfaceError('ValidateReactDeclared',{entryPoints,not:'not',react_type:'getter'});
+            new InterfaceError('ValidateReactDeclared',{entryPoints,not:'not',react_type:'getter'}).throw();
         }
         this.get.validateReturn(val, entryPoints);
     }
@@ -223,14 +223,16 @@ export class CriteriaReactType extends CriteriaType {
      * @param {CriteriaReactType|CriteriaType} criteria If the criteria do not match the CriteriaReactType type
      * then a BadCriteria error will be thrown
      * @param entryPoints Indicate where the method call came from
-     * @throws {InterfaceError} InterfaceError.type ===BadCriteria|ValidateReactDeclared|Compare_ReactDeclared|CompareReact_badParams
+     * @throws {InterfaceError} 
      */
     compare(criteria,entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
         let errors=[];
         if(!(this instanceof Object.getPrototypeOf(criteria).constructor)){
-            throw new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(criteria).constructor.name});
+            new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(criteria).constructor.name}).throw();
         }
+        //let sc=new SilentConsole();
+        //sc.denyToSpeak();
         if(this.hasOwnProperty('get')){
             if(!criteria.hasOwnProperty('get')){
                 errors.push(new InterfaceError('ValidateReactDeclared',{entryPoints:['get'],react_type:'getter'}));
@@ -241,6 +243,7 @@ export class CriteriaReactType extends CriteriaType {
                     if(e instanceof InterfaceError){
                         errors.push(e);
                     } else {
+                        //sc.allowToSpeak();
                         throw e;
                     }
                 }
@@ -259,15 +262,17 @@ export class CriteriaReactType extends CriteriaType {
                     if(e instanceof InterfaceError){
                         errors.push(e);
                     } else {
+                        //sc.allowToSpeak();
                         throw e;
                     }
                 }
             }
         } else if(criteria.hasOwnProperty('set')){
-            errors.push(new InterfaceError('Compare_ReactDeclared',{entryPoints:['set'],not:'not',react_type:'setter'}));
+            errors.push(new InterfaceError('ValidateReactDeclared',{entryPoints:['set'],not:'not',react_type:'setter'}));
         }
+        //sc.allowToSpeak();
         if(errors.length>0){
-            throw new InterfaceError('CompareReact_badParams',{errors,entryPoints});
+            new InterfaceError('CompareReact_badParams',{errors,entryPoints}).throw(true);
         }
     }
     /**
@@ -281,8 +286,10 @@ export class CriteriaReactType extends CriteriaType {
         entryPoints=Object.assign([],entryPoints);
         let errors=[];
         if(!(this instanceof Object.getPrototypeOf(criteria).constructor)){
-            throw new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(criteria).constructor.name});
+            new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(criteria).constructor.name}).throw();
         }
+        //let sc=new SilentConsole();
+        //sc.denyToSpeak();
         if(this.hasOwnProperty('get') && criteria.hasOwnProperty('get')){
             try{
                 this.get.expand(criteria.get,['get']);
@@ -290,6 +297,7 @@ export class CriteriaReactType extends CriteriaType {
                 if(e instanceof InterfaceError){
                     errors.push(e);
                 }else{
+                    //sc.allowToSpeak();
                     throw e;
                 }
             }
@@ -303,6 +311,7 @@ export class CriteriaReactType extends CriteriaType {
                 if(e instanceof InterfaceError){
                     errors.push(e);
                 }else{
+                    //sc.allowToSpeak();
                     throw e;
                 }
             }
@@ -310,8 +319,9 @@ export class CriteriaReactType extends CriteriaType {
         } else if(criteria.hasOwnProperty('set')){
             this.initSet(criteria.set,entryPoints.concat(['set']));
         }
+        //sc.allowToSpeak();
         if(errors.length>0){
-            throw new InterfaceError('expandReact_badParams',{errors,entryPoints});
+            new InterfaceError('ExpandReact_badParams',{errors,entryPoints}).throw(true);
         }
     }
 }
