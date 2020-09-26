@@ -45,17 +45,18 @@ export class CriteriaMirrorInterface {
     /**
      * Creates an interface that inherits the current interface (class CriteriaMirrorInterface) 
      * Creates a class if string, and assigns instance properties and static properties to this class.
-     * @param {string|class|undefined} ProtoClass  Class name or class. 
+     * @param {string|class|undefined} NewClass  Class name or class. 
      * @param {} protoProp
      * @param {} staticProp
      */
-   static createInterface(ProtoClass,protoProp={},staticProp={}){
-       let tc= typeof ProtoClass;
+   static createInterface(NewClass,protoProp={},staticProp={}){
+       let tc= typeof NewClass;
+       let ProtoClass=this;
        if(tc===undefined){
-           [ProtoClass]=[class extends CriteriaMirrorInterface{}];
+           [NewClass]=[class extends ProtoClass{}];
        } else
        if(tc==='string'){
-           ProtoClass={[ProtoClass]:class extends CriteriaMirrorInterface{}}[ProtoClass];
+           NewClass={[NewClass]:class extends ProtoClass{}}[NewClass];
        }
        else if(tc!=='function'){
            throw Error('Invalid parameter type');
@@ -66,7 +67,7 @@ export class CriteriaMirrorInterface {
                 descs[prop].enumerable=false;
             }
         }
-        Object.defineProperties(ProtoClass.prototype,descs);
+        Object.defineProperties(NewClass.prototype,descs);
         
         descs=Object.getOwnPropertyDescriptors(staticProp);
         for(let prop in descs){
@@ -74,9 +75,9 @@ export class CriteriaMirrorInterface {
                 descs[prop].enumerable=false;
             }
         }
-        Object.defineProperties(ProtoClass,descs);
-        ProtoClass.isInterface=true;
-        InterfaceManager.extendInterfaces(ProtoClass);
-        return ProtoClass;
+        Object.defineProperties(NewClass,descs);
+        NewClass.isInterface=true;
+        InterfaceManager.extendInterfaces(NewClass);
+        return NewClass;
    }
 }

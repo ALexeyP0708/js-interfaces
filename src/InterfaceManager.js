@@ -58,6 +58,7 @@ export class InterfaceManager {
                 interfaces: [],
                 protoProps: {},
                 staticProps: {},
+                ownRule:{},
                 builtProps: {
                     protoProps: [],
                     staticProps: [],
@@ -288,12 +289,13 @@ export class InterfaceManager {
      * @param rule
      * @param OwnerClass
      */
-    static expandAndSetRule(rules, prop, rule, OwnerClass) {
+    static expandAndSetRule(rules, prop, rule, OwnerClass,isStatic=false) {
         let criteria = rule.criteria;
         let cls = criteria.getOwner();
+        let prefix=isStatic?'.':'#';
         if (prop in rules) {
             let last_cls = rules[prop][0].criteria.getOwner();
-            let entryPoints = [`${last_cls.name}`, `${cls.name}`, `.${prop}`];
+            let entryPoints = [`${OwnerClass.name}` ,`~${cls.name}~`,`~${last_cls.name}~`, `${prefix}${prop}`];
             rules[prop][0].criteria.expand(criteria, entryPoints);
         } else {
             let CriteriaClass = Object.getPrototypeOf(criteria).constructor;
@@ -305,12 +307,13 @@ export class InterfaceManager {
         }
     }
 
-    static compareAndSetRule(rules, prop, rule) {
+    static compareAndSetRule(rules, prop, rule,OwnerClass,isStatic=false) {
         let criteria = rule.criteria;
         let cls = criteria.getOwner();
+        let prefix=isStatic?'.':'#';
         if (prop in rules) {
             let last_cls = rules[prop][0].criteria.getOwner();
-            let entryPoints = [`${last_cls.name}`, `${cls.name}`, `.${prop}`];
+            let entryPoints = [`${OwnerClass.name}`, `~${cls.name}~`,`~${last_cls.name}~`, `${prefix}${prop}`];
             rules[prop][0].criteria.compare(criteria, entryPoints);
             //criteria.compare(rules[prop][0].criteria,entryPoints);
             //rules[prop][0].criteria.compareOwnTo(criteria,entryPoints);
@@ -332,15 +335,15 @@ export class InterfaceManager {
             if (isExpand) {
                 this.expandAndSetRule(interfaceData.protoProps, prop, rule[0], ProtoClass);
             } else {
-                this.compareAndSetRule(interfaceData.protoProps, prop, rule[0]);
+                this.compareAndSetRule(interfaceData.protoProps, prop, rule[0],ProtoClass);
             }
         }
         for (let prop of Object.getOwnPropertyNames(rules.staticProps)) {
             let rule = rules.staticProps[prop];
             if (isExpand) {
-                this.expandAndSetRule(interfaceData.staticProps, prop, rule[0], ProtoClass);
+                this.expandAndSetRule(interfaceData.staticProps, prop, rule[0], ProtoClass,true);
             } else {
-                this.compareAndSetRule(interfaceData.staticProps, prop, rule[0]);
+                this.compareAndSetRule(interfaceData.staticProps, prop, rule[0],ProtoClass,true);
             }
         }
         for (let val of rules.interfaces) {
@@ -404,15 +407,14 @@ export class InterfaceManager {
             if (!descriptors.hasOwnProperty(prop)) {
                 if(!(rules[prop][0] instanceof CriteriaPropertyType) ||  
                     !rules[prop][0].types.includes('undefined') && !rules[prop][0].types.includes('mixed')){
-                    let entryPoints = [rules[prop][last].criteria.getOwner().name, `${prefix}${prop}`];
+                    let entryPoints = ['~'+rules[prop][last].criteria.getOwner().name+'~', `${prefix}${prop}`];
                     let error = new InterfaceError('ValidateMemberDeclared', {entryPoints});
                     errors.push(error);
                 } 
                 continue;
             }
-            
             for (let rule of rules[prop]) {
-                let entryPoints = [rule.criteria.getOwner().name, `${prefix}${prop}`];
+                let entryPoints = ['~'+rule.criteria.getOwner().name+'~', `${prefix}${prop}`];
                 if (rule.criteria instanceof CriteriaReactType) {
                     if (!('get' in descriptors[prop]) && !('set' in descriptors[prop])) {
                         let error = new InterfaceError('ValidateReactDeclared', {
@@ -510,7 +512,6 @@ export class InterfaceManager {
                 }
                 throw e;
             }
-            
         }
     }
 
@@ -525,7 +526,7 @@ export class InterfaceManager {
         for (let prop of Object.getOwnPropertyNames(rules)) {
             if (prop in descriptors) {
                 for (let rule of rules[prop]) {
-                    let entryPoints = [`${descriptors[prop].constructor.name}`, `${rule.criteria.getOwner().name}`, `.${prop}`];
+                    let entryPoints = [`${descriptors[prop].constructor.name}`, `~${rule.criteria.getOwner().name}~`, `.${prop}`];
                     if (rule.criteria instanceof CriteriaReactType) {
                         if (descriptors[prop].get !== undefined) {
                             //let entryPointsGet=entryPoints.concat(['get']);
@@ -649,6 +650,7 @@ export class InterfaceManager {
         let interfacesData = this.initInterfaceData(ProtoClass);
         interfacesData.builtProps = builtProps;
     }
+    
 
     /**
      * Forms its own properties based on prototypes.
@@ -753,7 +755,44 @@ export class InterfaceManager {
         }
         return rules;
     }
+    static extendFuncInterfaces(ProtoClass, ...RestInterfaces){
+        let rules = this.buildInterface(ProtoClass);
+        let isExtend = false;
+        let isExpand = false;
+        if (typeof RestInterfaces[0] === 'boolean') {
+            isExpand = RestInterfaces[0];
+            if (typeof RestInterfaces[1] === 'boolean') {
+                isExtend = RestInterfaces[1];
+                RestInterfaces.splice(1, 1);
+            } else if (Array.isArray(RestInterfaces[1])) {
 
+            }
+            RestInterfaces.splice(0, 1);
+        } else if (typeof RestInterfaces[1] === 'boolean') {
+            RestInterfaces.splice(1, 1);
+        }
+        if (RestInterfaces.length > 0) {
+            for (let Interface of RestInterfaces) {
+                if (!rules.interfaces.includes(Interface)) {
+                    let rulesInterface = this.buildInterface(Interface);
+                    rules = this.addRules(ProtoClass, rulesInterface, isExpand);
+                }
+            }
+            rules = this.getInterfaceData(ProtoClass);
+            if (isExtend) {
+                let staticProps = Object.getOwnPropertyNames(rules.staticProps);
+                let protoProps = Object.getOwnPropertyNames(rules.protoProps);
+                this.extendOwnPropertiesFromPrototypes(ProtoClass, protoProps, staticProps);
+            }
+            this.buildPropsClass(ProtoClass, rules);
+        } else if (isExtend) {
+            let staticProps = Object.getOwnPropertyNames(rules.staticProps);
+            let protoProps = Object.getOwnPropertyNames(rules.protoProps);
+            this.extendOwnPropertiesFromPrototypes(ProtoClass, protoProps, staticProps);
+            this.buildPropsClass(ProtoClass, rules);
+        }
+        return rules;
+    }
     static expandInterfaces(ProtoClass, ...RestInterfaces) {
         if (RestInterfaces.length > 0) {
             if (typeof RestInterfaces[0] !== 'boolean') {
@@ -777,6 +816,7 @@ export class InterfaceManager {
         if (typeof ProtoClass !== 'function') {
             ProtoClass = Object.getPrototypeOf(ProtoClass).constructor;
         }
+        
 
         //=[],isExpand=false
         if (Object.getOwnPropertyNames(ProtoClass).includes('isInterface') && ProtoClass.isInterface) {
@@ -884,6 +924,106 @@ export class InterfaceManager {
         }
         Object.defineProperties(ProtoClass, descs);
     }
+ /*   static buildFunction(func,rule,isExpand){
+        let end_points = self.getAllEndPoints();
+        if(end_points.includes(func)){
+            return func;
+        }
+        let entryPoints = [`function ${func.name}`, `~${rule.criteria.getOwner().name}~`];
+        let ruleFunc=InterfaceManager.initInterfaceData(func);
+        if (ruleFunc.isBuilt === true) {
+            
+        }
+        if (isExpand) {
+            this.expandAndSetRule(interfaceData.protoProps, prop, rule[0], ProtoClass);
+        } else {
+            
+        }
+       
+        InterfaceManager.addRules();
+        rule.isBuilt = true;
+        let newFunc= function (...args) {
+            if (args[0] === Symbol.for('get_own_descriptor')) {
+                return func;
+            }
+            try{
+                rule.criteria.validateArguments(args, entryPoints);
+            }catch(e){
+                if(e instanceof InterfaceError){
+                    e.renderErrors();
+                }
+                throw e;
+            }
+            let answer = func.call(this, ...args);
+            try{
+                rule.criteria.validateReturn(answer, entryPoints);
+            }catch(e){
+                if(e instanceof InterfaceError){
+                    e.renderErrors();
+                }
+                throw e;
+            }
+            return answer;
+        };
+    };
+    static extendFuncInterfaces(func,...RestInterfaces){
+        let rule=InterfaceManager.initInterfaceData(func);
+        if(rule.isBuilt){
+            func = func(Symbol.for('get_own_descriptor'));
+        }
+        for(let iFunc of RestInterfaces){
+            if(!iFunc.isInterface && !InterfaceManager.hasInterfaceData(iFunc)){
+                continue;
+            } 
+            let i_rule;
+            if(iFunc.isInterface){
+                if(!InterfaceManager.hasInterfaceData(iFunc)){
+                    i_rule=InterfaceManager.initInterfaceData(iFunc).ownRule;
+                    let criteria=iFunc();
+                    if (typeof criteria !== 'object' || criteria === null) {
+                        criteria = {};
+                    }
+                    if (criteria.options === undefined) {
+                        criteria.options = {};
+                    }
+                    criteria.options = Object.assign({}, criteria.options, {
+                        entryPoints,
+                        owner: iFunc
+                    });
+                    criteria = new CriteriaMethodType(criteria);
+                    i_rule.criteria=criteria;
+                }
+            }
+            i_rule=InterfaceManager.getInterfaceData(iFunc);
+            let buf={rule};
+            this.compareAndSetRule(buf, 'rule', {i_rule});
+            rule=buf.rule;
+        }
+        rule.isBuilt = true;
+        let newFunc= {[func.name]:function (...args) {
+            if (args[0] === Symbol.for('get_own_descriptor')) {
+                return func;
+            }
+            try{
+                rule.criteria.validateArguments(args, entryPoints);
+            }catch(e){
+                if(e instanceof InterfaceError){
+                    e.renderErrors();
+                }
+                throw e;
+            }
+            let answer = func.call(this, ...args);
+            try{
+                rule.criteria.validateReturn(answer, entryPoints);
+            }catch(e){
+                if(e instanceof InterfaceError){
+                    e.renderErrors();
+                }
+                throw e;
+            }
+            return answer;
+        }}[func.name];
+    }*/
 
 }
 
