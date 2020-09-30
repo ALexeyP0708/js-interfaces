@@ -2,7 +2,12 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import {InterfaceError,InterfaceManager,CriteriaMirrorInterface,CriteriaType,SilentConsole} from "./export.js";
+import {
+    InterfaceError,
+    MirrorInterface,
+    CriteriaType,
+    InterfaceData
+} from "./export.js";
 
 /**
  *  An instance of the CriteriaMethodType class stores the criteria for a property and manages criteria.  
@@ -20,7 +25,7 @@ import {InterfaceError,InterfaceManager,CriteriaMirrorInterface,CriteriaType,Sil
  *        undefined, // type undefined
  *        {name:'hello'}, //  implements the given instance as a prototype (Object.create (object))
  *        class AnyClass{}, // inherited  the AnyClass class
- *        class Mirror extends CriteriaMirrorInterface{}, //to check for compliance of any object/class with the Mirror interface
+ *        class Mirror extends MirrorInterface{}, //to check for compliance of any object/class with the Mirror interface
  *  ]
  *  ```
  *  
@@ -315,7 +320,7 @@ export class CriteriaPropertyType extends CriteriaType{
      * - The type of the passed value must match the criteria of the current object.
      * - If a class or object is passed, then they must inherit Class or Interface or object  specified 
      * in the types of the current criteria
-     * - If the criteria set an interface inheriting the CriteriaMirrorInterface interface, 
+     * - If the criteria set an interface inheriting the MirrorInterface interface, 
      * then any object or class passed must meet the criteria set by this interface
      * @param value
      * @param {Array} entryPoints Indicate where the method call came from
@@ -344,7 +349,7 @@ export class CriteriaPropertyType extends CriteriaType{
                 types_string.push(`[function ${type.name}]`);
             }
 
-            if(['object','function'].includes(tv) && CriteriaMirrorInterface.isPrototypeOf(type)){
+            if(['object','function'].includes(tv) && MirrorInterface.isPrototypeOf(type)){
                 try {
                     type.validate(value,entryPoints);
                     check = true;
@@ -659,13 +664,13 @@ export class CriteriaPropertyType extends CriteriaType{
 
     /**
      * Checks if a class / object implements an interface  
-     * @param {object|class} value
-     * @param {class} EqualClass
+     * @param {object|function} value
+     * @param {function} EqualClass
      * @returns {boolean}
      */
 
     instanceOfInterface(value, EqualClass) {
-        return InterfaceManager.instanceOfInterface(value,EqualClass);
+        return InterfaceData.instanceOfInterface(value,EqualClass);
     }
 
     /**
@@ -675,3 +680,4 @@ export class CriteriaPropertyType extends CriteriaType{
         Object.freeze(this);
     }
 }
+InterfaceData.addGlobalEndPoints(CriteriaPropertyType);

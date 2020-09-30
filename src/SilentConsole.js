@@ -1,7 +1,7 @@
 /**
  * @module @alexeyp0708/interface-manager
  */
-import {buffer} from './export.js';
+import {buffer,InterfaceData} from './export.js';
 /**
  * Denies and allows displaying messages to the console.
     @prop {Array} props methods in the console that need to be controlled
@@ -120,3 +120,5 @@ export class SilentConsole{
         };
     };
 };
+
+InterfaceData.addGlobalEndPoints(SilentConsole);

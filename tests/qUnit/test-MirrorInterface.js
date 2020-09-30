@@ -1,10 +1,10 @@
-import {CriteriaMirrorInterface,InterfaceError, InterfaceManager} from '../../src/export.js';
+import {MirrorInterface, InterfaceBuilder, InterfaceError} from '../../src/export.js';
 
-QUnit.module( 'Class CriteriaMirrorInterface');
-QUnit.test('test methods CriteriaMirrorInterface',function(assert){
+QUnit.module( 'Class MirrorInterface');
+QUnit.test('test methods MirrorInterface',function(assert){
     
     {
-        class MirrorTest extends CriteriaMirrorInterface {
+        class MirrorTest extends MirrorInterface {
 
         };
         MirrorTest.prototype.hello={
@@ -14,7 +14,7 @@ QUnit.test('test methods CriteriaMirrorInterface',function(assert){
             types:'number'
         };
         MirrorTest.isInterface=true;
-        InterfaceManager.extendInterfaces(MirrorTest);
+        InterfaceBuilder.extendInterfaces(MirrorTest);
         assert.throws(function(){
             MirrorTest.validate({
                 hello:'friend',
@@ -24,14 +24,14 @@ QUnit.test('test methods CriteriaMirrorInterface',function(assert){
                 return true;
             }
             return false;
-        },'CriteriaMirrorInterface.validate method');
+        },'MirrorInterface.validate method');
     }
     
     {
-        class MirrorTest extends CriteriaMirrorInterface {
+        class MirrorTest extends MirrorInterface {
         };
         MirrorTest.prototype.specific={
-            types:CriteriaMirrorInterface.createInterface('Mirror',{
+            types:MirrorInterface.createInterface('Mirror',{
                 name:{types:'number'}
             })
         };
@@ -44,22 +44,22 @@ QUnit.test('test methods CriteriaMirrorInterface',function(assert){
                 return true;
             }
             return false;
-        },'CriteriaMirrorInterface.validate method 2');
+        },'MirrorInterface.validate method 2');
     }
     
     {
-        let MirrorTest=CriteriaMirrorInterface.createInterface('MirrorTest',{
+        let MirrorTest=MirrorInterface.createInterface('MirrorTest',{
             method(){
                 return {
                     arguments:[
                         {
-                            types:CriteriaMirrorInterface.createInterface('Mirror',{
+                            types:MirrorInterface.createInterface('Mirror',{
                                 name:{types:'number'}
                             })
                         }
                     ],
                     return:{
-                        types:CriteriaMirrorInterface.createInterface('Mirror',{
+                        types:MirrorInterface.createInterface('Mirror',{
                             name:{types:'number'}
                         })
                     }    
@@ -72,7 +72,7 @@ QUnit.test('test methods CriteriaMirrorInterface',function(assert){
                 return {name:'hello'};
             }
         };
-        InterfaceManager.extendInterfaces(Test);
+        InterfaceBuilder.extendInterfaces(Test);
         let mirror=new Test();
         assert.throws(function(){
             mirror.method({name:1});
@@ -81,14 +81,14 @@ QUnit.test('test methods CriteriaMirrorInterface',function(assert){
                 return true;
             }
             return false;
-        },'CriteriaMirrorInterface.validate method 3');
+        },'MirrorInterface.validate method 3');
     }
 //
     {
-       class Mirror extends CriteriaMirrorInterface{
+       class Mirror extends MirrorInterface{
            
        }
-        CriteriaMirrorInterface.createInterface(Mirror,{
+        MirrorInterface.createInterface(Mirror,{
             method(){
                 return {
                     arguments:[
@@ -125,8 +125,8 @@ QUnit.test('test methods CriteriaMirrorInterface',function(assert){
             static test(Class){
                 Class.method2('hello');
             }
-        };  
-        InterfaceManager.extendInterfaces(Factory,InterfaceTest);
+        };
+        InterfaceBuilder.extendInterfaces(Factory,InterfaceTest);
         class Hello{
             method(arg){}
         };

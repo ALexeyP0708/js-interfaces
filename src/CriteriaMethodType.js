@@ -2,7 +2,7 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import {InterfaceError,CriteriaPropertyType,CriteriaType,SilentConsole} from "./export.js";
+import {InterfaceError, CriteriaPropertyType, CriteriaType, InterfaceData} from "./export.js";
 
 /**
  * An instance of the CriteriaMethodType class stores the criteria for a method
@@ -311,3 +311,4 @@ export class CriteriaMethodType extends CriteriaType{
         }
     }
 }
+InterfaceData.addGlobalEndPoints(CriteriaMethodType);

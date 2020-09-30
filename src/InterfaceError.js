@@ -2,7 +2,7 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import {buffer,SilentConsole} from './export.js';
+import {buffer, InterfaceBuilder, InterfaceData, SilentConsole} from './export.js';
 /**
  * 
  */
@@ -170,6 +170,8 @@ export class InterfaceError extends Error {
             let constructor=Object.getPrototypeOf(this).constructor;
             let sc=constructor.sc;
             sc.allowToSpeak(true);
+            this.message='See ⇑⇑⇑';
+            this.stack='See ⇑⇑⇑';
         }
     }
     clearErrors(){
@@ -212,8 +214,6 @@ export class InterfaceError extends Error {
             }
         }
         console.groupEnd();
-        this.message='See ⇑⇑⇑';
-        this.stack='See ⇑⇑⇑';
         throw this;
     }
     throwBack(){
@@ -335,7 +335,7 @@ InterfaceError.types={
      * An error is thrown in the following cases:  
      * -  When validate class members according to interface criteria , If the value does not match the types from the interface criteria   
      * 
-     * Accompanied by errors:  {@link ...Validate_BadMirrorProperties} (if one of the types is extends [class  .CriteriaMirrorInterface])  
+     * Accompanied by errors:  {@link ...Validate_BadMirrorProperties} (if one of the types is extends [class  .MirrorInterface])  
      */
     ValidateType:`{$type}: {$entryPoints} - Expected type of "{$expectedTypes}"  but defined by "{$definedType}".{$errors}`,
     
@@ -498,7 +498,7 @@ InterfaceError.types={
 
     /**
      * An error is thrown in the following cases:
-     * - When  [method .InterfaceManager.implementInterfaces] is called and the first argument is an interface.
+     * - When  [method .InterfaceBuilder.implementInterfaces] is called and the first argument is an interface.
      * Build and validation happens only for classes.
      */
 
@@ -506,3 +506,4 @@ InterfaceError.types={
 };
 InterfaceError.consoleNotification=true;
 InterfaceError.sc=new SilentConsole(console);
+InterfaceData.addGlobalEndPoints(InterfaceError);

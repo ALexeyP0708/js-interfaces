@@ -1,7 +1,8 @@
 /**
  * @module @alexeyp0708/interface-manager
  */
-//import {} from  "./export.js";;
+
+import {InterfaceData} from "./export.js";
 
 export class CriteriaType{
     constructor (criteria){
@@ -51,3 +52,4 @@ export class CriteriaType{
         Object.freeze(this);
     }
 }
+InterfaceData.addGlobalEndPoints(CriteriaType);

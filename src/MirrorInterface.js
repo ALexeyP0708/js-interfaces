@@ -2,7 +2,7 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import{InterfaceManager,InterfaceError} from "./export.js";
+import { InterfaceError, InterfaceData, InterfaceBuilder, InterfaceValidator} from "./export.js";
 
 /**
  * An interface that is inherited by other interfaces in order to create a "mirror" check for objects or classes.
@@ -10,7 +10,7 @@ import{InterfaceManager,InterfaceError} from "./export.js";
  * The mirror interface assigns rules, but does not make changes to the object / class being checked. 
  * Thus, it will not be possible to validate arguments and return values ​​for methods and reactive properties.
  */
-export class CriteriaMirrorInterface {
+export class MirrorInterface  {
     /**
      * Validation the object for matching properties according to the criteria of the current interface
      * @param {object|Function} object
@@ -19,15 +19,15 @@ export class CriteriaMirrorInterface {
    static validate (object,entryPoints = ['not_defined']){
        //let ProtoClass=Object.getPrototypeOf(this);// parent
        let ProtoClass=this;//this.prototype.constructor;
-       if(!InterfaceManager.hasInterfaceData(ProtoClass)){
+       if(!InterfaceData.has(ProtoClass)){
            ProtoClass.isInterface=true;
-           InterfaceManager.extendInterfaces(ProtoClass);
+           InterfaceBuilder.extendInterfaces(ProtoClass);
        }
-       let rules=InterfaceManager.getInterfaceData(ProtoClass);
+       let rules=InterfaceData.get(ProtoClass);
        let errors=[];
        if(typeof object === 'function' ){
            try{
-               InterfaceManager.validatePropsClass(object,rules);
+               InterfaceValidator.validateClass(object,rules);
            } catch(e){
                if(!(e instanceof InterfaceError)){
                    throw e;
@@ -35,7 +35,7 @@ export class CriteriaMirrorInterface {
                errors.push(e);
            }
        } else {
-           errors=InterfaceManager.validatePropsObject(object,rules.protoProps);
+           errors=InterfaceValidator.validateObject(object,rules.protoProps);
        }
        if (errors.length > 0) {
            throw new InterfaceError('Validate_BadMirrorProperties', {errors, entryPoints});
@@ -43,7 +43,7 @@ export class CriteriaMirrorInterface {
    }
 
     /**
-     * Creates an interface that inherits the current interface (class CriteriaMirrorInterface) 
+     * Creates an interface that inherits the current interface (class MirrorInterface) 
      * Creates a class if string, and assigns instance properties and static properties to this class.
      * @param {string|class|undefined} NewClass  Class name or class. 
      * @param {} protoProp
@@ -77,7 +77,8 @@ export class CriteriaMirrorInterface {
         }
         Object.defineProperties(NewClass,descs);
         NewClass.isInterface=true;
-        InterfaceManager.extendInterfaces(NewClass);
+        InterfaceBuilder.extendInterfaces(NewClass);
         return NewClass;
    }
 }
+InterfaceData.addGlobalEndPoints(MirrorInterface);

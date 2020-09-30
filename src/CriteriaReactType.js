@@ -2,7 +2,7 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import {CriteriaMethodType,CriteriaType,InterfaceError,SilentConsole} from "./export.js";
+import {CriteriaMethodType, CriteriaType, InterfaceData, InterfaceError} from "./export.js";
 
 /**
  *  An instance of the CriteriaMethodType class stores the criteria for a reactive properties
@@ -325,3 +325,4 @@ export class CriteriaReactType extends CriteriaType {
         }
     }
 }
+InterfaceData.addGlobalEndPoints(CriteriaReactType);
