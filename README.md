@@ -14,77 +14,84 @@
 
 
 # Getting started
- Цель компонента:
- -  создавать интерфейсы для взаимодействия между собой JS компонентов;
- -  создавать интерфейсы для написание API запросов.
- -  для налаженного и удобного взаимодействия между собой разработчиков.
- -  проектирование кода.
- - 
-Примем за правило, что класс помеченный как интерфейс , будет называться интерфейс.
+
+Target of the component:
+ -  create interfaces for interaction between JS components;
+ - create interfaces for writing API requests.
+ - for streamlined and convenient interaction between developers.
+ - code design.
+ 
+
 
 ## Interface declaration
 
+Let's take as a rule that a class marked as an interface will be called an interface.
 ```js
-// создадим класс интерфейса
+// create an interface class
 class TestInterface {
 } 
-// обозначим что это интерфейс
+// this the class is an interface
 TestInterface.isInterface=true;
-/**
- собирем правила интерфейса. 
-Warn: при сборке , генерируются правила интерфейса для членов и  члены интерфеса удаляются. 
-Правила интерфейса хранаятся в интерфейсе.
 
-Не обязательно применять. Правила интерфейса могут сгенерироваться при наследовании интерфейса рабочим классом.
+/**
+Let's collect the interface rules.
+Warn: when forming rules, interface rules for members are generated and interface members are removed.
+Interface rules are created for each class in which interfaces are applied.
+
 */
 let rules=InterfaceApi.extend(TestInterface); 
+/*
+InterfaceApi.extend is optional. Interface rules can be generated when an interface is inherited by a working class.
+*/
 ```
 ## Interface members
 
 ```js
 class TestInterface {
 	/**
-		warn:rules for the constructor method cannot be set. since the class itself is a given constructor.
-		do not declare a constructor in the interface.
+	warn:rules for the constructor method cannot be set. 
+	since the class itself is a given constructor.
+	do not declare a constructor in the interface.
 	*/
+	
 	/**
-		заявлем что необходим статический метод "method"
+	declare the "method" static method 
 	*/  
     static method(){}  
    	
    	/**
-		заявлем что в экземпляре обьекта должен быть метод "method"
+	declare the "method" method   in the object instance
 	*/  
     method(){}  
     
     /**
-		заявлем что необходимо статическое реактивное свойство "react" (getter)
+	declare the "react"(getter)  static reactive property 
 	*/  
     static get react(){}  
     
     /**
-		заявлем что необходимо статическое реактивное свойство "react" (setter)
+	declare the "react"(setter)  static reactive property 
 	*/ 
     static set react(v){}  
 
    	/**
-		заявлем что в экземпляре обьекта должно быть реактивное свойство "react" (getter)
+	declare the "react"(getter)  reactive property in the object instance
 	*/  
     get react(){}  
 
 	/**
-		заявлем что в экземпляре обьекта должно быть реактивное свойство "react" (setter)
+	declare the "react"(setter)  reactive property in the object instance
 	*/ 
     set react(v){}  
 }  
 	/**
-		заявлем что в экземпляре обьекта должно быть прототипное свойство "prop".
-		Warn: Указания наличия собственного свойства в экземпляре обьекта не представляется возможным. 
+	declare the "prop" property in the prototype object instance.
+	Warn: it is not possible to create rules for own property object.
 	*/ 
 TestInterface.prototype.prop={}; 
  
 /**
-	заявлем что необходимо статическое свойство "prop"
+	declare the "prop" static property 
 */  
 TestInterface.prop={};  
 
@@ -92,14 +99,9 @@ TestInterface.isInterface=true;
 let rules=InterfaceApi.extend(TestInterface);
 ```
 
-## Критерии
+## Criteria
 
-Каждый член интерфейса должен возвращать критерии (объекты с набором данных) по которым будут проводится валидация данных.
-
-Есть три типа критериев (классы для критериев)
-- **CriteriaPropertyType** - описывает свойства класса, аргументы метода/функции, возвращаемое значение метода/функции.
-- **CriteriaMethodType** - описывает методы класса, аргументы метода/функции и возвращаемое значение метода/функции если такие данные  должны быть вызываемыми. 
-- **CriteriaReactType** - описывает реактивные свойства класса.
+Each member of the interface must return criteria (objects with a data set) by which the data will be validated.
 ```js
 	class TestInterface{
 		method(){
@@ -111,6 +113,15 @@ let rules=InterfaceApi.extend(TestInterface);
 		}
 	}
 ```
+
+There are three types of criteria (classes for criteria):
+- **CriteriaPropertyType** - describes class properties, method / function arguments, method / function return value;
+- **CriteriaMethodType** - describes the class methods, method / function arguments and the return value of the method / function if such data should be callable.
+- **CriteriaReactType** - describes the reactive properties of the class.
+
+
+
+
 ### template for CriteriaPropertyType
 ```js
 {
@@ -127,59 +138,77 @@ let rules=InterfaceApi.extend(TestInterface);
 			'symbol', //typeof
 			'function', //typeof
 			'mixed', // any types
-			class A{}, // for check  object instanceof A or A.isPrototypeOf(function)
-			{protoObject}, // for check   protoObject.isPrototypeOf(object)
+			
+// for check  object instanceof A or A.isPrototypeOf(function)
+			class A{}, 
+			
+// for check   protoObject.isPrototypeOf(object)
+			{protoObject}, 
 
-			/*
-			Expands the current criteria with these criteria.It is used as a detached type.
-			Use only in cases of complex interface implementation.
-			*/
+/*
+Expands the current criteria with these criteria.It is used as a detached type.
+Use only in cases of complex interface implementation.
+*/
 			new CriteriaPropertyType({}) 
 			
-			/*
-			If the value is a function, then it sets the rules for it.
-			*/
+/*
+If the value is a function, then it sets the rules for it.
+*/
 			new CriteriaMethodType({}) 
 			
-			/*
-			any object will be checked against the specified interface.
-			Designed to check the properties of an object for data correctness
-			*/
+/*
+any object will be checked against the specified interface.
+Designed to check the properties of an object for data correctness
+*/
 			class extends MirrorInterface{}
 
-			/*
-			 checks if an object or function implements a given interface
-			 */
+/*
+ checks if an object or function implements a given interface
+ */
 			Object.assign(class Interface{},{isInterface:true})
 		],
 		
-	/**
-	указывает каким значением должны соответствовать данные
-	Любые приметивы. И пременяются правила отношений к классам и интерфейсам.
-	*/
+/**
+indicates which value the data should match.
+Any primitives  and the rules of relationship to classes and interfaces apply.
+Must match types.
+*/
 	includes:[ // optional
 		//any values ​​are strict comparison
+		1,
+		'hello',
 		
-		// or or redundant validate
-		class A{}, // for check  object instanceof A or A.isPrototypeOf(function)
-		{protoObject}, // for check   protoObject.isPrototypeOf(object)
-		Object.assign(class Interface{},{isInterface:true})//checks if an object or function implements a given interface
+// for check  object instanceof A or A.isPrototypeOf(function)
+		class A{}, 
+		
+// for check   protoObject.isPrototypeOf(object)
+		{protoObject}, 
+
+//checks if an object or function implements a given interface
+		Object.assign(class Interface{},{isInterface:true})
 		
 	], 
 	
-	/**
-	указывает каким значением не должны соответствовать данные
-	*/
+/**
+indicates which value the data should not match
+*/
 	excludes:[// optional
 		//any values ​​are strict comparison
-			
-		// or or redundant validate
-		class A{}, // for check  object instanceof A or A.isPrototypeOf(function)
-		{protoObject}, // for check   protoObject.isPrototypeOf(object)
-		Object.assign(class Interface{},{isInterface:true})//checks if an object or function implements a given interface
-	] // optional
+		1,
+		'hello',
+		
+// for check  object instanceof A or A.isPrototypeOf(function)
+		class A{}, 
+
+// for check   protoObject.isPrototypeOf(object)
+		{protoObject}, 
+		
+//checks if an object or function implements a given interface
+		Object.assign(class Interface{},{isInterface:true})
+	] 
 }
 ```
+
 Example
 ```js
 class A{
@@ -196,17 +225,29 @@ A.isInterface=true;
 	{
 		arguments:[// optional
 		
-			{}, //arguments[1] -  CriteriaPropertyType template or  CriteriaMethodType template 
-			{} //arguments[2] -  CriteriaPropertyType template or  CriteriaMethodType template 
+//arguments[1] -  CriteriaPropertyType template or  CriteriaMethodType template 
+			{}, 
+			
+//arguments[2] -  CriteriaPropertyType template or  CriteriaMethodType template 
+			{} 
 			...
 		],
-		return:{} [// optional - template CriteriaPropertyType or template CriteriaMethodType 
-		isBuildSandbox:true, //optional. default -  true or your settings. Denotes to collect method / function in sandbox . If false, then other method criteria will be for developer information only.
+		
+// template CriteriaPropertyType or template CriteriaMethodType 
+		return:{} [// optional 
+
+/*
+optional. default -  true or your settings. 
+Denotes to run method / function in sandbox . 
+If false, then other method criteria will be for developer information only.
+*/
+		isBuildSandbox:true, 
 	}
-	/*
-		CriteriaPropertyType template - описывает обыное значение
-		CriteriaMethodType template - описывает выполняемую функцию
-	*/
+	
+/*
+CriteriaPropertyType template -describes  a value
+CriteriaMethodType template - describes  callable function
+*/
 ```
 
 Example
@@ -269,11 +310,14 @@ or
 		}
 	}
 ```
-Класс  должен не реализовывать "getter" или "setter" который не объявлен  в интерфейсе.
+A class must not implement a "getter" or "setter" that is not declared in the interface.
+
 Example
 ```js
 class A{
-	// реактивное свойство должно принимать число и будет возвращать число.
+/* 
+Using a reactive property must take a number and will return a number.
+*/
 	get react(){
 		return {
 			types :['number']
@@ -284,7 +328,10 @@ class A{
 			types:['number']
 		}
 	}
-	// спомощью реактивного свойства должно  устанавливаться вызываемая функция которая принимает в качестве аргумента обьект, а возвращает строку. 
+	
+/* 
+Using a reactive property, a callable function should be 
+set that takes an object as an argument and returns a string. */
 	set react2(){
 		return {
 			arguments:[{
@@ -299,7 +346,9 @@ class A{
 			}]
 		}
 	}
-	// если get react2 не обьявлен, то при попытке обьявить его в классе , вызовет ошибку. 
+/*
+if "get react2" is not declared, then when you try to declare it in the class, it will cause an error.
+ */
 }
 A.isInterface=true;
 
@@ -348,10 +397,60 @@ InterfaceApi.extend(Test,TestInterface,TestInterface2);
 class Test2 extends Test{  // create finaly class
     method2(){}  
 }
-// All interface rules for classes will be formed, and for the current class it will validate the compliance of the members with the established criteria.
+/* 
+All interface rules for classes will be formed, and 
+for the current class it will validate the compliance
+ of the members with the established criteria.
+*/
 InterfaceApi.implement(Test2);
 ```
 ## inherit interface  to interface
+
+Rules:
+- The criteria must be compatible.
+- The inheriting interface can restrict the rules of the master interface, but it is not allowed to extend them
+```js
+//core criteria
+{
+	types:['string','number'],
+}
+// heir - good criteria
+{
+	types:['string']
+}
+// heir - bad criteria
+{
+	types:['string','object']
+}
+
+//core criteria
+{
+	types:['number'],
+	includes:[1,2,3,4,5],
+}
+
+// heir - good criteria
+{
+	types:['number'],
+	includes:[1,2,3],
+}
+// heir - bad criteria
+{
+	types:['number'],
+	includes:[1,2,10],
+}
+
+//core criteria
+{
+	types:['number'],
+	excludes:[1,2,3,4,5],
+}
+// heir - good criteria
+{
+	types:['number'],
+	excludes:[1,2,3,4,5,6,7,8],
+}
+```
 
 ```js
 class TestInterface {  
@@ -411,7 +510,7 @@ TestInterface4.isInterface=true;
 InterfaceApi.extend(TestInterface4,TestInterface2);
 ```
 
-## методы сборки интерфейсов
+## методы для сборки интерфейсов
 ```js
 /*
 Осуществляет генирацию правил  интерфейсов.
