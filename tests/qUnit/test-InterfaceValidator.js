@@ -265,7 +265,7 @@ QUnit.test('Methods test InterfaceValidator class',function(assert){
         InterfaceRules.init(Test,rules);
         let errors=[];
         assert.throws(function(){
-            InterfaceValidator.validateClass(Test,rules,errors);
+            errors=InterfaceValidator.validateClass(Test,rules);
         },function (e) {
             return e instanceof InterfaceError && e.type==='Validate_BadMembers'
         },'validateClass');

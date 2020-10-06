@@ -2,7 +2,7 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import {CriteriaMethodType, CriteriaType, InterfaceData, InterfaceError} from "./export.js";
+import {CriteriaMethodType,CriteriaPropertyType, CriteriaType, InterfaceData, InterfaceError} from "./export.js";
 
 /**
  *  An instance of the CriteriaMethodType class stores the criteria for a reactive properties
@@ -106,16 +106,21 @@ export class CriteriaReactType extends CriteriaType {
                 value:{}
             }
         });
-
-        if(typeof criteria.get ==='object' && criteria.get!==null){
-            this.initGet(criteria.get,this.options.entryPoints);
-        } else {
+        if(criteria.get === null || criteria.get===undefined){
             delete this.get;
+        } else{
+            criteria.get=CriteriaPropertyType.formatToObject(criteria.get,this.options.entryPoints);
+            if(typeof criteria.get ==='object' && criteria.get!==null){
+                this.initGet(criteria.get,this.options.entryPoints);
+            } 
         }
-        if(typeof criteria.set ==='object' && criteria.set!==null){
-            this.initSet(criteria.set,this.options.entryPoints);
-        } else {
+        if(criteria.set === null || criteria.set===undefined){
             delete this.set;
+        } else {
+            criteria.set=CriteriaPropertyType.formatToObject(criteria.set,this.options.entryPoints);
+            if(typeof criteria.set ==='object' && criteria.set!==null){
+                this.initSet(criteria.set,this.options.entryPoints);
+            } 
         }
         //this.freeze();
     }
@@ -136,6 +141,10 @@ export class CriteriaReactType extends CriteriaType {
      * @throws {InterfaceError}
      */
     initGet(criteria={},entryPoints=['not_defined']){
+        let tp= typeof criteria;
+        if(!['object'].includes(tp)|| criteria==null){
+            new InterfaceError('initGet',{message:'Object expected. Example:{types:["string","number"]} or {return:{types:["string","number"]}}'}).throw();
+        }
         entryPoints=Object.assign([],entryPoints);
         if(criteria.hasOwnProperty('return')){
             let options=criteria.options;
@@ -145,13 +154,6 @@ export class CriteriaReactType extends CriteriaType {
             }
         }
         criteria=Object.assign({},criteria);
-        //delete criteria.arguments;
-        if(criteria.types===undefined){
-            criteria.types=['undefined'];
-        }
-        if(criteria.options===undefined){
-            criteria.options={};
-        }
         let options=Object.assign({},this.options,criteria.options,{entryPoints:entryPoints});
         criteria = new CriteriaMethodType({return:criteria,options});
         this.get=criteria;
@@ -164,6 +166,10 @@ export class CriteriaReactType extends CriteriaType {
      * @throws {InterfaceError}
      */
     initSet(criteria={},entryPoints=['not_defined']){
+        let tp= typeof criteria;
+        if(!['object'].includes(tp)|| criteria==null){
+            new InterfaceError('initSet',{message:'Object expected. Example:{types:["string","number"]} or {return:{types:["string","number"]}}'}).throw();
+        }
         entryPoints=Object.assign([],entryPoints);
         if(criteria.hasOwnProperty('arguments')){
             let options=criteria.options;
@@ -173,13 +179,6 @@ export class CriteriaReactType extends CriteriaType {
             }
         }
         criteria=Object.assign({},criteria);
-        delete criteria.return;
-        if(criteria.types===undefined){
-            criteria.types=['mixed'];
-        }
-        if(criteria.options===undefined){
-            criteria.options={};
-        }
         let options=Object.assign({},this.options,criteria.options,{entryPoints:entryPoints});
         criteria = new CriteriaMethodType({arguments:[criteria],options});
         this.set=criteria;
@@ -190,14 +189,16 @@ export class CriteriaReactType extends CriteriaType {
      * If the seter is not set by the criteria, then an error will
      * @param val
      * @param {Array} entryPoints Indicate where the method call came from
-     * @throws {InterfaceError} InterfaceError.type ===ValidateReactDeclared
+     * @returns {{types:boolean|*,includes:boolean|*,excludes:boolean|*}}
+     * If there are no exceptions will return the result of matches
+     * @throws {InterfaceError} 
      */
     validateSet(val,entryPoints=['not_defined']){
         entryPoints=entryPoints.concat(['set']);
         if(! ('set' in this)){
             new InterfaceError('ValidateReactDeclared',{entryPoints,not:'not',react_type:'setter'}).throw();
         }
-        this.set.validateArguments([val],entryPoints);
+        return this.set.validateArguments([val],entryPoints)[0];
     }
 
     /**
@@ -205,6 +206,8 @@ export class CriteriaReactType extends CriteriaType {
      * If the geter is not set by the criteria, then an error will
      * @param val
      * @param {Array} entryPoints Indicate where the method call came from
+     * @returns {{types:boolean|*,includes:boolean|*,excludes:boolean|*}}
+     * If there are no exceptions will return the result of matches
      * @throws {InterfaceError} InterfaceError.type ===ValidateReactDeclared
      */
     validateGet(val,entryPoints=['not_defined']){
@@ -212,7 +215,7 @@ export class CriteriaReactType extends CriteriaType {
         if(! ('get' in this)){
             new InterfaceError('ValidateReactDeclared',{entryPoints,not:'not',react_type:'getter'}).throw();
         }
-        this.get.validateReturn(val, entryPoints);
+        return this.get.validateReturn(val, entryPoints);
     }
 
     /**
@@ -323,6 +326,32 @@ export class CriteriaReactType extends CriteriaType {
         if(errors.length>0){
             new InterfaceError('ExpandReact_badParams',{errors,entryPoints}).throw(true);
         }
+    }
+    
+    static formatStrictSyntaxToObject (data,entryPoints=['not_defined']){
+        if(data===null || data===undefined){
+            data={};
+        }
+        if(typeof data!=='object' ){
+            new InterfaceError('CriteriaReactFormat',{message: `Object expected. Example:  {get:{},set{}}`}).throw();
+        }
+        let result={};
+        for (let prop of ['get','set']){
+            if(data.hasOwnProperty(prop)){
+                if(data[prop]===undefined){
+                    continue;
+                }
+                if(data[prop].hasOwnProperty('arguments')||data[prop].hasOwnProperty('return')){
+                    result[prop]=CriteriaMethodType.formatStrictSyntaxToObject(data[prop],entryPoints.concat(['get']));
+                } else {
+                    result[prop]=CriteriaPropertyType.formatStrictSyntaxToObject(data[prop],entryPoints.concat(['get']));
+                }
+            }
+        }
+        if(result['options']===undefined){
+            result.options={entryPoints};
+        }
+        return result;
     }
 }
 InterfaceData.addGlobalEndPoints(CriteriaReactType);

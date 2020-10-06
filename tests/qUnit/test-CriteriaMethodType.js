@@ -19,7 +19,93 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
             value:{}
         }
     });
+    
     criteria.initOptions({});
+
+
+    // static formatStrictSyntaxToObject
+    
+    {
+        let result;
+        let tpl={
+            arguments:[],
+            return:{
+                types:['mixed'],
+                includes:[],
+                excludes:[],
+                options:{
+                    entryPoints:[
+                        'not_defined',
+                        'return'
+                    ]
+                },
+            },
+
+            options:{ 
+                entryPoints:[
+                    'not_defined'
+                ]
+            }
+        };
+        result=CriteriaMethodType.formatStrictSyntaxToObject({});
+        assert.propEqual(result,Object.assign({},tpl),'formatExtendedSyntaxToObject 1');
+        
+        result=CriteriaMethodType.formatStrictSyntaxToObject({arguments:['string']});
+        assert.propEqual(result,Object.assign({},tpl,{
+            arguments:[
+                {
+                    types:['string'],
+                    includes:[],
+                    excludes:[],
+                    options:{
+                        entryPoints:["not_defined", "arguments[0]"]
+                    }
+                }]
+        }),'formatExtendedSyntaxToObject 2');
+        
+        result=CriteriaMethodType.formatStrictSyntaxToObject({return:'string'});
+        assert.propEqual(result,Object.assign({},tpl,{
+            return:{
+                types:['string'],
+                includes:[],
+                excludes:[],
+                options:{
+                    entryPoints:[
+                        'not_defined',
+                        'return'
+                    ]
+                }
+            }
+        }),'formatExtendedSyntaxToObject 3');
+
+
+
+        result=CriteriaMethodType.formatStrictSyntaxToObject({return:{return:'string'}});
+        assert.propEqual(result,Object.assign({},tpl,{
+            return:{
+                arguments:[],
+                return:{
+                    types:['string'],
+                    includes:[],
+                    excludes:[],
+                    options:{
+                        entryPoints:[
+                            'not_defined',
+                            'return.call()',
+                            'return'
+                        ]
+                    }
+                },
+                options:{
+                    entryPoints:[
+                        'not_defined',
+                        'return.call()'
+                    ]
+                }
+                
+            }
+        }),'formatExtendedSyntaxToObject 4');
+    }
     // init Arguments
     {
         criteria.initArguments([
@@ -38,7 +124,6 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
         },function(e){
             return e instanceof InterfaceError;
         },'throw initArguments');
-
     }
 
     // initReturn
@@ -141,7 +226,7 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                 }
             ],
             return:{
-                types:'undefined'
+                types:['undefined']
             }
         });
         criteria.expand(criteria2);

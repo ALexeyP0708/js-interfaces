@@ -8,13 +8,12 @@ export class CriteriaType{
     constructor (criteria){
         Object.defineProperties(this,{
             options: {
-            enumerable: true,
-                configurable: true,
-                writable: true,
-                value: {}
-        }
+                enumerable: true,
+                    configurable: true,
+                    writable: true,
+                    value: {}
+            }
         });
-
         this.initOptions(criteria.options);
     }
     /**
@@ -29,8 +28,8 @@ export class CriteriaType{
      */
     initOptions(options={}){
         this.options={};
-        this.options.entryPoints='entryPoints' in options?options.entryPoints:['not_defined'];
-        this.options.owner=options.hasOwnProperty('owner')?options.owner:class not_defined {};
+        this.options.entryPoints=options.entryPoints??this.options.entryPoints??['not_defined'];
+        this.options.owner=options.owner?? this.options.owner??class not_defined {};
     }
 
     /**
@@ -51,5 +50,22 @@ export class CriteriaType{
     freeze(){
         Object.freeze(this);
     }
+
+    validate() {
+        throw new Error('no method');
+    }
+    static formatExtendedSyntaxToObject(data,entryPoints){
+        throw new Error('no method');
+    }
+    static formatStrictSyntaxToObject(data,entryPoints){
+        throw new Error('no method');
+    }
+    static formatToObject(data,entryPoints=['not_defined']){
+        if(!CriteriaType.isUseStrictSyntax){
+            data=this.formatExtendedSyntaxToObject(data,entryPoints);
+        }
+        return this.formatStrictSyntaxToObject(data,entryPoints);
+    }
 }
+CriteriaType.isUseStrictSyntax=true;
 InterfaceData.addGlobalEndPoints(CriteriaType);

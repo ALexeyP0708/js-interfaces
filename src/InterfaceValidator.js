@@ -25,12 +25,15 @@ export class InterfaceValidator {
         for (let prop of Object.getOwnPropertyNames(rules)) {
             let last = rules[prop].length - 1;
             if (!descriptors.hasOwnProperty(prop)) {
-                if(!(rules[prop][0] instanceof CriteriaPropertyType) ||
-                    !rules[prop][0].types.includes('undefined') && !rules[prop][0].types.includes('mixed')){
+                if(
+                    !(rules[prop][last].criteria instanceof CriteriaPropertyType) ||
+                    !rules[prop][last].criteria.types.includes('undefined') &&
+                    !rules[prop][last].criteria.types.includes('mixed')
+                ){
                     let entryPoints = ['~'+rules[prop][last].criteria.getOwner().name+'~', `${prefix}${prop}`];
                     let error = new InterfaceError('ValidateMemberDeclared', {entryPoints});
                     errors.push(error);
-                }
+                }  
                 continue;
             }
             for (let rule of rules[prop]) {

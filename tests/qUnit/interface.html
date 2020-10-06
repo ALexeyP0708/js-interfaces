@@ -15,9 +15,10 @@
     let sc =new SilentConsole(buffer.console);
     buffer.bufferVars.sc=sc;
     QUnit.begin(()=>{
-      sc.denyToSpeak();
+        sc.denyToSpeak();
     });
 </script>
+<script type="module" src="test-logic.js"></script>
 <script type="module" src="test-SilentConsole.js"></script>
 <script type="module" src="test-InterfaceError.js"></script>
 <script type="module" src="test-CriteriaPropertyType.js"></script>
@@ -28,10 +29,10 @@
 <script type="module" src="test-InterfaceRules.js"></script>
 <script type="module" src="test-InterfaceValidator.js"></script>
 <script type="module" src="test-InterfaceBuilder.js"></script>
+<script type="module" src="test-InterfaceFuncBuilder.js"></script>
 <script type="module" src="test-MirrorInterface.js"></script>
 <script type="module" src="test-errors.js"></script>
-<!--
-<script type="module" src="test-basicAPI.js"></script>-->
+<script type="module" src="_test-basicAPI.js"></script>
 <script type="module">
     import {buffer} from '../../src/export.js';
     let sc=buffer.bufferVars.sc;

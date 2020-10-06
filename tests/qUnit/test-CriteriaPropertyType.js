@@ -1,4 +1,4 @@
-import {CriteriaPropertyType,InterfaceError} from '../../src/export.js';
+import {CriteriaMethodType, CriteriaPropertyType, InterfaceError} from '../../src/export.js';
 Object.defineProperty(Object.prototype,'copy',{
     value:function(){
         let obj={};
@@ -53,10 +53,10 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     }
     // initTypes
     {
-        let types=['mixed','number',A,null,undefined];
-        criteria.initTypes(types);
-        assert.deepEqual(criteria.types,['mixed'],'initTypes');
-        types=['number',A,null,undefined];
+        //let types=['mixed','number',A,null,undefined];
+        //criteria.initTypes(types);
+        //assert.deepEqual(criteria.types,['mixed'],'initTypes');
+        let types=['number',A,null,undefined];
         criteria.initTypes(types);
         let match=[
             'number',
@@ -65,8 +65,19 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
             'undefined'
         ];
         assert.ok(criteria.types!==types,'initTypes 2');
-        assert.deepEqual(criteria.types,match,'initTypes 3');
+        assert.propEqual(criteria.types,match,'initTypes 3');
 
+    }
+    // initTypes type  criteria 
+    { 
+        let types=[
+            new CriteriaPropertyType({types:['number']}),
+            new CriteriaMethodType({arguments:[{types:['number']}]}),
+            //()=>{return 'string';},// тип метод , который возвращает строку
+            ()=>{return ()=>'string';}// тип метод , который возвращает строку
+        ];
+        let criteria=new CriteriaPropertyType();
+        criteria.initTypes(types);
     }
 
     // instanceOf
@@ -94,7 +105,6 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         criteria.validateType(null);
         criteria.validateType(undefined);
         assert.ok(true,'validateType');
-
         assert.throws(function(){
             criteria.validateType(new class C{});
         },function(e){
@@ -280,7 +290,7 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
             includes:[1000],
             excludes:[1001],
         });
-
+        QUnit.dump.maxDepth=10;
         criteria.expand(criteria2);
         let match={
             types:[
@@ -289,7 +299,7 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
                 'null',
                 'undefined',
                 Z,
-                'string'
+                'string',
             ],
             excludes:[
                 10,B,1001
@@ -305,4 +315,49 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
             'expand'
         );
     }
+    
+    //formatStrictSyntaxToObject
+    
+    {
+        let result=CriteriaPropertyType.formatStrictSyntaxToObject({});
+        let tpl={types:['mixed'],includes:[],excludes:[],options:{entryPoints:['not_defined']}};
+        assert.propEqual(result,Object.assign({},tpl),'formatStrictSyntaxToObject 1');
+
+        result=CriteriaPropertyType.formatStrictSyntaxToObject({types:['mixed','string']});
+        assert.propEqual(result,Object.assign({},tpl,{types:['mixed']}),'formatStrictSyntaxToObject 2');
+        
+        result=CriteriaPropertyType.formatStrictSyntaxToObject({types:'string',includes:'1',excludes:'1'});
+        assert.propEqual(result,Object.assign({},tpl,{types:['string'],includes:['1'],excludes:['1']}),'formatStrictSyntaxToObject 3');
+    }
+/*    // formatExtendedSyntaxToObject
+    {
+        let result=CriteriaPropertyType.formatToObject('string|number');
+        let tpl={types:['mixed'],includes:[],excludes:[],options:{entryPoints:['not defined']}};
+        assert.propEqual(result,Object.assign({},tpl,{types:['string','number']}),'formatExtendedSyntaxToObject 1');
+
+        result=CriteriaPropertyType.formatToObject(['string','number']);
+        assert.propEqual(result,Object.assign({},tpl,{types:['string','number']}),'formatExtendedSyntaxToObject 2');
+        
+        result=CriteriaPropertyType.formatToObject({types:['string','number']});
+        assert.propEqual(result,Object.assign({},tpl,{types:['string','number']}),'formatExtendedSyntaxToObject 3');
+
+        result=CriteriaPropertyType.formatToObject({types:[]});
+        assert.propEqual(result,Object.assign({},tpl,{types:['mixed']}),'formatExtendedSyntaxToObject 4');
+        
+        result=CriteriaPropertyType.formatToObject({types:'string|number|mixed'});
+        assert.propEqual(result,Object.assign({},tpl,{types:['mixed']}),'formatExtendedSyntaxToObject 5');
+        
+        class A{};
+        result=CriteriaPropertyType.formatToObject(A);
+        assert.propEqual(result,Object.assign({},tpl,{types:[A]}),'formatExtendedSyntaxToObject 6');
+
+        result=CriteriaPropertyType.formatToObject({types:A,includes:1,excludes:1});
+        assert.propEqual(result,Object.assign({},tpl,{types:[A],includes:[1],excludes:[1]}),'formatExtendedSyntaxToObject 7');
+
+        result=CriteriaPropertyType.formatToObject(()=>{});
+        assert.propEqual(result,Object.assign({},tpl,{types:[]}),'formatExtendedSyntaxToObject 8');
+        
+        
+        console.log(result);
+    }*/
 });

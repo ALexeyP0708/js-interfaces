@@ -17,7 +17,6 @@ import {
  * Class of static methods for managing classes and interfaces
  */
 export class InterfaceManager{
-   
 
  /*   static buildFunction(func,rule,isExpand){
         let end_points = self.getAllEndPoints();

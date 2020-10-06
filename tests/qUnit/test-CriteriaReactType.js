@@ -29,7 +29,7 @@ QUnit.test('test methods CriteriaReactType ',function(assert){
         };
         assert.deepEqual(Object.assign({},criteria),match,'initGet');
         match={
-            get:new CriteriaMethodType({return:{types:['undefined']},options:criteria.options}),
+            get:new CriteriaMethodType({return:{types:['mixed']},options:criteria.options}),
             set:{},
             options:criteria.options
         };
@@ -58,7 +58,8 @@ QUnit.test('test methods CriteriaReactType ',function(assert){
             set:new CriteriaMethodType({arguments:[{types:['mixed']}],options:criteria.options}),
             options:criteria.options
         };
-        assert.deepEqual(Object.assign({},criteria),match,'initSet');
+        QUnit.dump.maxDepth=10;
+        assert.propEqual(criteria,match,'initSet');
 
         match={
             get:new CriteriaMethodType({return:{types:['number']},options:criteria.options}),
@@ -66,7 +67,8 @@ QUnit.test('test methods CriteriaReactType ',function(assert){
             options:criteria.options
         };
         criteria.initSet();
-        assert.deepEqual(Object.assign({},criteria),match,'initSet 2');
+        QUnit.dump.maxDepth=10;
+        assert.propEqual(criteria,match,'initSet 2');
 
 
         match={
@@ -79,7 +81,8 @@ QUnit.test('test methods CriteriaReactType ',function(assert){
                 types:['number']
             }]
         });
-        assert.deepEqual(Object.assign({},criteria),match,'initSet 3');
+        QUnit.dump.maxDepth=10;
+        assert.propEqual(criteria,match,'initSet 3');
 
     }
 

@@ -21,19 +21,27 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
             throw e;
         }
     };
-    // getSandbox
+    // generateSandbox
     {
         let criteria= new CriteriaMethodType({
             arguments:[
-                {types:'number'}
+                {types:['number']}
             ],
             return:{
-                types:'number'
+                types:['number']
             }
         });
         let func=function(a,b){};
-        let sandbox=InterfaceBuilder.getSandbox(func,criteria);
-        assert.ok(sandbox[ownerSandbox]===func,'is owner sandbox');
+        let sandbox=InterfaceBuilder.generateSandbox(func,criteria);
+        let results=[
+            sandbox!==func,
+            InterfaceBuilder.getOwnerOfSandbox(sandbox)===func,
+            sandbox.name===func.name
+        ];
+
+        let matches=[];
+        results.forEach(()=>{matches.push(true);});
+        assert.propEqual(results,matches,'is owner sandbox');
         assert.throws(
             function(){
                 sandbox('1');
@@ -41,7 +49,7 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
             function(e){
                 return e instanceof InterfaceError;
             },
-            'throws getSandbox for arguments'
+            'throws generateSandbox for arguments'
         );
         assert.throws(
             function(){
@@ -50,7 +58,7 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
             function(e){
                 return e instanceof InterfaceError;
             },
-            'throws getSandbox for return'
+            'throws generateSandbox for return'
         );
     }
     // buildDescriptors
@@ -332,7 +340,7 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
         results.forEach(()=>{matches.push(true);});
         assert.propEqual(results,matches,'buildInterface');
     }
-    // extendInterfaces
+    // extend
     {
         class TestInterface {
             method(){
@@ -438,7 +446,7 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
                 return '1';
             }
         }
-        InterfaceBuilder.extendInterfaces(Test3);
+        InterfaceBuilder.extend(Test3);
         class Test4 extends Test3{
             method4(a){
                 return '1';
@@ -447,7 +455,7 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
                 return '1';
             }
         }
-        InterfaceBuilder.extendInterfaces(Test4,TestInterface4,TestInterface5);
+        InterfaceBuilder.extend(Test4,TestInterface4,TestInterface5);
         let results=[
             InterfaceBuilder.isSandbox(Test.prototype['method']),
             InterfaceBuilder.isSandbox(Test2.prototype['method2']),
@@ -474,10 +482,10 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
             ];
         let matches=[];
         results.forEach(()=>{matches.push(true);});
-        assert.propEqual(results,matches,'extendInterfaces');
+        assert.propEqual(results,matches,'extend');
     }
 
-    // implementInterfaces
+    // implement
     {
         class TestInterface {
             method(){
@@ -543,19 +551,19 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
                 return '1';
             }
         }
-        InterfaceBuilder.extendInterfaces(Test2);
+        InterfaceBuilder.extend(Test2);
 
         class Test3 extends Test2{
 
         }
         assert.throws(function(){
-            InterfaceBuilder.implementInterfaces(Test3,TestInterface3);
+            InterfaceBuilder.implement(Test3,TestInterface3);
         },function(e){
             return e instanceof InterfaceError && e.type === "Validate_BadMembers"
-        },'implementInterfaces');
+        },'implement');
     }
     
-    // extendInterfaces + extendClassFromOwnPrototypes
+    // extend + extendClassFromOwnPrototypes
     {
         class TestInterface{
             method(){
@@ -630,7 +638,7 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
                 return 2;
             }
         }
-        InterfaceBuilder.extendInterfaces(Test2,true,TestInterface);
+        InterfaceBuilder.extend(Test2,true,TestInterface);
         let sDescs=Object.getOwnPropertyDescriptors(Test2);
         let descs=Object.getOwnPropertyDescriptors(Test2.prototype);
        let results=[
@@ -641,6 +649,6 @@ QUnit.test('Methods test InterfaceBuilder class',function(assert){
         ];
         let matches=[];
         results.forEach(()=>{matches.push(true);});
-        assert.propEqual(results,matches,'extendInterfaces + extendClassFromOwnPrototypes');
+        assert.propEqual(results,matches,'extend + extendClassFromOwnPrototypes');
     }
 });

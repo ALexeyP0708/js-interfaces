@@ -52,7 +52,7 @@ export class Descriptors{
      * Returns descriptors based on prototypes.
      * Prototypes descriptors are added to the current descriptor.
      *
-     * @param {object} object
+     * @param {object|function} object
      * @returns {object}
      * Descriptor format
      * ```js
@@ -73,19 +73,22 @@ export class Descriptors{
     static getAll(object) {
         let descriptors = {};
         let proto = object;
-        let end_points = InterfaceData.getAllEndPoints();
-        do {
+        let end_points = InterfaceData.getAllEndPoints(proto);
+        while (
+                !(typeof proto==='function'&& end_points.includes(proto)) &&
+                !(proto.hasOwnProperty('constructor') && end_points.includes(proto.constructor))
+            ) 
+        {
+
             let proto_descriptors = this.get(proto);
-            if (proto.hasOwnProperty('constructor')) {
-                end_points.splice(end_points.length, 0, ...InterfaceData.getAllEndPoints(proto.constructor));
-            }
             for (let pd in proto_descriptors) {
                 if (!(pd in descriptors)) {
                     descriptors[pd] = proto_descriptors[pd];
                 }
             }
             proto = Object.getPrototypeOf(proto);
-        } while (!(proto.hasOwnProperty('constructor') && end_points.includes(proto.constructor)));
+            end_points.splice(end_points.length, 0, ...InterfaceData.getEndPoints(proto));
+        } 
         return descriptors;
     }
 }

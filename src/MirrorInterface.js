@@ -21,7 +21,7 @@ export class MirrorInterface  {
        let ProtoClass=this;//this.prototype.constructor;
        if(!InterfaceData.has(ProtoClass)){
            ProtoClass.isInterface=true;
-           InterfaceBuilder.extendInterfaces(ProtoClass);
+           InterfaceBuilder.extend(ProtoClass);
        }
        let rules=InterfaceData.get(ProtoClass);
        let errors=[];
@@ -45,11 +45,11 @@ export class MirrorInterface  {
     /**
      * Creates an interface that inherits the current interface (class MirrorInterface) 
      * Creates a class if string, and assigns instance properties and static properties to this class.
-     * @param {string|class|undefined} NewClass  Class name or class. 
-     * @param {} protoProp
-     * @param {} staticProp
+     * @param {string|function|undefined} [NewClass]  Class name or class. 
+     * @param {object|undefined} [protoProp]
+     * @param {object|undefined} [staticProp]
      */
-   static createInterface(NewClass,protoProp={},staticProp={}){
+   static createInterface(NewClass,protoProp,staticProp){
        let tc= typeof NewClass;
        let ProtoClass=this;
        if(tc===undefined){
@@ -61,23 +61,28 @@ export class MirrorInterface  {
        else if(tc!=='function'){
            throw Error('Invalid parameter type');
        }
-       let descs=Object.getOwnPropertyDescriptors(protoProp);
-        for(let prop in descs){
-            if('set' in descs[prop] || 'get' in descs[prop] || typeof descs[prop].value==='function'){
-                descs[prop].enumerable=false;
+       if(protoProp!==undefined){
+           let descs=Object.getOwnPropertyDescriptors(protoProp);
+           for(let prop in descs){
+               if('set' in descs[prop] || 'get' in descs[prop] || typeof descs[prop].value==='function'){
+                   descs[prop].enumerable=false;
+               }
+           }
+           Object.defineProperties(NewClass.prototype,descs);
+       }
+       
+        if(staticProp!==undefined){
+            let descs=Object.getOwnPropertyDescriptors(staticProp);
+            for(let prop in descs){
+                if('set' in descs[prop] || 'get' in descs[prop] || typeof descs[prop].value==='function'){
+                    descs[prop].enumerable=false;
+                }
             }
+            Object.defineProperties(NewClass,descs);
         }
-        Object.defineProperties(NewClass.prototype,descs);
-        
-        descs=Object.getOwnPropertyDescriptors(staticProp);
-        for(let prop in descs){
-            if('set' in descs[prop] || 'get' in descs[prop] || typeof descs[prop].value==='function'){
-                descs[prop].enumerable=false;
-            }
-        }
-        Object.defineProperties(NewClass,descs);
+       
         NewClass.isInterface=true;
-        InterfaceBuilder.extendInterfaces(NewClass);
+        InterfaceBuilder.extend(NewClass);
         return NewClass;
    }
 }

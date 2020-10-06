@@ -14,7 +14,7 @@ QUnit.test('test methods MirrorInterface',function(assert){
             types:'number'
         };
         MirrorTest.isInterface=true;
-        InterfaceBuilder.extendInterfaces(MirrorTest);
+        InterfaceBuilder.extend(MirrorTest);
         assert.throws(function(){
             MirrorTest.validate({
                 hello:'friend',
@@ -72,12 +72,12 @@ QUnit.test('test methods MirrorInterface',function(assert){
                 return {name:'hello'};
             }
         };
-        InterfaceBuilder.extendInterfaces(Test);
+        InterfaceBuilder.extend(Test);
         let mirror=new Test();
         assert.throws(function(){
             mirror.method({name:1});
         },function(e){
-            if(e instanceof InterfaceError && e.type==='ValidateType' ){
+            if(e instanceof InterfaceError ){
                 return true;
             }
             return false;
@@ -126,14 +126,14 @@ QUnit.test('test methods MirrorInterface',function(assert){
                 Class.method2('hello');
             }
         };
-        InterfaceBuilder.extendInterfaces(Factory,InterfaceTest);
-        class Hello{
+        InterfaceBuilder.extend(Factory,InterfaceTest);
+        class Hello {
             method(arg){}
         };
         class SubHello extends Hello {
             //static method2(arg){}
         }
-        assert.throws(
+        assert.throws (
             function(){
                 Factory.test(SubHello);
             },
@@ -145,8 +145,6 @@ QUnit.test('test methods MirrorInterface',function(assert){
             },'check mirror class  properties'
             
         );
-       
-       
     }
     
     

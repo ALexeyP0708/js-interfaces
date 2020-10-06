@@ -17,50 +17,50 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 return {
                     arguments:[
                         {
-                            types:'mixed'
+                            types:['mixed']
                         }
                     ],
                     return:{
-                        types:'mixed'
+                        types:['mixed']
                     }
                 };
             }
             get react (){
                 return {
-                    types:'mixed'
+                    types:['mixed']
                 };
             }
-            set react(v){
+            set react (v){
                 return {
-                    types:'mixed'
+                    types:['mixed']
                 }
             }
             static static_method(){
                 return {
                     arguments:[
                         {
-                            types:'mixed'
+                            types:['mixed']
                         }
                     ],
                     return:{
-                        types:'mixed'
+                        types:['mixed']
                     }
                 };
             }
             static get static_react (){
                 return {
-                    types:'mixed'
+                    types:['mixed']
                 };
             }
             static set static_react(v){
-                v.types='mixed';
+                v.types=['mixed'];
             }
         }
         InterfaceTest.prototype.prop={
-            types:'mixed'
+            types:['mixed']
         };
         InterfaceTest.static_prop={
-            types:'mixed'
+            types:['mixed']
         };
         InterfaceTest.isInterface=true;
         let staticDescs=Descriptors.get(InterfaceTest);
@@ -75,8 +75,8 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                     {
                         //class:InterfaceTest,
                         criteria:new CriteriaMethodType({
-                            arguments:[{types:'mixed'}],
-                            return:{types:'mixed'},
+                            arguments:[{types:['mixed']}],
+                            return:{types:['mixed']},
                             options:rules.staticProps.static_method[0].criteria.options
                         })
                     }
@@ -85,13 +85,13 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 static_react:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaReactType({get:{types: 'mixed'},set: {types: 'mixed'}, options:rules.staticProps.static_react[0].criteria.options})
+                        criteria: new CriteriaReactType({get:{types: ['mixed']},set: {types: ['mixed']}, options:rules.staticProps.static_react[0].criteria.options})
                     }
                 ],
                 static_prop:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaPropertyType({types:'mixed', options: rules.staticProps.static_prop[0].criteria.options})
+                        criteria: new CriteriaPropertyType({types:['mixed'], options: rules.staticProps.static_prop[0].criteria.options})
                     }
                 ]
             },
@@ -99,24 +99,24 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 method:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaMethodType({arguments:[{types: 'mixed'}],return: {types: 'mixed'}, options:rules.protoProps.method[0].criteria.options})
+                        criteria: new CriteriaMethodType({arguments:[{types: ['mixed']}],return: {types: ['mixed']}, options:rules.protoProps.method[0].criteria.options})
                     }
                 ],
                 react:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaReactType({get:{types: 'mixed'}, set:{types: 'mixed'}, options:rules.protoProps.react[0].criteria.options})
+                        criteria: new CriteriaReactType({get:{types: ['mixed']}, set:{types: ['mixed']}, options:rules.protoProps.react[0].criteria.options})
                     }
                 ],
                 prop:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaPropertyType({types:'mixed',options: rules.protoProps.prop[0].criteria.options})
+                        criteria: new CriteriaPropertyType({types:['mixed'],options: rules.protoProps.prop[0].criteria.options})
                     }
                 ]
             }
         };
-        QUnit.dump.maxDepth=7;
+        QUnit.dump.maxDepth=10;
         assert.deepEqual(rules,match,'generateDescriptorsRules');
     }
 
@@ -183,20 +183,20 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 static_method:[
                     {
                         //class:InterfaceTest,
-                        criteria:new CriteriaMethodType({arguments:[{types:'mixed'}],return:{types:'mixed'},options:rules.staticProps.static_method[0].criteria.options})
+                        criteria:new CriteriaMethodType({arguments:[{types:['mixed']}],return:{types:['mixed']},options:rules.staticProps.static_method[0].criteria.options})
                     }
 
                 ],
                 static_react:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaReactType({get:{types: 'mixed'}, set:{types: 'mixed'}, options:rules.staticProps.static_react[0].criteria.options})
+                        criteria: new CriteriaReactType({get:{types: ['mixed']}, set:{types: ['mixed']}, options:rules.staticProps.static_react[0].criteria.options})
                     }
                 ],
                 static_prop:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaPropertyType({types:'mixed', options:rules.staticProps.static_prop[0].criteria.options})
+                        criteria: new CriteriaPropertyType({types:['mixed'], options:rules.staticProps.static_prop[0].criteria.options})
                     }
                 ]
             },
@@ -204,19 +204,19 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 method:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaMethodType({arguments:[{types: 'mixed'}], return:{types: 'mixed'}, options:rules.protoProps.method[0].criteria.options})
+                        criteria: new CriteriaMethodType({arguments:[{types: ['mixed']}], return:{types: ['mixed']}, options:rules.protoProps.method[0].criteria.options})
                     }
                 ],
                 react:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaReactType({get:{types: 'mixed'}, set:{types: 'mixed'}, options:rules.protoProps.react[0].criteria.options})
+                        criteria: new CriteriaReactType({get:{types: ['mixed']}, set:{types: ['mixed']}, options:rules.protoProps.react[0].criteria.options})
                     }
                 ],
                 prop:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaPropertyType({types:'mixed', options:rules.protoProps.prop[0].criteria.options})
+                        criteria: new CriteriaPropertyType({types:['mixed'], options:rules.protoProps.prop[0].criteria.options})
                     }
                 ]
             }
@@ -224,6 +224,8 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
         QUnit.dump.maxDepth=7;
         assert.deepEqual(rules,match,'generate');
     }
+    
+    
 
 
     // addRules (compare)
@@ -302,20 +304,21 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 TestInterface2
 
             ],
+            owner:TestInterface2,
             protoProps:{
                 method:[
                     {
-                        criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[1,2]}],return:{types:'mixed',includes:[1,2]},options:rules.protoProps.method[0].criteria.options})
+                        criteria:new CriteriaMethodType({arguments:[{types:['mixed'],includes:[1,2]}],return:{types:['mixed'],includes:[1,2]},options:rules.protoProps.method[0].criteria.options})
                     }
                 ],
                 method2:[
                     {
-                        criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[3,4,5]}],return:{types:'mixed',includes:[3,4,5]},options:rules.protoProps.method2[0].criteria.options})
+                        criteria:new CriteriaMethodType({arguments:[{types:['mixed'],includes:[3,4,5]}],return:{types:['mixed'],includes:[3,4,5]},options:rules.protoProps.method2[0].criteria.options})
                     }
                 ],
                 method3:[
                     {
-                        criteria:new CriteriaMethodType({arguments:[{types:'mixed',includes:[6,7]}],return:{types:'mixed',includes:[6,7]},options:rules.protoProps.method3[0].criteria.options})
+                        criteria:new CriteriaMethodType({arguments:[{types:['mixed'],includes:[6,7]}],return:{types:['mixed'],includes:[6,7]},options:rules.protoProps.method3[0].criteria.options})
                     }
                 ],
             },
@@ -337,48 +340,48 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 return {
                     arguments:[
                         {
-                            types:'mixed'
+                            types:['mixed']
                         }
                     ],
                     return:{
-                        types:'mixed'
+                        types:['mixed']
                     }
                 };
             }
             get react (){
                 return {
-                    types:'mixed'
+                    types:['mixed']
                 };
             }
             set react(v){
-                v.types='mixed';
+                v.types=['mixed'];
             }
             static static_method(){
                 return {
                     arguments:[
                         {
-                            types:'mixed'
+                            types:['mixed']
                         }
                     ],
                     return:{
-                        types:'mixed'
+                        types:['mixed']
                     }
                 };
             }
             static get static_react (){
                 return {
-                    types:'mixed'
+                    types:['mixed']
                 };
             }
             static set static_react(v){
-                v.types='mixed';
+                v.types=['mixed'];
             }
         }
         InterfaceTest.prototype.prop={
-            types:'mixed'
+            types:['mixed']
         };
         InterfaceTest.static_prop={
-            types:'mixed'
+            types:['mixed']
         };
         InterfaceTest.isInterface=true;
         InterfaceData.init(InterfaceTest);
@@ -460,19 +463,19 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                     method:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaMethodType([{types:'mixed'}],{types:'mixed'},rules.protoProps.method[0].criteria.options)
+                            criteria:new CriteriaMethodType({arguments:[{types:['mixed']}],return:{types:['mixed']},options:rules.protoProps.method[0].criteria.options})
                         }
                     ],
                     react:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaReactType({types:'mixed'},{types:'mixed'},rules.protoProps.react[0].criteria.options)
+                            criteria:new CriteriaReactType({get:{types:['mixed']},set:{types:['mixed']},options:rules.protoProps.react[0].criteria.options})
                         }
                     ],
                     prop:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaPropertyType('mixed',[],rules.protoProps.prop[0].criteria.options)
+                            criteria:new CriteriaPropertyType({types:['mixed'],includes:[],options:rules.protoProps.prop[0].criteria.options})
                         }
                     ]
                 },
@@ -480,19 +483,19 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                     static_method:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaMethodType([{types:'mixed'}],{types:'mixed'},rules.staticProps.static_method[0].criteria.options)
+                            criteria:new CriteriaMethodType({arguments:[{types:['mixed']}],return:{types:['mixed']},options:rules.staticProps.static_method[0].criteria.options})
                         }
                     ],
                     static_react:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaReactType({types:'mixed'},{types:'mixed'},rules.staticProps.static_react[0].criteria.options)
+                            criteria:new CriteriaReactType({get:{types:['mixed']},set:{types:['mixed']},options:rules.staticProps.static_react[0].criteria.options})
                         }
                     ],
                     static_prop:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaPropertyType('mixed',[],rules.staticProps.static_prop[0].criteria.options)
+                            criteria:new CriteriaPropertyType({types:['mixed'],includes:[],options:rules.staticProps.static_prop[0].criteria.options})
                         }
                     ]
                 },
@@ -527,19 +530,19 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                     method:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaMethodType([{types:'mixed'}],{types:'mixed'},rules.protoProps.method[0].criteria.options)
+                            criteria:new CriteriaMethodType({arguments:[{types:['mixed']}],return:{types:['mixed']},options:rules.protoProps.method[0].criteria.options})
                         }
                     ],
                     react:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaReactType({types:'mixed'},{types:'mixed'},rules.protoProps.react[0].criteria.options)
+                            criteria:new CriteriaReactType({get:{types:['mixed']},set:{types:['mixed']},options:rules.protoProps.react[0].criteria.options})
                         }
                     ],
                     prop:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaPropertyType('mixed',[],rules.protoProps.prop[0].criteria.options)
+                            criteria:new CriteriaPropertyType({types:['mixed'],includes:[],options:rules.protoProps.prop[0].criteria.options})
                         }
                     ]
                 },
@@ -547,19 +550,19 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                     static_method:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaMethodType([{types:'mixed'}],{types:'mixed'},rules.staticProps.static_method[0].criteria.options)
+                            criteria:new CriteriaMethodType({arguments:[{types:['mixed']}],return:{types:['mixed']},options:rules.staticProps.static_method[0].criteria.options})
                         }
                     ],
                     static_react:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaReactType({types:'mixed'},{types:'mixed'},rules.staticProps.static_react[0].criteria.options)
+                            criteria:new CriteriaReactType({get:{types:['mixed']},set:{types:['mixed']},options:rules.staticProps.static_react[0].criteria.options})
                         }
                     ],
                     static_prop:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaPropertyType('mixed',[],rules.staticProps.static_prop[0].criteria.options)
+                            criteria:new CriteriaPropertyType({types:['mixed'],includes:[],options:rules.staticProps.static_prop[0].criteria.options})
                         }
                     ]
                 },
@@ -586,4 +589,70 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
         QUnit.dump.maxDepth=8;
         assert.deepEqual(equal,matchClass,'init - for class');
     }
+
+    /*// generateRules - alternative syntax
+    {
+        class A{
+            method(a='number|string',b=['number','string']){ // {arguments:[{types:['number','string']},{types:['number','string']}],return:{types:['types','string']}}
+                return Object.assign([a,b],{return:['number','string']});
+                //or
+                //return Object.assign([a,b],{return:'number|string'});
+            }
+            method2(){ // {return: {types:['string','number']}}
+                return 'number|string';
+            }
+            set react(v){ // {types:['number','string']}
+                return 'number|string';
+            }
+            get react(){ // {types:['number','string']}
+                return 'number|string';
+            }
+            set react2(v){ // {types:['number','string']}
+                return ['number','string'];
+            }
+            get react2(){ // {types:['number','string']}
+                return ['number','string'];
+            }
+        }
+        A.prototype.prop='number|string';
+        A.prototype.prop=['number','string'];
+        
+        let rules=InterfaceRules.generate(A);
+        let matchs;
+        {
+            class A{
+                method(){
+                    return {
+                        arguments:[
+                            {types:['number','string']},
+                            {types:['number','string']}
+                        ],
+                        return:{
+                            types:['number','string']
+                        }
+                    };
+                }
+                method2(){ // {return: {types:['string','number']}}
+                    return {return:{types:['number','string']}};
+                }
+                set react(v){ // {types:['number','string']}
+                    return {types:['number','string']};
+                }
+                get react(){ // {types:['number','string']}
+                    return {types:['number','string']};
+                }
+                set react2(v){ // {types:['number','string']}
+                    return {types:['number','string']};
+                }
+                get react2(){ // {types:['number','string']}
+                    return {types:['number','string']};
+                }
+            }
+            A.prototype.prop={types:['number','string']};
+            A.prototype.prop={types:['number','string']};
+            matchs=InterfaceRules.generate(A);
+        }
+        QUnit.dump.maxDepth=11;
+        assert.propEqual(rules.protoProps,matchs.protoProps,'generateRules - alternative syntax');
+    }*/
 });

@@ -4,27 +4,75 @@ import {
 
 export let interfaceData = Symbol.for('interfaceData');
 export class InterfaceData{
-    constructor(ProtoClass=undefined){
+    /**
+     * 
+     * @param {function} [ProtoClass]
+     * @param {InterfaceData|{[interfaces]:function[],[protoProps]:object,[staticProps]:object,[ownRules]:[],[end_points]:[]}} [data]
+     */
+    constructor(ProtoClass=undefined,data={}){
         if(ProtoClass!==undefined){
             Object.defineProperty(ProtoClass,interfaceData,{
-                value:this
+                value:this,
+                enumerable:false,
+                configurable:true,
+                writable:true
             });
         }
+        this.owner=ProtoClass;
         this.isBuilt=false;
         this.interfaces=[];
         this.protoProps={};
         this.staticProps={};
         this.ownRules=[];
         this.end_points=[];
+        InterfaceData.set(this,data);
     } 
     
     /**
      * set interface data for the class
-     * @param {function} ProtoClass
-     * @param {InterfaceData} data
+     * @param {function|InterfaceData|{[interfaces]:function[],[protoProps]:object,[staticProps]:object,[ownRules]:[],[end_points]:[]}}  ProtoClass
+     * @param {InterfaceData|{[interfaces]:function[],[protoProps]:object,[staticProps]:object,[ownRules]:[],[end_points]:[]}} [data]
      */
-    static set(ProtoClass, data) {
-        ProtoClass[interfaceData] = data;
+    static set(ProtoClass, data={}) {
+        //return new InterfaceData(ProtoClass,data);
+        let self=ProtoClass;
+        //self.isBuilt=false;
+        if(typeof ProtoClass === 'function'){
+            self=this.init(ProtoClass);
+        }
+        if(data.end_points!==undefined){
+            for(let point of data.end_points){
+                if(!self.end_points.includes(point)){
+                    self.end_points.push(point);
+                }
+            }
+        }
+        if(data.interfaces!==undefined && Array.isArray(data.interfaces)){
+            /*for(let intf of data.interfaces){
+                if(!self.interfaces.includes(intf)){
+                    self.interfaces.push(intf);
+                }
+            }*/
+            self.interfaces=data.interfaces;
+            
+        }
+        if(data.staticProps!==undefined){
+            for(let prop of Object.keys(data.staticProps)){
+                self.isBuilt=false;
+                self.staticProps[prop]=data.staticProps[prop];
+            }
+        }
+        if(data.protoProps!==undefined){
+            for(let prop of Object.keys(data.protoProps)){
+                self.isBuilt=false;
+                self.protoProps[prop]=data.protoProps[prop];
+            }
+        }
+        if(data.ownRules!==undefined){
+            self.isBuilt=false;
+            self.ownRules=data.ownRules;
+        }
+        
     }
 
     /**
@@ -63,7 +111,7 @@ export class InterfaceData{
      * Analysis and assembly will not occur beyond the specified classes by prototypes.
      * @param {function[]} points
      */
-    static addGlobalEndPoints(...points ) {
+    static addGlobalEndPoints(...points) {
         this.end_points.splice(this.end_points.length, 0, ...points);
     }
 
@@ -82,10 +130,17 @@ export class InterfaceData{
 
     /**
      * Returns endpoints for the class
-     * @param {function} ProtoClass
+     * @param {function|object} ProtoClass
      * @returns {function[]}
      */
     static getEndPoints(ProtoClass) {
+        if(typeof ProtoClass === 'object'){
+            let proto=Object.getPrototypeOf(ProtoClass);
+            if(proto===null || !proto.hasOwnProperty('constructor')){
+                return [];
+            }
+            ProtoClass=Object.getPrototypeOf(ProtoClass).constructor;
+        }
         if (this.has(ProtoClass)) {
             return this.get(ProtoClass).end_points;
         }
@@ -93,7 +148,7 @@ export class InterfaceData{
     }
     /**
      * Returns the endpoints for the class along with the global points
-     * @param {function} ProtoClass
+     * @param {function|object} ProtoClass
      * @returns {function[]}
      */
     static getAllEndPoints(ProtoClass = undefined) {
@@ -130,9 +185,11 @@ export class InterfaceData{
         return false;
     }
 }
+let AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
 InterfaceData.end_points = [
     Object,
     Array,
     Function,
+    AsyncFunction,
     InterfaceData
 ];

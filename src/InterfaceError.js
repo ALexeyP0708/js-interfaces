@@ -170,8 +170,8 @@ export class InterfaceError extends Error {
             let constructor=Object.getPrototypeOf(this).constructor;
             let sc=constructor.sc;
             sc.allowToSpeak(true);
-            this.message='See ⇑⇑⇑';
-            this.stack='See ⇑⇑⇑';
+            //this.message='See ⇑⇑⇑';
+            //this.stack='See ⇑⇑⇑';
         }
     }
     clearErrors(){
@@ -282,13 +282,13 @@ InterfaceError.types={
      * Accompanied by errors: {@link ...InitTypes_badType}    
      *  
      */
-    InitTypes:"{$type}: {$entryPoints} - Invalid parameter passed to {$className}.types.",
+    InitTypes:undefined,
     
     /**
      * An error is thrown in the following cases:  
      * -when forming an interface member, if an inappropriate type is passed.  
      */
-    InitTypes_badType:"{$type}: {$entryPoints} - {$errors}",
+    InitTypes_badType:"{$type}: {$entryPoints} - Invalid parameter passed to {$className}.types=[{$dataType}].",
     
     /**
      * An error is thrown in the following cases:  
@@ -427,7 +427,7 @@ InterfaceError.types={
      * An error is thrown in the following cases:
      * - When comparing criteria for interface members, if the criteria "types" do not match
      */
-    Compare_ValidateInTypes:"{$type}: {$entryPoints} - \"{$value}\" is not present in 'types' stack",
+    Compare_ValidateInTypes:"{$type}: {$entryPoints} - type \"{$value}\" is not present in 'types' stack",
 
     /**
      * An error is thrown in the following cases:

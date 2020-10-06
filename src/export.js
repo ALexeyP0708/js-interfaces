@@ -38,11 +38,17 @@ export {InterfaceValidator};
 import {InterfaceBuilder} from "./InterfaceBuilder.js";
 export {InterfaceBuilder};
 
+import {InterfaceFuncBuilder} from "./InterfaceFuncBuilder.js";
+export {InterfaceFuncBuilder};
+
 import {InterfaceApi} from "./InterfaceApi.js";
 export {InterfaceApi};
 
 import {MirrorInterface} from "./MirrorInterface.js";
 export {MirrorInterface};
+
+import {MirrorFuncInterface} from "./MirrorFuncInterface.js";
+export {MirrorFuncInterface};
 
 
 

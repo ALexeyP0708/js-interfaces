@@ -6,7 +6,7 @@ import {
     CriteriaMethodType,
     CriteriaPropertyType,
     Descriptors,
-    InterfaceTools, InterfaceError, InterfaceBuilder
+    InterfaceBuilder, InterfaceError
 } from "./export.js";
 
 export class InterfaceRules{
@@ -16,50 +16,38 @@ export class InterfaceRules{
         let prefix=isStatic?'.':'#';
         for (let prop of Object.getOwnPropertyNames(descriptors)) {
             let desc = descriptors[prop];
-            let entryPoints = [descriptors[prop].constructor.name, `${prefix}${prop}`];
+            let entryPoints = [`~${descriptors[prop].constructor.name}~`, `${prefix}${prop}`];
             if ('get' in desc || 'set' in desc) {
                 let getCriteria;
                 if (desc.get !== undefined) {
                     getCriteria = desc.get();
-                    if (typeof getCriteria !== 'object' || getCriteria === null) {
-                        getCriteria = {};
-                    }
                 }
                 let setCriteria;
                 if (desc.set !== undefined) {
-                    setCriteria = {};
-                    let rtrn = desc.set(setCriteria);
-                    if (typeof rtrn === 'object' && getCriteria !== null) {
-                        setCriteria = rtrn;
-                    }
+                    let rtrn={};
+                    setCriteria = desc.set(rtrn);
+                    setCriteria=setCriteria??rtrn;
                 }
-                let criteria = new CriteriaReactType({
+                let criteria={
                     get: getCriteria,
-                    set: setCriteria,
-                    options: {entryPoints, owner: descriptors[prop].constructor}
-                });
+                    set: setCriteria
+                };
+                criteria=CriteriaReactType.formatToObject(criteria,entryPoints);
+                //{entryPoints, owner: descriptors[prop].constructor}
+                criteria.options.owner=descriptors[prop].constructor;
+                criteria = new CriteriaReactType(criteria);
                 rules[prop]=[{criteria}];
             } 
-            else if (typeof desc.value === 'function') {
+            else if (typeof desc.value === 'function' &&  desc.value.prototype===undefined) {
                 let criteria = desc.value();
-                if (typeof criteria !== 'object' || criteria === null) {
-                    criteria = {};
-                }
-                if (criteria.options === undefined) {
-                    criteria.options = {};
-                }
-                criteria.options = Object.assign({}, criteria.options, {
-                    entryPoints,
-                    owner: descriptors[prop].constructor
-                });
+                criteria=CriteriaMethodType.formatToObject(criteria,entryPoints);
+                criteria.options.owner=descriptors[prop].constructor;
                 criteria = new CriteriaMethodType(criteria);
                 rules[prop]=[{criteria}];
             }
             else {
                 let criteria = desc.value;
-                if (typeof criteria !== 'object' || criteria === null) {
-                    criteria = {};
-                }
+                criteria=CriteriaPropertyType.formatToObject(criteria,entryPoints);
                 criteria.options = Object.assign({}, criteria.options, {
                     entryPoints,
                     owner: descriptors[prop].constructor
@@ -91,13 +79,22 @@ export class InterfaceRules{
 
     /**
      *  Adds / extends interface rules for Class.
-     * @param {function} ProtoClass
+     * @param {function|InterfaceData} ProtoClass
      * @param  {InterfaceData} [rules]
      * @return {InterfaceData}
      */
     static add(ProtoClass, rules = new InterfaceData()) {
-        let interfaceData = InterfaceData.init(ProtoClass);
-        let entryPoints=[ProtoClass.name];
+        let interfaceData;
+        if(ProtoClass instanceof InterfaceData){
+            interfaceData=ProtoClass;
+        } else
+        if(typeof ProtoClass==='function'){
+            interfaceData = InterfaceData.init(ProtoClass);
+        } else {
+            throw new Error('argument 1 must be type {function|InterfaceData}');
+        }
+        
+        let entryPoints=[interfaceData.owner.name];
         for (let prop of Object.getOwnPropertyNames(rules.protoProps)){
             let equal_rule = rules.protoProps[prop][0];
             let equal_criteria=equal_rule.criteria;
