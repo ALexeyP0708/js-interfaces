@@ -1,4 +1,4 @@
-
+ 
 # Requirements
 - ES6
 - Node (??? No testing)  
@@ -14,7 +14,12 @@
 
 
 # Getting started
- Цель компонента - это  создавать интерфейсы взаимодействия между собой JS компонентов, а также написание API запросов.
+ Цель компонента:
+ -  создавать интерфейсы для взаимодействия между собой JS компонентов;
+ -  создавать интерфейсы для написание API запросов.
+ -  для налаженного и удобного взаимодействия между собой разработчиков.
+ -  проектирование кода.
+ - 
 Примем за правило, что класс помеченный как интерфейс , будет называться интерфейс.
 
 ## Interface declaration
@@ -346,7 +351,145 @@ class Test2 extends Test{  // create finaly class
 // All interface rules for classes will be formed, and for the current class it will validate the compliance of the members with the established criteria.
 InterfaceApi.implement(Test2);
 ```
+## inherit interface  to interface
 
+```js
+class TestInterface {  
+    method(){}  
+    method3(){}  
+      
+}  
+TestInterface.isInterface=true;  
+class TestInterface2 extends TestInterface{  
+    method2(){}  
+    method3(){}  
+}  
+TestInterface2.isInterface=true;  
+InterfaceApi.extend(TestInterface2);
+```
+or
+
+```js
+class TestInterface {  
+    method(){}  
+    method3(){}  
+  
+}  
+TestInterface.isInterface=true;  
+class TestInterface2{  
+    method2(){}  
+    method3(){}  
+}  
+TestInterface2.isInterface=true;  
+InterfaceApi.extend(TestInterface2,TestInterface);
+```
+or hybrid
+
+```js
+class TestInterface {  
+    method(){}  
+    method3(){}  
+    method5(){}  
+}  
+TestInterface.isInterface=true;  
+class TestInterface2 extends TestInterface{  
+    method2(){}  
+    method3(){}  
+}  
+TestInterface2.isInterface=true;  
+class TestInterface3{  
+    method3(){}  
+    method4(){}  
+}  
+TestInterface3.isInterface=true;  
+  
+class TestInterface4 extends TestInterface3{  
+    method(){}  
+    method4(){}  
+}  
+TestInterface4.isInterface=true;  
+InterfaceApi.extend(TestInterface4,TestInterface2);
+```
+
+## методы сборки интерфейсов
+```js
+/*
+Осуществляет генирацию правил  интерфейсов.
+Cначала формирует правила интерфейсов из стека интерфейсов RestInterface, после  обьеденяет их с правилами интерфейса текущего класса/интерфейса CurrentClass.
+*/
+InterfaceApi.extendBefore(CurrentClass,...RestInterface);
+
+// example
+class iClass1{}
+iClass.isInterface=true;
+
+class iClass2 extends iClass1{}
+iClass2.isInterface=true;
+
+class iClass3{}
+iClass.isInterface=true;
+
+class iClass4 {}
+iClass.isInterface=true;
+
+InterfaceApi.extendBefore(iClass4 ,iClass2,iClass3);
+// chain  =>iClass1=>iClass2=>iClass3=>iClass4=>(last rules)  
+//each subsequent interface will override the preceding interface
+
+
+```js
+/*
+Осуществляет генирацию правил  интерфейсов.
+Cначала формирует правила интерфейсов для текущего класса/интерфейса CurrentClass после их переопределяет правилами  из стека интерфейсов RestInterface.
+*/
+InterfaceApi.extendAfter(CurrentClass,...RestInterface);
+
+// example
+class iClass1{}
+iClass.isInterface=true;
+
+class iClass2 extends iClass1{}
+iClass2.isInterface=true;
+
+class iClass3{}
+iClass.isInterface=true;
+
+class iClass4 {}
+iClass.isInterface=true;
+
+InterfaceApi.extendAfter(iClass4 ,iClass2,iClass3);
+// chain  =>iClass4=>iClass1=>iClass2=>iClass3=>(last rules)  
+//each subsequent interface will override the preceding interface
+```
+```js
+/**
+syntactic sugar.
+ For interfaces, applies extendBefore method. For final / abstract classes apply extendAfter method.
+*/
+InterfaceApi.extend(CurrentClass,...RestInterface);
+```
+
+```js
+/*
+Applicable only for final classes
+In addition to generating rules, it performs final class validation.
+*/
+InterfaceApi.implement(CurrentClass,...RestInterface);
+
+```
+## Настройки
+
+## Правила создания интерфейсов
+
+
+##  Другое
+
+## Варианты подключения отключения интерфейсов в продакшене.
+
+ 
+## Альтернативный синтаксис
+
+## Примеры
 # заметки
 
 ```js
