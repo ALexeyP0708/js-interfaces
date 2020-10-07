@@ -87,7 +87,8 @@ export class CriteriaMethodType extends CriteriaType{
                 configurable:true,
                 writable:true,
                 value:true
-            }
+            },
+            
         });
         let errors=[];
         try {
@@ -203,6 +204,7 @@ export class CriteriaMethodType extends CriteriaType{
         let errors=[];
         let result=[];
         entryPoints=Object.assign([],entryPoints);
+        
         for(let n in this.arguments){
             n=Number(n);
             try{
@@ -213,7 +215,6 @@ export class CriteriaMethodType extends CriteriaType{
                 }
             }
         }
-        //sc.allowToSpeak();
         if(errors.length>0){
             new InterfaceError('ValidateArguments',{errors,entryPoints}).throw(true);
         }
@@ -246,26 +247,20 @@ export class CriteriaMethodType extends CriteriaType{
      */ 
     compare(criteria,entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
-        let errors=[];
         if(!(criteria instanceof Object.getPrototypeOf(this).constructor)){
             new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(this).constructor.name}).throw();
         }
         for(let k=0; k<this.arguments.length;k++){
             if(!(k in criteria.arguments)){
-                if(!this.arguments[k].types.includes('mixed') && !this.arguments[k].types.includes('undefined')){
-                    let error= new InterfaceError('CompareMethod_ArgumentUnDeclared',{entryPoints:[`argument ${k+1}`]});
-                    errors.push(error.message);
-                }
+                new InterfaceError('CompareMethod',{entryPoints,message:'arguments are not comparable'}).throw();
             } else {
                 try {
                     this.arguments[k].compare(criteria.arguments[k],[`argument ${k+1}`]);
                 }catch (error) {
                     if(error instanceof InterfaceError){
-                        errors.push(error);
-                    } else {
-                        //sc.allowToSpeak();
-                        throw error;
-                    }
+                        new InterfaceError('CompareMethod',{entryPoints,message:'arguments are not comparable'}).throw();
+                    } 
+                    throw error;
                 }
             }
         }
@@ -273,59 +268,13 @@ export class CriteriaMethodType extends CriteriaType{
             this.return.compare(criteria.return,[`return`]);
         } catch (error) {
             if(error instanceof InterfaceError){
-                errors.push(error);
-            } else {
-                //sc.allowToSpeak();
-                throw error;
+                new InterfaceError('CompareMethod',{entryPoints,message:'returns are not comparable'}).throw();
             }
-        }
-        //sc.allowToSpeak();
-        if(errors.length>0){
-            new InterfaceError('CompareMethod_badParams',{errors,entryPoints}).throw(true);
+            throw error;
+            
         }
     }
-
-    /**
-     * Expands the current object with the passed
-     * @param criteria  If the criteria do not match the CriteriaMethodType type
-     * then a BadCriteria error will be thrown
-     * @param entryPoints Indicate where the method call came from
-     * @throws {InterfaceError} InterfaceError.type===BadCriteria|ExpandMethod_badParams
-     */
-    expand(criteria,entryPoints=['not_defined']){
-        entryPoints=Object.assign([],entryPoints);
-        let errors=[];
-        if(!(this instanceof Object.getPrototypeOf(criteria).constructor)){
-            new InterfaceError('BadCriteria',{className:Object.getPrototypeOf(criteria).constructor.name,entryPoints}).throw();
-        }
-        for(let k=0; k< criteria.arguments.length; k++){
-            if(!(k in this.arguments)){
-               this.arguments.push(criteria.arguments[k]);
-            } else {
-                try {
-                    this.arguments[k].expand(criteria.arguments[k],[`argument ${k+1}`]);
-                } catch (error) {
-                    if(error instanceof InterfaceError){
-                        errors.push(error);
-                    } else {
-                        throw error;
-                    }
-                }
-            }
-        }
-        try {
-            this.return.expand(criteria.return,[`return`]);
-        } catch (error) {
-            if(error instanceof InterfaceError){
-                errors.push(error);
-            } else {
-                throw error;
-            }
-        }
-        if(errors.length>0){
-            new InterfaceError('ExpandMethod_badParams',{errors,entryPoints}).throw(true);
-        }
-    }
+    
     static formatExtendedSyntaxToObject(data,entryPoints=['not defined']){
         let tp=typeof data;
         let result;

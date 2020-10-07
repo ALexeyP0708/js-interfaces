@@ -12,6 +12,12 @@ export class CriteriaType{
                     configurable: true,
                     writable: true,
                     value: {}
+            },
+            comparisonType:{
+                enumerable: true,
+                configurable: true,
+                writable: true,
+                value: 'equal' //equal|compress|expand
             }
         });
         this.initOptions(criteria.options);

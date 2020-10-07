@@ -354,7 +354,7 @@ InterfaceError.types={
 
 
     /**
-     * An error is thrown in the following cases:
+     * An error is thrown in the following cases:   
      * -When validated  class members from criteria, if class member is not a method.
      */
     ValidateMethodDeclared:"{$type}: {$entryPoints} - The property must be Function.",
@@ -405,29 +405,7 @@ InterfaceError.types={
      * Accompanied by errors: {@link ...Validate_BadMembers}
      */
     Validate_BadMirrorProperties:undefined,
-    
-    
-    /**
-     * An error is thrown in the following cases:
-     * -When comparing criteria for interface members, relevant criteria must be specified
-     *
-     * */
-    Compare_emptyStack:"{$type}: {$entryPoints} - Criteria must be of values in \"{$name}\"",
 
-    /**
-     * An error is thrown in the following cases:
-     * - When comparing criteria for interface members, types of criteria do not match
-     *
-     * Groups errors
-     *
-     * Accompanied by errors: {@link ...Compare_ValidateInTypes}
-     */
-    Compare_badTypes:undefined,
-    /**
-     * An error is thrown in the following cases:
-     * - When comparing criteria for interface members, if the criteria "types" do not match
-     */
-    Compare_ValidateInTypes:"{$type}: {$entryPoints} - type \"{$value}\" is not present in 'types' stack",
 
     /**
      * An error is thrown in the following cases:
@@ -435,67 +413,43 @@ InterfaceError.types={
      *   
      * Groups errors the criteria when compare  
      *   
-     * Accompanied by errors:  {@link ...Compare_badIncludes}, {@link ...Compare_badExcludes}  
+     * Accompanied by errors:  {@link ...CompareIncludes}, {@link ...CompareExcludes}  
      */
-    Compare_badParams:undefined,
+    Compare:undefined,
+
+    /**
+     * An error is thrown in the following cases:
+     * - When comparing criteria for interface members, if the criteria "types" do not match
+     */
+    CompareTypes:'{$type}: {$entryPoints} - not matching stacks "types"',//"{$type}: {$entryPoints} - type \"{$value}\" is not present in 'types' stack",
 
     /**
      * An error is thrown in the following cases:  
      * - When comparing criteria for interface members, if the criteria "includes" do not match
-     * Accompanied by errors: {@link ...ValidateInIncludes}, {@link ...Compare_emptyStack}
      */
-    Compare_badIncludes:undefined,
-
+    CompareIncludes:'{$type}: {$entryPoints} - not matching stacks "includes"',
+    
+    
     /**
      * An error is thrown in the following cases:
      * - When comparing criteria for interface members, if the criteria "excludes" do not match
-     * Accompanied by errors: {@link ...ValidateInExcludes}, {@link ...Compare_emptyStack}
      */
-    Compare_badExcludes:undefined,
+    CompareExcludes:'{$type}: {$entryPoints} - not matching stacks "excludes"',
     
-    /**
-     * An error is thrown in the following cases:  
-     * -When comparing criteria for interface members, if  methods do not match  criteria for arguments and/or criteria for return values.
-     *  Accompanied by errors:  {@link ...CompareMethod_ArgumentUnDeclared}, {@link ...Compare_badParams}, 
-     */
-    CompareMethod_badParams:undefined,
     
     /**
      *  An error is thrown in the following cases:
      *  -When comparing criteria for interface members,if the method lacks required arguments
+     *
+     */
+    CompareMethod:undefined,
+
+
+    /**
      * 
      */
-    CompareMethod_ArgumentUnDeclared:"{$type}: {$entryPoints} - Argument undeclared",
-
-
-    /**
-     * An error is thrown in the following cases:
-     * -When comparing criteria for interface members, if reactive properties are compared  
-     * 
-     *  Accompanied by errors:  {@link ...ValidateReactDeclared},  {@link ...CompareMethod_badParams}
-     */
-    CompareReact_badParams:undefined,
+    CompareReact:undefined,
     
-
-    
-    /**
-     *  An error is thrown in the following cases:
-     *  -When expanding criteria for interface members,if  methods do not match  criteria for arguments and/or criteria for return values.
-     *
-     *  It does not throw errors according to the logic of working off. For internal control purposes only.
-     */
-    ExpandMethod_badParams:undefined,
-
-
-    /**
-     *  An error is thrown in the following cases:
-     *  -When expanding criteria for interface members,if  methods do not match  criteria for getter/setter criteria.
-     *
-     *  It does not throw errors according to the logic of working off. For internal control purposes only.
-     */
-    ExpandReact_badParams:undefined,
-
-
     /**
      * An error is thrown in the following cases:
      * - When  [method .InterfaceBuilder.implementInterfaces] is called and the first argument is an interface.

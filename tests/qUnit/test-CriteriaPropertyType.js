@@ -203,6 +203,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
             return e instanceof InterfaceError;
         },'throw validateInExcludes 3');
     }
+    
+   
     // validate
     {
         class C extends A{};
@@ -230,91 +232,442 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
             return e instanceof InterfaceError;
         },'throws validate 3');
     }
+    // compareTypes
+    {
 
-    // compare
+        {
+            let criteria= new CriteriaPropertyType({types:[]});
+            let criteria2= new CriteriaPropertyType({types:[]});
+
+            let check=false;
+            try {
+
+                criteria.compareTypes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareTypes');
+        }
+        {
+            class A{}
+            class B extends A{};
+            let criteria= new CriteriaPropertyType({types:['mixed']});
+            let criteria2= new CriteriaPropertyType({types:[]});
+
+            let check=false;
+            try {
+
+                criteria.compareTypes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareTypes 2');
+        }
+        {
+            let criteria= new CriteriaPropertyType({types:[]});
+            let criteria2= new CriteriaPropertyType({types:['mixed']});
+
+            let check=false;
+            try {
+
+                criteria.compareTypes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareTypes 3');
+        }
+        {
+            let criteria= new CriteriaPropertyType({types:['mixed','number']});
+            let criteria2= new CriteriaPropertyType({types:['mixed']});
+
+            let check=false;
+            try {
+
+                criteria.compareTypes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareTypes 4');
+        }
+        {
+            class A{}
+            class B extends A{};
+            let criteria= new CriteriaPropertyType({types:[
+                    A,
+                    'string',
+                    'number'
+                ]});
+            let criteria2= new CriteriaPropertyType({types:[
+                   
+                    'number',
+                    'string',
+                    A,
+
+                ]});
+
+            let check=false;
+            try {
+
+                criteria.compareTypes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareTypes 5');
+        }
+
+        {
+            class A{}
+            class B extends A{};
+            let criteria= new CriteriaPropertyType({types:[
+                    A,
+                    'string',
+                    'number'
+                ]});
+            let criteria2= new CriteriaPropertyType({types:[
+
+                    'number',
+                    'string',
+                    B,
+
+                ]});
+
+            assert.throws(
+                function(){
+                    criteria.compareTypes(criteria2);
+                },
+                function(e){
+                    return e instanceof InterfaceError;
+                },
+                'compareTypes - throw'
+            );
+        }
+        {
+            class A{}
+            let criteria= new CriteriaPropertyType({types:[
+                    A,
+                    'string',
+                    'number'
+                ]});
+            let criteria2= new CriteriaPropertyType({types:[
+                    'number',
+                    'string'
+
+                ]});
+
+            assert.throws(
+                function(){
+                    criteria.compareTypes(criteria2);
+                },
+                function(e){
+                    return e instanceof InterfaceError;
+                },
+                'compareTypes - throw 2'
+            );
+        }
+        {
+            class A{}
+            let criteria= new CriteriaPropertyType({types:[
+                    A,
+                    'string',
+                    'number'
+                ]});
+            let criteria2= new CriteriaPropertyType({types:[
+                    'number',
+                    'string',
+                    A,
+                    'function'
+
+                ]});
+
+            assert.throws(
+                function(){
+                    criteria.compareTypes(criteria2);
+                },
+                function(e){
+                    return e instanceof InterfaceError;
+                },
+                'compareTypes - throw 6'
+            );
+        }
+        {
+            class A{}
+            let criteria= new CriteriaPropertyType({types:[
+                    A,
+                    'string',
+                    'number',
+                    new CriteriaPropertyType({
+                        types:[
+                            'number',
+                            'string'
+                        ]
+                    })
+                ]});
+            let criteria2= new CriteriaPropertyType({types:[
+                    'number',
+                    'string',
+                    A,
+                    new CriteriaPropertyType({
+                        types:[
+                            'number',
+                            'string',
+                        ]
+                    })
+
+                ]});
+
+            let check=false;
+            try {
+
+                criteria.compareTypes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareTypes 5');
+        }
+        {
+            class A{}
+            let criteria= new CriteriaPropertyType({types:[
+                    A,
+                    'string',
+                    'number',
+                    new CriteriaPropertyType({
+                        types:[
+                            'number',
+                            'string'
+                        ]
+                    })
+                ]});
+            let criteria2= new CriteriaPropertyType({types:[
+                    'number',
+                    'string',
+                    A,
+                    new CriteriaPropertyType({
+                        types:[
+                            'number',
+                            'string',
+                            'function'
+                        ]
+                    })
+
+                ]});
+
+            assert.throws(
+                function(){
+                    criteria.compareTypes(criteria2);
+                },
+                function(e){
+                    console.log([e]);
+                    return e instanceof InterfaceError;
+                },
+                'compareTypes - throw 7'
+            );
+        }
+    }
+
+    // compareIncludes
     {
         {
+            let criteria= new CriteriaPropertyType({includes:[]});
+            let criteria2= new CriteriaPropertyType({includes:[]});
+
+            let check=false;
+            try {
+
+                criteria.compareIncludes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareIncludes');
+        }
+        
+        {
+            class A{}
+            class B extends A{};
+            let criteria= new CriteriaPropertyType({includes:[1,2,A]});
+            let criteria2= new CriteriaPropertyType({includes:[A,2,1]});
+            let check=false;
+            try {
+
+                criteria.compareIncludes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareIncludes 2');
+        }
+        
+
+        {
+            class A{}
+            class B extends A{};
+            let criteria= new CriteriaPropertyType({includes:[1,2,A]});
+            let criteria2= new CriteriaPropertyType({includes:[1,2,B]});
+
+            assert.throws(
+                function(){
+                    criteria.compareIncludes(criteria2);
+                },
+                function(e){
+                    return e instanceof InterfaceError;
+                },
+                'compareIncludes - throw'
+            );
+        }
+        {
+            class A{}
+            let criteria= new CriteriaPropertyType({includes:[1,2,A]});
+            let criteria2= new CriteriaPropertyType({includes:[1,2]});
+
+            assert.throws(
+                function(){
+                    criteria.compareIncludes(criteria2);
+                },
+                function(e){
+                    return e instanceof InterfaceError;
+                },
+                'compareIncludes - throw2'
+            );
+        }
+        {
+            class A{}
+            let criteria= new CriteriaPropertyType({includes:[1,2,A]});
+            let criteria2= new CriteriaPropertyType({includes:[1,2,A,3]});
+
+            assert.throws(
+                function(){
+                    criteria.compareIncludes(criteria2);
+                },
+                function(e){
+                    return e instanceof InterfaceError;
+                },
+                'compareIncludes - throw3'
+            );
+        }
+    }
+    
+    // compareExcludes
+    {
+        {
+            let criteria= new CriteriaPropertyType({excludes:[]});
+            let criteria2= new CriteriaPropertyType({excludes:[]});
+
+            let check=false;
+            try {
+
+                criteria.compareExcludes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareExcludes');
+        }
+
+        {
+            class A{}
+            class B extends A{};
+            let criteria= new CriteriaPropertyType({excludes:[1,2,A]});
+            let criteria2= new CriteriaPropertyType({excludes:[A,2,1]});
+            let check=false;
+            try {
+
+                criteria.compareExcludes(criteria2);
+                check=true;
+            }catch(e){
+                if(!(e instanceof InterfaceError)){
+                    throw e;
+                }
+            }
+            assert.ok(check,'compareExcludes 2');
+        }
+
+
+        {
+            class A{}
+            class B extends A{};
+            let criteria= new CriteriaPropertyType({excludes:[1,2,A]});
+            let criteria2= new CriteriaPropertyType({excludes:[1,2,B]});
+
+            assert.throws(
+                function(){
+                    criteria.compareExcludes(criteria2);
+                },
+                function(e){
+                    return e instanceof InterfaceError;
+                },
+                'compareExcludes - throw'
+            );
+        }
+        {
+            class A{}
+            let criteria= new CriteriaPropertyType({excludes:[1,2,A]});
+            let criteria2= new CriteriaPropertyType({excludes:[1,2]});
+
+            assert.throws(
+                function(){
+                    criteria.compareExcludes(criteria2);
+                },
+                function(e){
+                    return e instanceof InterfaceError;
+                },
+                'compareExcludes - throw2'
+            );
+        }
+        {
+            class A{}
+            let criteria= new CriteriaPropertyType({excludes:[1,2,A]});
+            let criteria2= new CriteriaPropertyType({excludes:[1,2,A,3]});
+
+            assert.throws(
+                function(){
+                    criteria.compareExcludes(criteria2);
+                },
+                function(e){
+                    return e instanceof InterfaceError;
+                },
+                'compareExcludes - throw3'
+            );
+        }
+    }
+    // compare
+    {
+        console.log(criteria);
+        {
             let criteria2=new CriteriaPropertyType({
-                types:[A],
-                includes:[A],
-                excludes:[B]
+                types:[A,'number',null,undefined],
+                includes:[null,10,undefined,A],
+                excludes:[B,10]
             });
+            
             criteria.compare(criteria2);
             assert.ok(true,'compare');
         }
-        {
-            let criteria2=new CriteriaPropertyType({
-                types:[class C{}],
-            });
-            assert.throws(function(){
-                criteria.compare(criteria2);
-            },function(e){
-                return e instanceof InterfaceError;
-            },'throw compare [check types]');
-        }
-        {
-            criteria.initIncludes([B]);
-            class C extends A{}
-            let criteria2=new CriteriaPropertyType({
-                types:[A],
-                includes:[C],
-                excludes:[B],
-            });
-            assert.throws(function(){
-                criteria.compare(criteria2);
-            },function(e){
-                return e instanceof InterfaceError;
-            },'throw compare [check includes]');
-        }
-        {
-            class C extends A{}
-            let criteria2=new CriteriaPropertyType({
-                types:[A],
-                includes:[B],
-                excludes:[C],
-            });
-
-            assert.throws(function(){
-                criteria.compare(criteria2);
-            },function(e){
-                return e instanceof InterfaceError;
-            },'throw compare [check excludes]');
-        }
     }
 
-    // expand
-    {
-        class Z{}
-        let criteria2=new CriteriaPropertyType({
-            types:[Z,'string','number'],
-            includes:[1000],
-            excludes:[1001],
-        });
-        QUnit.dump.maxDepth=10;
-        criteria.expand(criteria2);
-        let match={
-            types:[
-                'number',
-                A,
-                'null',
-                'undefined',
-                Z,
-                'string',
-            ],
-            excludes:[
-                10,B,1001
-            ],
-            includes:[
-                B,1000
-            ],
-            options: criteria.options
-        };
-        assert.propEqual(
-            criteria,
-            match,
-            'expand'
-        );
-    }
     
     //formatStrictSyntaxToObject
     

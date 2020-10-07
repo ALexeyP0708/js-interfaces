@@ -105,7 +105,8 @@ export class CriteriaPropertyType extends CriteriaType{
                 configurable: true,
                 writable: true,
                 value: []
-            }
+            },
+
         });
         this.initTypes(criteria.types, this.options.entryPoints);
         let errors = [];
@@ -287,6 +288,9 @@ export class CriteriaPropertyType extends CriteriaType{
      */
     validateType(value, entryPoints = ['not_defined']) {
         entryPoints = Object.assign([], entryPoints);
+        if(this.types.includes('mixed')){
+            return 'mixed';
+        }
         let tv = typeof value;
         let types_string = [];
         if (value === null) {
@@ -505,148 +509,118 @@ export class CriteriaPropertyType extends CriteriaType{
         if (!(criteria instanceof Object.getPrototypeOf(this).constructor)) {
             new InterfaceError('BadCriteria', {className:Object.getPrototypeOf(this).constructor.name, entryPoints}).throw() ;
         }
-        this.compareType(criteria, entryPoints);
-        let errors = [];
-        try{
-            this.compareIncludes(criteria, entryPoints);
-        } catch(e){
-            if(e instanceof InterfaceError){
-               errors.push(e); 
-            }
-            else {
-                //sc.allowToSpeak();
-                throw e;
-            }
-        }
-        try{
-            this.compareExcludes(criteria, entryPoints);
-        } catch(e){
-            if(e instanceof InterfaceError){
-                errors.push(e);
-            }
-            else {
-                //sc.allowToSpeak();
-                throw e;
-            }
-        }
-        //sc.allowToSpeak();
-        if (errors.length > 0) {
-            new InterfaceError('Compare_badParams', {errors, entryPoints}).throw(true);
-        }
+        this.compareTypes(criteria, entryPoints);
+        this.compareIncludes(criteria, entryPoints);
+        this.compareExcludes(criteria, entryPoints);
     }
-
+    
     /**
-     * Сompares the criteria types of the interfaces.  
-     * Rules:  
-     * - Types restrict the Types of the current object.  
-     * - If the current object is of type mixed, then no comparison is made;  
-     * - The types of the compared object must be present in the types of the current object  
-     * - The types of the object being compared that are a Class or an object must implement (inherit) types 
-     * that are classes or objects of the current object.  
+     * strictly compares criteria for interface types.
+     * Rules:
+     * - strict correspondence of the number of types
+     * - Types must match each other strictly (===)
+     * - If there is a mixed type, then the compared must also be mixed or an empty array
+     * - If the array of types is empty, then the compared one must be mixed or an empty array
+     * - If the type specifies a subtype of the CriteriaType, then the type will pass the same conformity check
      * @param {CriteriaPropertyType} criteria
      * @param {Array}entryPoints  Indicate where the method call came from
-     * @throws {InterfaceError} InterfaceError.type===Compare_badType
+     * @throws {InterfaceError}
      */
-    compareType(criteria, entryPoints = ['not_defined']){
-        let errors=[];
-        if (!this.types.includes('mixed')) {
-            if (criteria.types.length <= 0 && this.types.length > 0) {
-                //let entryPoints = [`types`];
-                new InterfaceError('Compare_emptyStack', {entryPoints:entryPoints.concat(['types']), name:'types'}).throw();
-                //errors.push(error);
-            } else {
-                for (let k in criteria.types) {
-                    let type = criteria.types[k];
-                    let entryPoints = [`types[${k}]`];
-                    let include=this.isIncludeInValues(type,this.types);
-                    if(this.types.length>0 && false===include){
-                        errors.push(new InterfaceError('Compare_ValidateInTypes', {entryPoints, value:type}));
-                    }
-                    if(include instanceof CriteriaType && type instanceof CriteriaType ){
-                        try{
-                            include.compare(type,entryPoints); 
-                        } catch (e) {
-                           if(e instanceof InterfaceError){
-                               errors.push(e);
-                           } else {
-                               throw e;
-                           }
-                        }
-                    }
-                }
+    compareTypes(criteria, entryPoints = ['not_defined']){
+        if(
+            (criteria.types.includes('mixed')||criteria.types.length<=0)&&
+            (this.types.includes('mixed') || this.types.length<=0)
+        ){
+            return;
+        }
+        if(criteria.types.length!==this.types.length){
+            new InterfaceError('CompareTypes', {entryPoints}).throw();
+        }
+        let bufSelfCriteria=[];
+        for(let type of this.types){
+            if(type instanceof CriteriaType){
+                bufSelfCriteria.push(type);
             }
         }
-        if (errors.length > 0) {
-            new InterfaceError('Compare_badTypes', {entryPoints, errors}).throw();
-        }
-    }
-
-    /**
-     * Compares an array of included values ​​from the passed criteria with the current criteria (object)  
-     * Rules:  
-     * -Inclusions restrict the Inclusions of the current object.  
-     * -The includes of the compared object must be present in the includes of the current object  
-     * -The includes of the object being compared that are a Class or an object must implement (inherit) the includes 
-     * that are classes or objects of the current object.  
-     * @param {CriteriaPropertyType} criteria
-     * @param {Array} entryPoints  Indicate where the method call came from
-     */
-    compareIncludes(criteria, entryPoints = ['not_defined']){
-        let errors=[];
-        if (criteria.includes.length <= 0 && this.includes.length > 0) {
-            let entryPoints = [`includes`];
-            let error = new InterfaceError('Compare_emptyStack', {name:'includes', entryPoints});
-            errors.push(error);
-        } else {
-            for (let k in criteria.includes) {
-                let include = criteria.includes[k];
-                let entryPoints = [`includes[${k}]`];
-                if(this.includes.length>0 &&  false===this.isIncludeInValues(include,this.includes)){
-                    errors.push(new InterfaceError('ValidateInIncludes', {entryPoints, value:include}));
-                }  
-            }
-        }
-        if (errors.length > 0) {
-            new InterfaceError('Compare_badIncludes', {entryPoints, errors}).throw();
-        }
-    }
-
-    /**
-     * Compares the exclusions of the passed criteria with the exclusions of the current criteria (object).  
-     * Rules:  
-     * - the exceptions must extend the exceptions from the current criterion (object);  
-     * - In the passed criteria, the exclusions must contain the exclusions of the current criteria (object)  
-     * if the criteria by the types of the passed criteria allow this
-     * -Exceptions from the passed object, which are a class or object, can be parents (prototypes) 
-     * for exceptions that are classes or objects of the current object.  
-     * @param {CriteriaPropertyType} criteria
-     * @param  {Array} entryPoints  Indicate where the method call came from
-     */
-
-    compareExcludes(criteria, entryPoints = ['not_defined']){
-        let errors=[];
-        if (criteria.excludes.length <= 0 && this.excludes.length > 0) {
-            let entryPoints = [`includes`];
-            let error = new InterfaceError('Compare_emptyStack', {name:'excludes', entryPoints});
-            errors.push(error);
-        } else {
-            for (let k in this.excludes) {
-                let exclude = this.excludes[k];
-                let entryPoints = [`excludes[${k}]`];
-                if(criteria.excludes.length>0 && false===criteria.isIncludeInValues(exclude,criteria.excludes)){
+        for (let k=0;k<criteria.types.length; k++) {
+            let type = criteria.types[k];
+            if(type instanceof CriteriaType){
+                let check=false;
+                for(let bk=0; bk<bufSelfCriteria.length; bk++){
+                    let btype=bufSelfCriteria[bk];
                     try{
-                        criteria.validateType(exclude,entryPoints);
-                        errors.push(new InterfaceError('ValidateInExcludes', {entryPoints, value:exclude}));
-                    }catch(e){
-                        if(!(e instanceof InterfaceError) || e.type!=='ValidateType'){
+                        btype.compare(type,entryPoints);
+                        bufSelfCriteria.splice(bk,1);
+                        check=true;
+                        break;
+                    } catch (e) {
+                        if(!(e instanceof InterfaceError)){
                             throw e;
                         }
                     }
                 }
+                if(!check){
+                    new InterfaceError('CompareTypes',{entryPoints}).throw();
+                }
+            } else if(!this.types.includes(type)){
+               new InterfaceError('CompareTypes',{entryPoints}).throw();
             }
         }
-        if (errors.length > 0) {
-            new InterfaceError('Compare_badExcludes', {entryPoints, errors}).throw();
+    }
+
+    /**
+     * strictly compares criteria for  includes.
+     * Rules:
+     * - strict correspondence of the number of includes
+     * - Types must match each other strictly (===)
+     * - If the array of types is empty, then the compared one must be empty array
+     * @param {CriteriaPropertyType} criteria
+     * @param {Array}entryPoints  Indicate where the method call came from
+     * @throws {InterfaceError}
+     */
+    compareIncludes(criteria, entryPoints = ['not_defined']){
+        if(
+            criteria.includes.length<=0&&this.includes.length<=0
+
+        ){
+            return;
+        }
+        if(criteria.includes.length!==this.includes.length){
+            new InterfaceError('CompareIncludes', {entryPoints}).throw();
+        }
+        for (let k in criteria.includes) {
+            let include = criteria.includes[k];
+            if(!this.includes.includes(include)){
+                new InterfaceError('CompareIncludes', {entryPoints}).throw();
+            }
+        }
+    }
+
+    /**
+     * strictly compares criteria for  excludes.
+     * Rules:
+     * - strict correspondence of the number of includes
+     * - Types must match each other strictly (===)
+     * - If the array of types is empty, then the compared one must be empty array
+     * @param {CriteriaPropertyType} criteria
+     * @param {Array}entryPoints  Indicate where the method call came from
+     * @throws {InterfaceError}
+     */
+    compareExcludes(criteria, entryPoints = ['not_defined']){
+        if(
+            criteria.excludes.length<=0&&this.excludes.length<=0
+
+        ){
+            return;
+        }
+        if(criteria.excludes.length!==this.excludes.length){
+            new InterfaceError('CompareExcludes', {entryPoints}).throw();
+        }
+        for (let k in criteria.excludes) {
+            let include = criteria.excludes[k];
+            if(!this.excludes.includes(include)){
+                new InterfaceError('CompareExcludes',{entryPoints}).throw();
+            }
         }
     }
     

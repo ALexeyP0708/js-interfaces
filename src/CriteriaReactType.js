@@ -230,101 +230,40 @@ export class CriteriaReactType extends CriteriaType {
      */
     compare(criteria,entryPoints=['not_defined']){
         entryPoints=Object.assign([],entryPoints);
-        let errors=[];
         if(!(this instanceof Object.getPrototypeOf(criteria).constructor)){
             new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(criteria).constructor.name}).throw();
         }
-        //let sc=new SilentConsole();
-        //sc.denyToSpeak();
         if(this.hasOwnProperty('get')){
             if(!criteria.hasOwnProperty('get')){
-                errors.push(new InterfaceError('ValidateReactDeclared',{entryPoints:['get'],react_type:'getter'}));
+                new InterfaceError('CompareReact',{entryPoints,message:'getter not comparable'}).throw();
             } else {
                 try{
                     this.get.compare(criteria.get);
                 }catch (e) {
                     if(e instanceof InterfaceError){
-                        errors.push(e);
-                    } else {
-                        //sc.allowToSpeak();
-                        throw e;
+                        new InterfaceError('CompareReact',{entryPoints,message:'getter not comparable'}).throw();
                     }
+                    throw e;
                 }
             }
         } else if(criteria.hasOwnProperty('get')){
-            errors.push(new InterfaceError('ValidateReactDeclared',{entryPoints:['get'],not:'not',react_type:'getter'}));
+            new InterfaceError('CompareReact',{entryPoints,message:'getter not comparable'}).throw();
         }
         if(this.hasOwnProperty('set')){
             if(!criteria.hasOwnProperty('set')){
-                // ошибка
-                errors.push(new InterfaceError('ValidateReactDeclared',{entryPoints:['set'],react_type:'setter'}));
+                new InterfaceError('CompareReact',{entryPoints,message:'setter not comparable'}).throw();
             } else {
                 try{
                     this.set.compare(criteria.set);
                 }catch (e) {
                     if(e instanceof InterfaceError){
-                        errors.push(e);
-                    } else {
-                        //sc.allowToSpeak();
-                        throw e;
-                    }
-                }
-            }
-        } else if(criteria.hasOwnProperty('set')){
-            errors.push(new InterfaceError('ValidateReactDeclared',{entryPoints:['set'],not:'not',react_type:'setter'}));
-        }
-        //sc.allowToSpeak();
-        if(errors.length>0){
-            new InterfaceError('CompareReact_badParams',{errors,entryPoints}).throw(true);
-        }
-    }
-    /**
-     * Expands the current object with the passed
-     * @param criteria  If the criteria do not match the CriteriaMethodType type
-     * then a BadCriteria error will be thrown
-     * @param entryPoints Indicate where the method call came from
-     * @throws {InterfaceError} InterfaceError.type===BadCriteria|expandReact_badParams
-     */
-    expand(criteria,entryPoints=['not_defined']){
-        entryPoints=Object.assign([],entryPoints);
-        let errors=[];
-        if(!(this instanceof Object.getPrototypeOf(criteria).constructor)){
-            new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(criteria).constructor.name}).throw();
-        }
-        //let sc=new SilentConsole();
-        //sc.denyToSpeak();
-        if(this.hasOwnProperty('get') && criteria.hasOwnProperty('get')){
-            try{
-                this.get.expand(criteria.get,['get']);
-            } catch (e) {
-                if(e instanceof InterfaceError){
-                    errors.push(e);
-                }else{
-                    //sc.allowToSpeak();
+                        new InterfaceError('CompareReact',{entryPoints,message:'setter not comparable'}).throw();
+                    } 
                     throw e;
                 }
             }
-        } else if(criteria.hasOwnProperty('get')){
-            this.initGet(criteria.get,entryPoints.concat(['get']));
-        }
-        if(this.hasOwnProperty('set') && criteria.hasOwnProperty('set')){
-            try{
-                this.set.expand(criteria.set,['set']);
-            } catch (e) {
-                if(e instanceof InterfaceError){
-                    errors.push(e);
-                }else{
-                    //sc.allowToSpeak();
-                    throw e;
-                }
-            }
-
         } else if(criteria.hasOwnProperty('set')){
-            this.initSet(criteria.set,entryPoints.concat(['set']));
-        }
-        //sc.allowToSpeak();
-        if(errors.length>0){
-            new InterfaceError('ExpandReact_badParams',{errors,entryPoints}).throw(true);
+            new InterfaceError('CompareReact',{entryPoints,message:'setter not comparable'}).throw();
         }
     }
     

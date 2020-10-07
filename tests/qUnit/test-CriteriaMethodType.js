@@ -167,11 +167,12 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
     // compare
     {
         {
+            console.log(criteria);
             let criteria2 = new CriteriaMethodType({
                 arguments: [
                     {
-                        types:['number'],
-                        includes:[1],
+                        types:["number", "undefined"],
+                        includes:[1,2,3],
                         excludes:[10,11,12]
                     },
                     {
@@ -179,7 +180,7 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                     }
                 ],
                 return:{
-                    types:['undefined']
+                    types:["number", "undefined"]
                 }
             });
             criteria.compare(criteria2);
@@ -207,80 +208,5 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
         }
     }
 
-    // expand
-
-    {
-        class A{}
-        let criteria2 = new CriteriaMethodType({
-            arguments: [
-                {
-                    types:['number',A],
-                    includes:[100],
-                    excludes:[200]
-                },
-                {
-                    types:['string']
-                },
-                {
-                    types:['string']
-                }
-            ],
-            return:{
-                types:['undefined']
-            }
-        });
-        criteria.expand(criteria2);
-        let match={
-            arguments:[
-                new CriteriaPropertyType({
-                    types:[
-                        'number',
-                        'undefined',
-                        A
-                    ],
-                    includes:[1,2,3,100],
-                    excludes:[10,11,12,200],
-                    options:{
-                        entryPoints:criteria.arguments[0].options.entryPoints,
-                        owner:criteria.arguments[0].options.owner
-                    }
-                }),
-                new CriteriaPropertyType({
-                    types:[
-                        'string'
-                    ],
-                    options:{
-                        entryPoints:criteria.arguments[1].options.entryPoints,
-                        owner:criteria.arguments[1].options.owner
-                    }
-                }),
-                new CriteriaPropertyType({
-                    types:[
-                        'string'
-                    ],
-                    options:{
-                        entryPoints:criteria.arguments[2].options.entryPoints,
-                        owner:criteria.arguments[2].options.owner
-                    }
-                }),
-            ],
-            return :
-                new CriteriaPropertyType({
-                    types:['number',undefined],
-                    options:{
-                        entryPoints:criteria.return.options.entryPoints
-                        ,owner:criteria.return.options.owner
-                    }
-                }),
-
-        };
-        let result={};
-        for (let prop of Object.getOwnPropertyNames(criteria)){
-            if(!['arguments','return'].includes(prop)){continue;}
-            result[prop]=criteria[prop];
-
-        }
-        assert.deepEqual(result,match,'expand');
-    }
-    assert.ok(true);
+    
 });

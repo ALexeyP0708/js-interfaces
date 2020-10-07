@@ -84,6 +84,7 @@ export class InterfaceFuncBuilder {
                 this.addRules(rules,interfaceData,[Func.name]);
             };
             sandbox=this.buildFunc(Func,rules.ownRules[0].criteria);
+            
         } catch(e){
             if(e instanceof InterfaceError){
                 e.renderErrors();

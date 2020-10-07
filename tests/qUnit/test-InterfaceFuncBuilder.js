@@ -126,12 +126,42 @@ QUnit.test('Methods test InterfaceFuncBuilder class',function(assert){
     
     //extendsInterfaces
     {
-        let iFunc=(a=['number','string'],b=['number','string'],c=['number','string'])=>{
-            return Object.assign([a,b,c],{return:{types:['string','number']}});
+        let iFunc=()=>{
+            //return Object.assign([a,b,c],{return:{types:['string','number']}});
+            return {
+                arguments:[
+                    {
+                        types:['number','string']
+                    },
+                    {
+                        types:['number','string']
+                    },
+                    {
+                        types:['number','string']
+                    },
+                ],
+                return:{types:['string','number']}
+            };
         };
         iFunc.isInterface=true;
-        let iFunc2=(a=['number'],b=['number'],c=['number'])=>{
-            return Object.assign([a,b,c],{return:{types:'string'}});
+        let iFunc2=()=>{
+            return {
+                arguments:[
+                    {
+                        types:['number','string']
+                    },
+                    {
+                        types:['number','string']
+                    },
+                    {
+                        types:['number','string']
+                    },
+                    {
+                        types:['number','string']
+                    },
+                ],
+                return:{types:['string','number']}
+            };
         };
         iFunc2.isInterface=true;
         let func=function(){};
