@@ -2,11 +2,16 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import {InterfaceError, CriteriaPropertyType, CriteriaType, InterfaceData, MirrorFuncInterface} from "./export.js";
+import {
+    InterfaceError,
+    CriteriaPropertyType,
+    CriteriaType,
+    InterfaceData,
+    InterfaceBuilder
+} from "./export.js";
 
 
 /**
- * An instance of the CriteriaMethodType class stores the criteria for a method
  * @prop {CriteriaType[]} arguments - Criteria for arguments
  * ```js
  * {
@@ -39,19 +44,11 @@ import {InterfaceError, CriteriaPropertyType, CriteriaType, InterfaceData, Mirro
  *      }
  * }
  * ```
- * @prop {object} options - settings for criteria
- * ```js
- * {
- *     options:{
- *          entryPoints:[],
- *          owner:''
- *     }
- * }
- * ```
+ * @inheritDoc
  */
 export class CriteriaMethodType extends CriteriaType{
     /**
-     * @param {object} criteria   The object is passed the criteria for the method.  
+     * @param {{arguments:Array,return:{}}} criteria    In this parameters is passed the criteria for the method/function.  
      * The object must repeat the construction of an instance of the CriteriaMethodType class.    
      *```js
      *  {
@@ -65,7 +62,7 @@ export class CriteriaMethodType extends CriteriaType{
      *     }
      *  }
      * ```
-     * @throws {InterfaceError}  Errors {@link .InterfaceError.types.default default}  {@link .InterfaceError.types#default default}
+     * @throws {InterfaceError} 
      */
     constructor(criteria={}){
         super(criteria);
@@ -101,7 +98,7 @@ export class CriteriaMethodType extends CriteriaType{
             }
         };
         try {
-            this.initReturn(criteria.return,[]);
+            this.initReturn(criteria.return,this.options.entryPoints);
         } catch (e) {
             if (e instanceof InterfaceError) {
                 errors.push(e);
@@ -109,11 +106,26 @@ export class CriteriaMethodType extends CriteriaType{
                 throw e;
             }
         };
-        //sc.allowToSpeak();
         if (errors.length > 0) {
             new InterfaceError('Init_BadArgumentsOrReturn', {entryPoints: this.options.entryPoints, errors}).throw(true);
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    initOptions(options={}){
+        super.initOptions(options);
+        if(this.arguments!==undefined){
+            for(let argument of this.arguments){
+                argument.initOptions(this.options);
+            }
+        }
+        if(this.return!==undefined){
+            this.return.initOptions(this.options);
+        }
+    }
+    
     /**
      * @inheritdoc
      */
@@ -126,12 +138,23 @@ export class CriteriaMethodType extends CriteriaType{
     }
 
     /**
-     * Initializes criteria for arguments in the current object
-     * @param {Array.<CriteriaType|{[arguments]:Array,[return]:object}|{[types]:Array,[includes]:Array,[excludes]:Array}>} args
-     * @param {Array} [entryPoints]  Indicate where the method call came from
+     * @inheritdoc
+     */
+    freeze(){
+        super.freeze();
+        for(let argument of this.arguments){
+            argument.freeze();
+        }
+        this.return.freeze();
+    }
+
+    /**
+     * Initializes criteria for arguments
+     * @param {Array.<(CriteriaType|{arguments:Array,return:object}|{types:Array,includes:Array,excludes:Array})>} args
+     * @param {string[]} [entryPoints]  Indicate where the method call came from
      * @throws {InterfaceError} 
      */
-    initArguments(args=[],entryPoints=['not_defined']){
+    initArguments(args=[],entryPoints=[]){
         entryPoints=Object.assign([],entryPoints);
         if(!Array.isArray(args)){
             new InterfaceError('initArguments',{message:'Array expected. Example:{arguments:[{types["string","number"]},{arguments:[],return:{}}]}'}).throw();
@@ -139,13 +162,11 @@ export class CriteriaMethodType extends CriteriaType{
         for(let arg of args) {
             let criteria={};
             if(arg instanceof CriteriaType){
-                criteria=arg;
-                criteria.initOptions({entryPoints:entryPoints});
-                this.arguments.push(criteria);
+                this.arguments.push(arg);
                 continue;
             }
             criteria=Object.assign({},arg);
-            criteria.options=Object.assign({},this.options,criteria,{entryPoints:entryPoints});
+            criteria.options=Object.assign({},this.options,criteria.options,{entryPoints:entryPoints});
             if(criteria.hasOwnProperty('arguments') || criteria.hasOwnProperty('return') ){
                 criteria=new CriteriaMethodType(criteria);
             } else {
@@ -156,12 +177,12 @@ export class CriteriaMethodType extends CriteriaType{
     }
 
     /**
-     * Initializes criteria for the return value in the current object
-     * @param {CriteriaType|{[arguments]:Array,[return]:object}|{[types]:Array,[includes]:Array,[excludes]:Array}} rtrn
+     * Initializes criteria for the return value
+     * @param {(CriteriaType|{arguments:Array,return:object}|{types:Array,includes:Array,excludes:Array})} rtrn
      * @param {string[]} [entryPoints]  Indicate where the method call came from
      * @throws {InterfaceError}
      */
-    initReturn(rtrn={},entryPoints=['not_defined']){
+    initReturn(rtrn={},entryPoints=[]){
         entryPoints=Object.assign([],entryPoints);
         let tp= typeof rtrn;
         if(!['object'].includes(tp)|| rtrn==null){
@@ -170,8 +191,6 @@ export class CriteriaMethodType extends CriteriaType{
         let criteria;
         if(rtrn instanceof CriteriaType){
             criteria=rtrn;
-            criteria.initOptions({entryPoints:entryPoints});
-            
         } else {
             criteria=Object.assign({},rtrn);
 /*            if(criteria.types===undefined){
@@ -186,21 +205,58 @@ export class CriteriaMethodType extends CriteriaType{
         }
         this.return=criteria;
     }
-    validate (value, entryPoints = ['not_defined']){
+
+    /**
+     * @inheritDoc
+     */
+    build(data,criteria,entryPoints=[]){
+        let func=data;
+        if (
+            criteria instanceof CriteriaMethodType &&
+            criteria.isBuildSandbox !== false &&
+            typeof func === 'function' &&
+            func.prototype === undefined
+        ){
+            let check = false;
+            for (let arg of criteria['arguments']) {
+                if (
+                    arg instanceof CriteriaPropertyType && arg.types.length > 0 && !arg.types.includes('mixed') ||
+                    arg instanceof CriteriaMethodType
+                ) {
+                    check = true;
+                    break;
+                }
+            }
+            if (
+                check ||
+                criteria.return instanceof CriteriaPropertyType &&
+                criteria.return.types.length > 0 &&
+                !criteria.return.types.includes('mixed') ||
+                criteria.return instanceof CriteriaMethodType
+            ) {
+                func = InterfaceBuilder.generateSandbox(func, criteria, entryPoints);
+            }
+        }
+        return func;
+    }
+    
+    validate (value, entryPoints = []){
         if(typeof value!=='function' || value.prototype!==undefined){
             new InterfaceError('ValidateMethodDeclared',{entryPoints}).throw();
         }
         return {types:this,includes:false,excludes:false};
     }
+    
+    
     /**
      * Validation for method arguments according to criteria
      * @param {Array} args
-     * @param {Array} entryPoints  Indicate where the method call came from
-     * @return {{types:boolean|*,includes:boolean|*,excludes:boolean|*}[]} 
+     * @param {string[]} [entryPoints]  Indicate where the method call came from
+     * @return {Array.<{types:(boolean|*),includes:(boolean|*),excludes:(boolean|*)}>} 
      * If there are no exceptions, will return an array of matches for the arguments.
      * @throws {InterfaceError}
      */
-    validateArguments(args,entryPoints=['not_defined']){
+    validateArguments(args,entryPoints=[]){
         let errors=[];
         let result=[];
         entryPoints=Object.assign([],entryPoints);
@@ -224,30 +280,32 @@ export class CriteriaMethodType extends CriteriaType{
     /**
      * Validation for method return data according to criteria
      * @param rtrn
-     * @param {Array} entryPoints  Indicate where the method call came from
-     * @returns {{types:boolean|*,includes:boolean|*,excludes:boolean|*}}
+     * @param {string[]} [entryPoints]  Indicate where the method call came from
+     * @returns {{types:(boolean|*),includes:(boolean|*),excludes:(boolean|*)}}
      * If there are no exceptions will return the result of matches
      * @throws {InterfaceError} 
      */
-    validateReturn(rtrn,entryPoints=['not_defined']){
+    validateReturn(rtrn,entryPoints=[]){
         entryPoints=entryPoints.concat(['return']);
         return this.return.validate(rtrn,entryPoints);
     }
 
     /**
-     * Compares criteria. Necessary when expanding criteria  
+     * Compares criteria.  
+     * Used when an interface member is about to replace a member of the same name in another interface.
      * Rules:  
-     * - The number of arguments in the passed criteria must be at least in the current criteria(object)
-     * - The criteria for the arguments of the passed object must match the criteria for the arguments of the current object
-     * - The criteria for the returned object must match the criteria for the current object
+     * - The number of arguments in the passed criteria must be at least in the current criteria
+     * - the remaining arguments are optional and therefore their criteria must be of type 'undefined' or 'mixed'
+     * - The criteria for the arguments  must match  current  criteria
+     * - The criteria for the returned data must match the current criteria 
      * @param {CriteriaMethodType|CriteriaType} criteria  If the criteria do not match the CriteriaMethodType type 
-     * then a BadCriteria error will be thrown
-     * @param entryPoints Indicate where the method call came from
+     * then a error will be thrown
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @throws {InterfaceError} 
      */ 
-    compare(criteria,entryPoints=['not_defined']){
+    compare(criteria,entryPoints=[]){
         entryPoints=Object.assign([],entryPoints);
-        if(!(criteria instanceof Object.getPrototypeOf(this).constructor)){
+        if(Object.getPrototypeOf(this).constructor !== Object.getPrototypeOf(criteria).constructor){
             new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(this).constructor.name}).throw();
         }
         for(let k=0; k<this.arguments.length;k++){
@@ -264,6 +322,16 @@ export class CriteriaMethodType extends CriteriaType{
                 }
             }
         }
+        if(criteria.arguments.length>this.arguments.length){
+            for(let k=this.arguments.length; k<criteria.arguments.length;k++){
+                if(criteria.arguments[k].types.length>0 && !criteria.arguments[k].types.includes('undefined') && !criteria.arguments[k].types.includes('mixed')){
+                    new InterfaceError('CompareMethod',{entryPoints,message:`arguments are not comparable.\n`+
+                    `The rest of the arguments [${this.arguments.length+1}]-[${criteria.arguments.length}] should be optional and therefore `+
+                            `their criteria should contain the type "undefined" or "mixed"
+                            `}).throw();
+                }
+            }
+        }
         try {
             this.return.compare(criteria.return,[`return`]);
         } catch (error) {
@@ -275,7 +343,7 @@ export class CriteriaMethodType extends CriteriaType{
         }
     }
     
-    static formatExtendedSyntaxToObject(data,entryPoints=['not defined']){
+    static formatExtendedSyntaxToObject(data,entryPoints=[]){
         let tp=typeof data;
         let result;
         if(['function','string'].includes(tp)){
@@ -324,10 +392,11 @@ export class CriteriaMethodType extends CriteriaType{
     }
 
     /**
-     * 
-     * @param data
-     * @param entryPoints
-     * @returns {*}
+     * Formats the declared criteria in order for further work.  
+     * Formats strong syntax.
+     * @param {undefined|null|object} data
+     * @param {string[]} [entryPoints] Indicate where the method call came from
+     * @returns {{arguments:Array,return:object}}
      * 
      * @example
      * 
@@ -336,7 +405,7 @@ export class CriteriaMethodType extends CriteriaType{
      * //to
      * data={arguments:[],return:{types:['mixed'],includes:[],excludes:[]}}
      * 
-     * from
+     * //from
      * data={arguments:['string']}
      * // to
      * data={arguments:[{types:['string'],includes:[],excludes:[]}],return:{...}}
@@ -357,7 +426,7 @@ export class CriteriaMethodType extends CriteriaType{
      * data={arguments:[...],return:{arguments:[],return:{types:['string']}}}
      * 
      */
-    static formatStrictSyntaxToObject (data,entryPoints=['not_defined']){
+    static formatStrictSyntaxToObject (data,entryPoints=[]){
         if(data===null || data===undefined){
             data={};
         }
@@ -375,28 +444,57 @@ export class CriteriaMethodType extends CriteriaType{
                     types:[result['arguments'][key]]
                 };
             }
-            if(result['arguments'][key].hasOwnProperty('arguments') || result['arguments'][key].hasOwnProperty('return') ){
-                result['arguments'][key]=CriteriaMethodType.formatStrictSyntaxToObject(result['arguments'][key],entryPoints.concat(`arguments[${key}].call()`));
+            if(!(result['arguments'][key] instanceof CriteriaType)){
+                if(result['arguments'][key].hasOwnProperty('arguments') || result['arguments'][key].hasOwnProperty('return') ){
+                    result['arguments'][key]=CriteriaMethodType.formatToObject(result['arguments'][key],entryPoints.concat(`arguments[${key}].call()`));
+                } else {
+                    result['arguments'][key]=CriteriaPropertyType.formatToObject(result['arguments'][key],entryPoints.concat(`arguments[${key}]`));
+                }
             } else {
-                result['arguments'][key]=CriteriaPropertyType.formatStrictSyntaxToObject(result['arguments'][key],entryPoints.concat(`arguments[${key}]`));
+                if(result['arguments'][key] instanceof CriteriaMethodType){
+                    result['arguments'][key].initOptions({entryPoints:entryPoints.concat(`arguments[${key}].call()`)});
+                } else {
+                    let ProtoClass=Object.getPrototypeOf(result['arguments'][key]).constructor;
+                    result['arguments'][key]=ProtoClass.generateObject(result['arguments'][key],undefined,entryPoints.concat(`arguments[${key}]`));
+                    console.log(21);
+                }
             }
         }
-        if(result['return']===undefined){
-            result['return']={};
-        }else if(typeof result['return']!=='object' || result['return']===null){
-            result['return']={
-                types:[result['return']]
-            };
-        }
-        if(result['return'].hasOwnProperty('arguments') || result['return'].hasOwnProperty('return') ){
-            result['return']=CriteriaMethodType.formatStrictSyntaxToObject(result['return'],entryPoints.concat(`return.call()`));
+        if(!(result['return'] instanceof CriteriaType)){
+            if(result['return']===undefined){
+                result['return']={};
+            }else if(typeof result['return']!=='object' || result['return']===null){
+                result['return']={
+                    types:[result['return']]
+                };
+            }
+            if(result['return'].hasOwnProperty('arguments') || result['return'].hasOwnProperty('return') ){
+                result['return']=CriteriaMethodType.formatStrictSyntaxToObject(result['return'],entryPoints.concat(`return.call()`));
+            } else {
+                result['return']=CriteriaPropertyType.formatStrictSyntaxToObject(result['return'],entryPoints.concat(`return`));
+            }
         } else {
-            result['return']=CriteriaPropertyType.formatStrictSyntaxToObject(result['return'],entryPoints.concat(`return`));
+            if(result['return'] instanceof CriteriaMethodType){
+                result['return'].initOptions({entryPoints:entryPoints.concat(`return.call()`)});
+            } else {
+                result['return'].initOptions({entryPoints:entryPoints.concat(`return`)});
+            }
         }
         if(result['options']===undefined){
             result.options={entryPoints};
         }
         return result;
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * */
+    static formatToObject(data,entryPoints=[]){
+        if(!this.isUseStrictSyntax){
+            return this.formatExtendedSyntaxToObject(data,entryPoints);
+        }
+        return this.formatStrictSyntaxToObject(data,entryPoints);
     }
   
 }

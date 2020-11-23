@@ -236,7 +236,12 @@ QUnit.test('Methods test InterfaceData class',function(assert){
     
             assert.ok(match,'instanceOfInterface');
         } catch (e) {
-            e.renderErrors();
+            if(e instanceof InterfaceError){
+                e.renderErrors();
+            }else{
+                throw e;
+            }
+           
         }
 
     }

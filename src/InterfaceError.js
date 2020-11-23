@@ -3,10 +3,10 @@
  */
 
 import {buffer, InterfaceBuilder, InterfaceData, SilentConsole} from './export.js';
+let console=buffer.console;
 /**
  * 
  */
-let console=buffer.console;
 export class InterfaceError extends Error {
     constructor (type='default',vars={}){
         let errors=vars.errors??[];
@@ -237,8 +237,9 @@ Object.defineProperty(InterfaceError.prototype,'name',{
     value:'InterfaceError'
 });
 
-let helpLink='http://sites/NodeJS/Interfaces/docs/module-@alexeyp0708_interface-manager.InterfaceError.types.html#.';
+let helpLink='http://sites/NodeJS/Interfaces/docs/ErrorTypes.html#.';
 /**
+ * @alias ErrorTypes
  * @namespace
  */
 InterfaceError.types={
@@ -439,14 +440,15 @@ InterfaceError.types={
     
     /**
      *  An error is thrown in the following cases:
-     *  -When comparing criteria for interface members,if the method lacks required arguments
+     *  -When comparing criteria for interface members, if in the method the arguments or return do not match the rules of the matched interface
      *
      */
     CompareMethod:undefined,
 
 
     /**
-     * 
+     *  An error is thrown in the following cases:
+     *  - if getter or setter is not declared or criteria are not matched.
      */
     CompareReact:undefined,
     

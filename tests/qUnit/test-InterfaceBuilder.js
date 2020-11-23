@@ -6,9 +6,9 @@ import {
     InterfaceBuilder,
     CriteriaMethodType, 
 } from '../../src/export.js';
+import {ownerSandbox} from "../../src/InterfaceBuilder.js";
 
 QUnit.module( 'Class InterfaceBuilder');
-let ownerSandbox=Symbol.for('ownerSandbox');
 QUnit.test('Methods test InterfaceBuilder class',function(assert){
     let throwTest=(func,...args)=>{
         try {

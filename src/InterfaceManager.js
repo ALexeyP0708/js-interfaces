@@ -1,6 +1,4 @@
-/**
- * @module @alexeyp0708/interface-manager
- */
+
 import {
     CriteriaMethodType,
     CriteriaPropertyType,
@@ -13,9 +11,6 @@ import {
 } from "./export.js";
 
 
-/**
- * Class of static methods for managing classes and interfaces
- */
 export class InterfaceManager{
 
  /*   static buildFunction(func,rule,isExpand){

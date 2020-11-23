@@ -4,8 +4,8 @@
 
 import {
     InterfaceError,
-    MirrorInterface,
-    MirrorFuncInterface,
+    //MirrorInterface,
+    //MirrorFuncInterface,
     CriteriaType,
     InterfaceData, CriteriaMethodType
 } from "./export.js";
@@ -13,7 +13,7 @@ import {
 /**
  *  An instance of the CriteriaMethodType class stores the criteria for a property and manages criteria.  
  *  Describes class properties, class method arguments, class method return value, reactive properties.
- *  @prop {string[]|object[]|function[]} types  the set of types to which the value must match
+ *  @prop {Array.<(string|object|function)>} types  the set of types to which the value must match
   *  ```js
  *  [
  *       'mixed' // Any type
@@ -27,6 +27,8 @@ import {
  *        {name:'hello'}, //  implements the given instance as a prototype (Object.create (object))
  *        class AnyClass{}, // inherited  the AnyClass class
  *        class Mirror extends MirrorInterface{}, //to check for compliance of any object/class with the Mirror interface
+ *        new CriteriaPropertyType({}) // another set of criteria
+ *        new CriteriaMethodType({}) //  criteria for the called function
  *  ]
  *  ```
  *  
@@ -59,17 +61,12 @@ import {
  *      undefined // the value not must match undefined
  *  ]
  *  ```
- * @prop {object} options - settings for criteria
- * ```js
- * {
- *     options:{entryPoints:[],owner:''}
- * }
- * ```
+ *  @inheritDoc
  */
 export class CriteriaPropertyType extends CriteriaType{
     /**
      * 
-     * @param {object} criteria  Object with criteria. Must iterate object properties CriteriaPropertyType 
+     * @param {object} criteria  Object with criteria. In this parameters is passed the criteria for the property/argument/return function.
      * Example:
      *  ```js
      *  {
@@ -136,14 +133,14 @@ export class CriteriaPropertyType extends CriteriaType{
     }
     
     /**
-     * Define the data type of the property
-     * @param {Array.<string|function|object|CriteriaType>} types 
+     * Define the data type of the property.  
+     * @param {Array.<(string|function|object|CriteriaType)>} types 
      * if string, then null|undefined|object|boolean|number|string|symbol|function|mixed 
      * If a function is written in the shorthand type `() => {}`, it is considered the interface of the function and will call it.
-     * @param {string[]} entryPoints Indicate where the method call came from
+     * @param {string[]} [entryPoints] Indicate where the method call came from
 
      */
-    initTypes(types = ['mixed'], entryPoints = ['not_defined']) {
+    initTypes(types = ['mixed'], entryPoints = []) {
         entryPoints = Object.assign([], entryPoints);
         if(!Array.isArray(types)){
             new InterfaceError('InitTypes',{message:'Array expected. Example:{types:["string","number"]}'}).throw();
@@ -171,13 +168,13 @@ export class CriteriaPropertyType extends CriteriaType{
     }
 
     /**
-     * Define what values the property should include  
+     * Define what values the property should include.  
      * Rules:  
-     * -Must match the types of current criteria
+     * -Must match the of current criteria types
      * @param {Array} values 
-     * @param {Array} entryPoints  Indicate where the method call came from
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      */
-    initIncludes(values = [], entryPoints = ['not_defined']) {
+    initIncludes(values = [], entryPoints = []) {
         entryPoints = Object.assign([], entryPoints);
         values = Object.assign([], values);
         let errors = [];
@@ -200,13 +197,13 @@ export class CriteriaPropertyType extends CriteriaType{
     }
 
     /**
-     * Define what values the property should exclude  
+     * Define what values the property should exclude.  
      * Rules:  
-     * -Must match the types of current criteria
+     * -Must match the of current criteria types
      * @param {Array} values
-     * @param {Array} entryPoints  Indicate where the method call came from
+     * @param {string[]} [entryPoints]  Indicate where the method call came from
      */
-    initExcludes(values = [], entryPoints = ['not_defined']) {
+    initExcludes(values = [], entryPoints = []) {
         entryPoints = Object.assign([], entryPoints);
         values = Object.assign([], values);
         let errors = [];
@@ -228,20 +225,24 @@ export class CriteriaPropertyType extends CriteriaType{
         this.excludes = values;
     }
 
+    build(data,criteria,entryPoints=[]){
+        return data;
+    }
+    
     /**
      * Validation of incoming parameters according to the established current criteria (object)  
      * @param value
-     * @param entryPoints Indicate where the method call came from
-     * @returns {{types:boolean|*,includes:boolean|*,excludes:boolean|*}}
+     * @param {string[]} [entryPoints] Indicate where the method call came from
+     * @returns {{types:(boolean|*),includes:(boolean|*),excludes:(boolean|*)}}
      * If there are no exceptions will return the result of matches
      * @throws {InterfaceError} 
      */
-    validate(value, entryPoints = ['not_defined']) {
+    validate(value, entryPoints = []) {
         entryPoints = Object.assign([], entryPoints);
         let result={
-            types:false,
-            includes:false,
-            excludes:false
+            types:undefined,
+            includes:undefined,
+            excludes:undefined
         };
         result.types=this.validateType(value, entryPoints);
         let errors = [];
@@ -272,7 +273,6 @@ export class CriteriaPropertyType extends CriteriaType{
         return result;
     }
 
-
     /**
      * Validation of incoming parameters by data type according to current the criteria (object) 
      * Rules:  
@@ -282,11 +282,11 @@ export class CriteriaPropertyType extends CriteriaType{
      * - If the criteria set an interface inheriting the MirrorInterface interface, 
      * then any object or class passed must meet the criteria set by this interface
      * @param value
-     * @param {Array} entryPoints Indicate where the method call came from
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @returns {boolean|*} Returns a match or false. If there are no exceptions and false, then the set is empty.
      * @throws {InterfaceError} 
      */
-    validateType(value, entryPoints = ['not_defined']) {
+    validateType(value, entryPoints = []) {
         entryPoints = Object.assign([], entryPoints);
         if(this.types.includes('mixed')){
             return 'mixed';
@@ -315,7 +315,7 @@ export class CriteriaPropertyType extends CriteriaType{
             } else {
                 types_string.push(`[function ${type.name}]`);
             }
-            if(['object','function'].includes(tv)){
+            if(['object','function'].includes(tt) && ['object','function'].includes(tv)){
                 if(tt==='object' && type instanceof CriteriaType){
                     try {
                         result=type.validate(value, entryPoints);
@@ -328,9 +328,8 @@ export class CriteriaPropertyType extends CriteriaType{
                         }
                         errors.push(e);
                     }
-                } else
+                } /*else// refactoring -there is already a check for the CriteriaType
                 if(tv==='function' && tt==='object' && this.instanceOf(type, MirrorInterface)){
-                    
                     try {
                         result=type.validate(value,entryPoints);
                         check=true;
@@ -342,13 +341,8 @@ export class CriteriaPropertyType extends CriteriaType{
                         }
                         errors.push(e);
                     }
-                } else if(tv==='function' && this.instanceOf(type,MirrorFuncInterface)){
-                    // MirrorFuncInterface says that you need to collect a function for subsequent validation. \
-                    // The assembly takes place in a non-given this method
-                    result=type;
-                    check=true;
-                    break;
-                } else if(value === type || this.instanceOf(value, type)){
+                }  */
+                else if(value === type || this.instanceOf(value, type)){
                     result=type;
                     check=true;
                     break;
@@ -404,11 +398,11 @@ export class CriteriaPropertyType extends CriteriaType{
     /**
      * Validation incoming parameters for compliance with the values ​​set in the "includes" criteria  
      * @param value
-     * @param {Array} entryPoints Indicate where the method call came from
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @returns {boolean|*} Returns a match or false. If there are no exceptions and false, then the set is empty.
-     * @throws {InterfaceError} InterfaceError.type==='ValidateInIncludes' An exception will be thrown if there are no matches.
+     * @throws {InterfaceError} 
      */
-    validateInIncludes(value, entryPoints = ['not_defined']) {
+    validateInIncludes(value, entryPoints = []) {
         let equalValues = this.includes;
         let result=false;
         if (equalValues.length > 0) {
@@ -436,11 +430,11 @@ export class CriteriaPropertyType extends CriteriaType{
     /**
      * Validation incoming parameters for compliance with the values ​​set in the "excludes" criteria  
      * @param value
-     * @param {Array} entryPoints Indicate where the method call came from
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @returns {boolean|*} Returns a match or false. If there are no exceptions and false, then the set is empty.
-     * @throws {InterfaceError} InterfaceError.type==='ValidateInExcludes' An exception will be thrown if there is a match.
+     * @throws {InterfaceError}
      */
-    validateInExcludes(value, entryPoints = ['not_defined']) {
+    validateInExcludes(value, entryPoints = []) {
         let equalValues = this.excludes;
         let result=false;
         if (equalValues.length > 0) {
@@ -465,48 +459,20 @@ export class CriteriaPropertyType extends CriteriaType{
         }
         return result;
     }
-    
-    /**
-     * expands the current object with new criteria  
-     * @param {CriteriaPropertyType} criteria
-     * @param {Array} entryPoints Indicate where the method call came from
-     * @throws {InterfaceError} InterfaceError.type==='BadCriteria'
-     */
-    expand(criteria, entryPoints = ['not_defined']) {
-        if (!(criteria instanceof Object.getPrototypeOf(this).constructor)) {
-            new InterfaceError('BadCriteria', {className:Object.getPrototypeOf(this).constructor.name, entryPoints}).throw();
-        }
-        if (!this.types.includes('mixed')) {
-            for (let type of criteria.types) {
-                if (!this.isIncludeInValues(type,this.types)) {
-                    this.types.push(type);
-                }
-            }
-        }
-        for (let include of criteria.includes) {
-            if (!this.isIncludeInValues(include,this.includes)) {
-                this.includes.push(include);
-            }
-        }
-        for (let exclude of criteria.excludes) {
-            if (!this.isIncludeInValues(exclude,this.excludes)) {
-                this.excludes.push(exclude);
-            }
-        }
-    }
 
     /**
-     * compare criteria with  criteria current object  
+     * Compare criteria with current criteria.  
+     * Used when an interface member is about to replace a member of the same name in another interface.
      * @param {CriteriaPropertyType} criteria
      * @param {Array} entryPoints Indicate where the method call came from
      * @throws {InterfaceError} 
-     * @see [method .#compareType]
+     * @see [method .#compareTypes]
      * @see [method .#compareIncludes]
      * @see [method .#compareExcludes]
      */
-    compare(criteria, entryPoints = ['not_defined']) {
+    compare(criteria, entryPoints = []) {
         entryPoints=Object.assign([],entryPoints);
-        if (!(criteria instanceof Object.getPrototypeOf(this).constructor)) {
+        if(Object.getPrototypeOf(this).constructor !== Object.getPrototypeOf(criteria).constructor){
             new InterfaceError('BadCriteria', {className:Object.getPrototypeOf(this).constructor.name, entryPoints}).throw() ;
         }
         this.compareTypes(criteria, entryPoints);
@@ -515,18 +481,18 @@ export class CriteriaPropertyType extends CriteriaType{
     }
     
     /**
-     * strictly compares criteria for interface types.
+     * Compare types criteria with current types criteria.  
      * Rules:
      * - strict correspondence of the number of types
      * - Types must match each other strictly (===)
      * - If there is a mixed type, then the compared must also be mixed or an empty array
      * - If the array of types is empty, then the compared one must be mixed or an empty array
-     * - If the type specifies a subtype of the CriteriaType, then the type will pass the same conformity check
+     * - If the type specifies a subtype of the type CriteriaType, then the type will pass the same conformity check
      * @param {CriteriaPropertyType} criteria
-     * @param {Array}entryPoints  Indicate where the method call came from
+     * @param {string[]} [entryPoints]  Indicate where the method call came from
      * @throws {InterfaceError}
      */
-    compareTypes(criteria, entryPoints = ['not_defined']){
+    compareTypes(criteria, entryPoints = []){
         if(
             (criteria.types.includes('mixed')||criteria.types.length<=0)&&
             (this.types.includes('mixed') || this.types.length<=0)
@@ -569,16 +535,16 @@ export class CriteriaPropertyType extends CriteriaType{
     }
 
     /**
-     * strictly compares criteria for  includes.
+     * Compare includes criteria with current includes criteria.  
      * Rules:
      * - strict correspondence of the number of includes
      * - Types must match each other strictly (===)
      * - If the array of types is empty, then the compared one must be empty array
      * @param {CriteriaPropertyType} criteria
-     * @param {Array}entryPoints  Indicate where the method call came from
+     * @param {string[]} [entryPoints]  Indicate where the method call came from
      * @throws {InterfaceError}
      */
-    compareIncludes(criteria, entryPoints = ['not_defined']){
+    compareIncludes(criteria, entryPoints = []){
         if(
             criteria.includes.length<=0&&this.includes.length<=0
 
@@ -597,19 +563,18 @@ export class CriteriaPropertyType extends CriteriaType{
     }
 
     /**
-     * strictly compares criteria for  excludes.
+     * Compare excludes criteria with current excludes criteria.  
      * Rules:
      * - strict correspondence of the number of includes
      * - Types must match each other strictly (===)
      * - If the array of types is empty, then the compared one must be empty array
      * @param {CriteriaPropertyType} criteria
-     * @param {Array}entryPoints  Indicate where the method call came from
+     * @param {string[]} [entryPoints]  Indicate where the method call came from
      * @throws {InterfaceError}
      */
-    compareExcludes(criteria, entryPoints = ['not_defined']){
+    compareExcludes(criteria, entryPoints = []){
         if(
             criteria.excludes.length<=0&&this.excludes.length<=0
-
         ){
             return;
         }
@@ -654,15 +619,6 @@ export class CriteriaPropertyType extends CriteriaType{
     instanceOfInterface(value, EqualClass) {
         return InterfaceData.instanceOfInterface(value,EqualClass);
     }
-
-    /**
-     * Freeze the current object  
-     */
-    freeze() {
-        Object.freeze(this);
-    }
-
-
     
     /**
      * 
@@ -671,7 +627,6 @@ export class CriteriaPropertyType extends CriteriaType{
      * @returns {*}
      * 
      * @example
-     * ```js
      * 
      * //from
      * data='string|number';
@@ -715,8 +670,6 @@ export class CriteriaPropertyType extends CriteriaType{
      * data={excludes:'1'}
      * // to
      * data={excludes:['1']}
-     * 
-     * ```
      */
     static formatExtendedSyntaxToObject(data,entryPoints=['not defined']){
         let tp=typeof data;
@@ -751,10 +704,11 @@ export class CriteriaPropertyType extends CriteriaType{
     }
 
     /**
-     * 
-     * @param data
-     * @param entryPoints
-     * @returns {*}
+     * Formats the declared criteria in order for further work.
+     * Formats strong syntax.
+     * @param {undefined|null|object} data
+     * @param {string[]} [entryPoints] Indicate where the method call came from
+     * @returns {{types:Array,includes:Array,excludes:Array}}
      * @example
      * 
      * //from 
@@ -770,7 +724,7 @@ export class CriteriaPropertyType extends CriteriaType{
      * data={types:['string'],includes:['1'],excludes:['1']};
      * 
      */
-    static formatStrictSyntaxToObject (data,entryPoints=['not_defined']){
+    static formatStrictSyntaxToObject (data,entryPoints=[]){
         if(data===null || data===undefined){
             data={};
         }
@@ -809,6 +763,16 @@ export class CriteriaPropertyType extends CriteriaType{
         }
         return result;
     }
-   
+
+    /**
+     * @inheritDoc
+     * 
+     * */
+    static formatToObject(data,entryPoints=[]){
+        if(!this.isUseStrictSyntax){
+            data=this.formatExtendedSyntaxToObject(data,entryPoints);
+        }
+        return this.formatStrictSyntaxToObject(data,entryPoints);
+    }
 }
 InterfaceData.addGlobalEndPoints(CriteriaPropertyType);

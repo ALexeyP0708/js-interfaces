@@ -2,7 +2,7 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import { InterfaceError, InterfaceData, InterfaceBuilder, InterfaceValidator} from "./export.js";
+import {InterfaceError, InterfaceData, InterfaceBuilder, InterfaceValidator, CriteriaType} from "./export.js";
 
 /**
  * An interface that is inherited by other interfaces in order to create a "mirror" check for objects or classes.
@@ -10,22 +10,23 @@ import { InterfaceError, InterfaceData, InterfaceBuilder, InterfaceValidator} fr
  * The mirror interface assigns rules, but does not make changes to the object / class being checked. 
  * Thus, it will not be possible to validate arguments and return values ​​for methods and reactive properties.
  */
-export class MirrorInterface  {
-    /**
-     * Validation the object for matching properties according to the criteria of the current interface
-     * @param {object|Function} object
-     * @param entryPoints
-     */
-   static validate (object,entryPoints = ['not_defined']){
-       //let ProtoClass=Object.getPrototypeOf(this);// parent
+export class MirrorInterface extends CriteriaType {
+
+   static validate (object,entryPoints = []){
        let ProtoClass=this;//this.prototype.constructor;
+       /*let result={
+           types:false,
+           includes:false,
+           excludes:false
+       };*/
        if(!InterfaceData.has(ProtoClass)){
            ProtoClass.isInterface=true;
            InterfaceBuilder.extend(ProtoClass);
        }
        let rules=InterfaceData.get(ProtoClass);
        let errors=[];
-       if(typeof object === 'function' ){
+        let to=typeof object;
+       if(to === 'function' ){
            try{
                InterfaceValidator.validateClass(object,rules);
            } catch(e){
@@ -34,12 +35,15 @@ export class MirrorInterface  {
                }
                errors.push(e);
            }
-       } else {
+       } else if(to === 'object' && object!==null){
            errors=InterfaceValidator.validateObject(object,rules.protoProps);
-       }
+       }/* else {
+           errors.push(new Error(`The type must be either an object or a function. Current type:${to}`));
+       }*/
        if (errors.length > 0) {
            throw new InterfaceError('Validate_BadMirrorProperties', {errors, entryPoints});
        }
+       /*return result;*/
    }
 
     /**

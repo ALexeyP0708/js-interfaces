@@ -1,13 +1,20 @@
+/**
+ * @module @alexeyp0708/interface-manager
+ */
+
+
 import {
+    CriteriaType,
     CriteriaPropertyType,
-    CriteriaReactType,
-    CriteriaMethodType,
     Descriptors,
     InterfaceError,
     InterfaceData
     
 } from "./export.js";
 
+/**
+ * performs class validation according to the rules set by the interfaces
+ */
 export class InterfaceValidator {
 
     /**
@@ -19,9 +26,6 @@ export class InterfaceValidator {
     static validateDescriptors(descriptors, rules = {},isStatic=false) {
         let errors = [];
         let prefix=isStatic?'.':'#';
-
-        //let sc=new SilentConsole();
-        //sc.denyToSpeak();
         for (let prop of Object.getOwnPropertyNames(rules)) {
             let last = rules[prop].length - 1;
             if (!descriptors.hasOwnProperty(prop)) {
@@ -38,63 +42,32 @@ export class InterfaceValidator {
             }
             for (let rule of rules[prop]) {
                 let entryPoints = ['~'+rule.criteria.getOwner().name+'~', `${prefix}${prop}`];
-                if (rule.criteria instanceof CriteriaReactType) {
-                    if (!('get' in descriptors[prop]) && !('set' in descriptors[prop])) {
-                        let error = new InterfaceError('ValidateReactDeclared', {
-                            entryPoints: entryPoints.concat(['get/set']),
-                            react_type: 'getter/setter'
-                        });
-                        errors.push(error);
-                        continue;
+                let criteria=rule.criteria;
+                let value;
+                if(descriptors[prop].hasOwnProperty('value')){
+                    value=descriptors[prop].value;
+                } else{
+                    value={};
+                    if(descriptors[prop].hasOwnProperty('get')){
+                        value.get=descriptors[prop].get;
                     }
-                    if (rule.criteria.get !== undefined && descriptors[prop].get === undefined) {
-                        let error = new InterfaceError('ValidateReactDeclared', {
-                            entryPoints: entryPoints.concat(['get']),
-                            react_type: 'getter'
-                        });
-                        errors.push(error.message);
-                    } else if (rule.criteria.get === undefined && descriptors[prop].get !== undefined) {
-                        let error = new InterfaceError('ValidateReactDeclared', {
-                            entryPoints: entryPoints.concat(['get']),
-                            not: 'not',
-                            react_type: 'getter'
-                        });
-                        errors.push(error);
+                    if(descriptors[prop].hasOwnProperty('set')){
+                        value.set=descriptors[prop].set;
                     }
-                    if (rule.criteria.set !== undefined && descriptors[prop].set === undefined) {
-                        let error = new InterfaceError('ValidateReactDeclared', {
-                            entryPoints: entryPoints.concat(['set']),
-                            react_type: 'setter'
-                        });
-                        errors.push(error);
-                    } else if (rule.criteria.set === undefined && descriptors[prop].set !== undefined) {
-                        let error = new InterfaceError('ValidateReactDeclared', {
-                            entryPoints: entryPoints.concat(['set']),
-                            not: 'not',
-                            react_type: 'setter'
-                        });
-                        errors.push(error);
-                    }
-                } else if (rule.criteria instanceof CriteriaMethodType) {
-                    if (typeof descriptors[prop].value !== 'function') {
-                        let error = new InterfaceError('ValidateMethodDeclared', {entryPoints});
-                        errors.push(error);
-                    }
-                } else if (rule.criteria instanceof CriteriaPropertyType) {
+                }
+                if (rule.criteria instanceof CriteriaType) {
                     try {
-                        rule.criteria.validate(descriptors[prop].value, entryPoints);
+                        criteria.validate(value,entryPoints);
                     } catch (error) {
                         if (error instanceof InterfaceError) {
                             errors.push(error);
                         } else {
-                            //sc.allowToSpeak();
                             throw error;
                         }
                     }
                 }
             }
         }
-        //sc.allowToSpeak();
         return errors;
     }
 
@@ -116,9 +89,7 @@ export class InterfaceValidator {
     /**
      * Checks if the Class passes the established rules.
      * @param {function} ProtoClass  Constructor - Class
-     * @param { InterfaceData } rules {class,criteria}
-     *          class- constructor Interface that generated the criteria
-     *          criteria -  CriteriaPropertyType|CriteriaMethodType|CriteriaReactType []
+     * @param { InterfaceData } rules 
      * @throws {InterfaceError} -  Throws if properties validation fails
 
      */
@@ -140,6 +111,5 @@ export class InterfaceValidator {
             }
         }
     }
-    
 }
 InterfaceData.addGlobalEndPoints(InterfaceValidator);

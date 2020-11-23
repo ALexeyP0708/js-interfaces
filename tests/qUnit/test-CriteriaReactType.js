@@ -6,13 +6,13 @@ QUnit.test('test methods CriteriaReactType ',function(assert){
             enumerable:true,
             configurable:true,
             writable:true,
-            value:{}
+            value:undefined
         },
         set:{
             enumerable:true,
             configurable:true,
             writable:true,
-            value:{}
+            value:undefined
         }
     });
     criteria.initOptions({});
@@ -24,20 +24,20 @@ QUnit.test('test methods CriteriaReactType ',function(assert){
         });
         let match={
             get:new CriteriaMethodType({return:{types:['mixed']},options:criteria.options}),
-            set:{},
+            set:undefined,
             options:criteria.options
         };
         assert.deepEqual(Object.assign({},criteria),match,'initGet');
         match={
             get:new CriteriaMethodType({return:{types:['mixed']},options:criteria.options}),
-            set:{},
+            set:undefined,
             options:criteria.options
         };
         criteria.initGet();
         assert.deepEqual(Object.assign({},criteria),match,'initGet 2');
         match={
             get:new CriteriaMethodType({return:{types:['number']},options:criteria.options}),
-            set:{},
+            set:undefined,
             options:criteria.options
         };
         criteria.initGet({

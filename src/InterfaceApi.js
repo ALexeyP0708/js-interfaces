@@ -1,3 +1,7 @@
+/**
+ * @module @alexeyp0708/interface-manager
+ */
+
 import {InterfaceBuilder, InterfaceData, InterfaceFuncBuilder, MirrorInterface} from "./export.js";
 
 export class InterfaceApi {

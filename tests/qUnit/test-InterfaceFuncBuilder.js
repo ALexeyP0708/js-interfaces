@@ -157,7 +157,7 @@ QUnit.test('Methods test InterfaceFuncBuilder class',function(assert){
                         types:['number','string']
                     },
                     {
-                        types:['number','string']
+                        types:['undefined','number','string']
                     },
                 ],
                 return:{types:['string','number']}

@@ -1,7 +1,11 @@
+/**
+ * @module @alexeyp0708/interface-manager
+ */
 
 import {
     interfaceData,
     InterfaceData,
+    CriteriaType,
     CriteriaReactType,
     CriteriaMethodType,
     CriteriaPropertyType,
@@ -9,8 +13,12 @@ import {
     InterfaceBuilder, InterfaceError
 } from "./export.js";
 
+/**
+ * class of static methods.
+ * collects rules in classes marked as interfaces, and clears interfaces from set members
+ */
 export class InterfaceRules{
-
+    
     static generateForDescriptors(descriptors,isStatic=false) {
         let rules = {};
         let prefix=isStatic?'.':'#';
@@ -32,27 +40,17 @@ export class InterfaceRules{
                     get: getCriteria,
                     set: setCriteria
                 };
-                criteria=CriteriaReactType.formatToObject(criteria,entryPoints);
-                //{entryPoints, owner: descriptors[prop].constructor}
-                criteria.options.owner=descriptors[prop].constructor;
-                criteria = new CriteriaReactType(criteria);
+                criteria=CriteriaReactType.generateObject(criteria,descriptors[prop].constructor,entryPoints);
                 rules[prop]=[{criteria}];
             } 
             else if (typeof desc.value === 'function' &&  desc.value.prototype===undefined) {
                 let criteria = desc.value();
-                criteria=CriteriaMethodType.formatToObject(criteria,entryPoints);
-                criteria.options.owner=descriptors[prop].constructor;
-                criteria = new CriteriaMethodType(criteria);
+                criteria=CriteriaMethodType.generateObject(criteria,descriptors[prop].constructor,entryPoints);
                 rules[prop]=[{criteria}];
             }
             else {
                 let criteria = desc.value;
-                criteria=CriteriaPropertyType.formatToObject(criteria,entryPoints);
-                criteria.options = Object.assign({}, criteria.options, {
-                    entryPoints,
-                    owner: descriptors[prop].constructor
-                });
-                criteria = new CriteriaPropertyType(criteria);
+                criteria=CriteriaPropertyType.generateObject(criteria,descriptors[prop].constructor,entryPoints);
                 rules[prop]=[{criteria}];
             }
         }

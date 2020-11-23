@@ -1,3 +1,8 @@
+/**
+ * @module @alexeyp0708/interface-manager
+ */
+
+
 import {CriteriaMethodType, CriteriaPropertyType, InterfaceBuilder, InterfaceFuncBuilder} from "./export.js";
 
 export class MirrorFuncInterface{

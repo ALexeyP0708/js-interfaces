@@ -1,28 +1,51 @@
+/**
+ * @module @alexeyp0708/interface-manager
+ */
 
 import {
     CriteriaMethodType,
-    CriteriaReactType,
     Descriptors,
     InterfaceData,
     InterfaceError,
     InterfaceRules,
     InterfaceValidator,
-    InterfaceFuncBuilder, MirrorFuncInterface, CriteriaPropertyType
 } from './export.js';
 
-let ownerSandbox=Symbol.for('ownerSandbox');
+export let ownerSandbox=Symbol('ownerSandbox');
+
+/**
+ * Class of static methods.  
+ * For generating interfaces, managing classes, and assigning interfaces to them.   
+ * Collects methods of classes in the sandbox.  
+ */
 export class InterfaceBuilder{
+
+    /**
+     * Checks if a class is an interface
+     * @param {function} ProtoClass
+     * @returns {boolean}
+     */
     static isInterface(ProtoClass) {
         return ProtoClass.hasOwnProperty('isInterface') && ProtoClass.isInterface;
     }
-    static runSandbox(func,args,criteria,entryPoints=[]){
+
+    /**
+     * Runs a sandboxed method.
+     * @param {function} func method to be executed
+     * @param {function|object} self  the object in which the method is applied
+     * @param {Array} args arguments for the method
+     * @param {CriteriaMethodType} criteria criteria for validation of arguments and return value
+     * @param {Array} entryPoints script execution entry point
+     * @returns {*}
+     */
+    static runSandbox(func,self,args,criteria,entryPoints=[]){
         try{
             let rules=criteria.validateArguments(args,entryPoints);
             for(let key=0; key< rules.length; key++){
                 if(typeof args[key]!=='function'){continue;}
                 let rule=rules[key].types;
                 if(rule instanceof CriteriaMethodType &&rule.isBuildSandbox!==false){
-                    args[key]=this.generateSandbox(args[key],rule,entryPoints.concat(`arguments[${key}].call()`));
+                    args[key]=this.generateSandbox(args[key],rule,entryPoints.concat(`arguments[${key+1}].call()`));
                 }
             }
         } catch(e){
@@ -31,7 +54,7 @@ export class InterfaceBuilder{
             }
             throw e;
         }
-        let answer =func.call(this,...args);
+        let answer =func.call(self,...args);
         try {
             let rule=criteria.validateReturn(answer,entryPoints).types;
             if( typeof answer==='function' && rule instanceof CriteriaMethodType && rule.isBuildSandbox!==false){
@@ -47,7 +70,9 @@ export class InterfaceBuilder{
     }
     
     /**
-     * 
+     * Sandboxes the called function/method
+     * A sandbox is a function in which a method or reactive function will be executed with
+     * a check of the transmitted and returned parameters.
      * @param func
      * @param {CriteriaMethodType} criteria
      * @param {string[]} entryPoints
@@ -58,7 +83,7 @@ export class InterfaceBuilder{
         let name=func.name??'';
         let self=this;
         let sandbox ={[name](...args){
-            return self.runSandbox(func,args,criteria,entryPoints);
+            return self.runSandbox(func,this,args,criteria,entryPoints);
         }}[func.name];
         Object.defineProperty(sandbox,ownerSandbox,{
             configurable:true,
@@ -67,13 +92,25 @@ export class InterfaceBuilder{
         });
         return sandbox;
     }
-    
+
+    /**
+     * returns the original function / method from the sandbox
+     * @param {function} func sandbox
+     * @returns {function} If it is a sandbox, then it gives the function to be performed in the sandbox.
+     * otherwise it will return the passed function
+     */
     static getOwnerOfSandbox(func){
         if(this.isSandbox(func)){
             func=func[ownerSandbox];
         }
         return func;
     }
+
+    /**
+     * Checks if a function is sandboxed
+     * @param {function} func
+     * @returns {boolean}
+     */
     static isSandbox(func){
         return typeof func==='function' && ownerSandbox in func && typeof func[ownerSandbox]==='function';
     }
@@ -105,55 +142,32 @@ export class InterfaceBuilder{
      * @param {object} rules
      * @returns {object} new descriptors  See [method .Descriptors.get]
      */
-    static buildDescriptors(descriptors, rules = {}) {
+    static buildDescriptors(descriptors, rules = {},isStatic=false) {
+        let prefix=isStatic?'.':'#';
         for (let prop of Object.getOwnPropertyNames(rules)) {
             if (prop in descriptors) {
                 for (let rule of rules[prop]) {
-                    let entryPoints = [`${descriptors[prop].constructor.name}`, `~${rule.criteria.getOwner().name}~`, `.${prop}`];
-                    if (rule.criteria instanceof CriteriaReactType) {
-                        if (
-                            descriptors[prop].get !== undefined &&
-                            rule.criteria.get.isBuildSandbox !== false &&
-                            rule.criteria.get.return.types.length > 0 &&
-                            !rule.criteria.get.return.types.includes('mixed')
-                        ) {
-                            descriptors[prop].get = this.generateSandbox(descriptors[prop].get, rule.criteria.get, entryPoints);
-
+                    let entryPoints = [`${descriptors[prop].constructor.name}`, `~${rule.criteria.getOwner().name}~`, `${prefix}${prop}`];
+                    let criteria=rule.criteria;
+                    let data;
+                    let check=false;
+                    if(descriptors[prop].hasOwnProperty('value')){
+                        data=descriptors[prop].value;
+                    } else{
+                        data={};
+                        check=true;
+                        if(descriptors[prop].hasOwnProperty('set')){
+                            data.set=descriptors[prop].set;
                         }
-                        if (
-                            descriptors[prop].set !== undefined &&
-                            rule.criteria.set.isBuildSandbox !== false &&
-                            rule.criteria.set['arguments'].length > 0 &&
-                            rule.criteria.set['arguments'][0].types.length > 0 &&
-                            !rule.criteria.set['arguments'][0].types.includes('mixed')
-                        ) {
-                            descriptors[prop].set = this.generateSandbox(descriptors[prop].set, rule.criteria.set, entryPoints);
+                        if(descriptors[prop].hasOwnProperty('get')){
+                            data.get=descriptors[prop].get;
                         }
-                    } else if (
-                        rule.criteria instanceof CriteriaMethodType &&
-                        rule.criteria.isBuildSandbox !== false &&
-                        typeof descriptors[prop].value === 'function' &&
-                        descriptors[prop].value.prototype === undefined
-                    ) {
-                        let check = false;
-                        for (let arg of rule.criteria['arguments']) {
-                            if (
-                                arg instanceof CriteriaPropertyType && arg.types.length > 0 && !arg.types.includes('mixed') ||
-                                arg instanceof CriteriaMethodType
-                            ) {
-                                check = true;
-                                break;
-                            }
-                        }
-                        if (
-                            check ||
-                            rule.criteria.return instanceof CriteriaPropertyType &&
-                            rule.criteria.return.types.length > 0 &&
-                            !rule.criteria.return.types.includes('mixed') ||
-                            rule.criteria.return instanceof CriteriaMethodType
-                        ) {
-                            descriptors[prop].value = this.generateSandbox(descriptors[prop].value, rule.criteria, entryPoints);
-                        }
+                    }
+                    data=rule.criteria.build(data,criteria,entryPoints);
+                    if(check){
+                        Object.assign(descriptors[prop],data);
+                    } else {
+                        descriptors[prop].value=data;
                     }
                 }
             }
@@ -161,27 +175,23 @@ export class InterfaceBuilder{
         return descriptors;
     }
     /**
-     * Assembling object properties.
+     * Assembling object properties.  
      * Methods and reactive properties will be executed in the sandbox (shell function).
-     * A sandbox is a function in which a method or reactive function will be executed with
-     * a check of the transmitted and returned parameters.
      * @param {object|function} object An object whose properties will be collected in the sandbox.
      * @param { object } [rules]
      * @returns { Array } properties names 
      */
-    static buildObjects(object,rules = {}){
+    static buildObjects(object,rules = {},isStatic=false){
         let descs = Descriptors.get(object);
         let builtProps=[];
-        descs = this.buildDescriptors(descs, rules);
+        descs = this.buildDescriptors(descs, rules,isStatic);
         Object.defineProperties(object, descs);
         return builtProps;
     }
     
     /**
-     * Assembling class properties.
-     * Methods and reactive properties will be executed in the sandbox (shell function).
-     * A sandbox is a function in which a method or reactive function will be executed with
-     * a check of the transmitted and returned parameters.
+     * Assembling class properties.  
+     * Methods and reactive properties will be executed in the sandbox (shell function).  
      * @param {function} ProtoClass
      * @param { InterfaceData } [rules]
      */
@@ -194,12 +204,12 @@ export class InterfaceBuilder{
             staticProps: []
         };
         builtProps.protoProps=this.buildObjects(ProtoClass.prototype,rules.protoProps);
-        builtProps.staticProps=this.buildObjects(ProtoClass,rules.staticProps);
+        builtProps.staticProps=this.buildObjects(ProtoClass,rules.staticProps,true);
     }
     /**
      *  Collects interface rules for a class if the class is not yet assembled, and collects class properties
-     * @param ProtoClass
-     * @param forceBuild
+     * @param {function} ProtoClass
+     * @param {boolean} forceBuild
      * @returns {InterfaceData}
      */
     static buildInterface(ProtoClass, forceBuild = false) {
@@ -224,9 +234,10 @@ export class InterfaceBuilder{
         return recurs(ProtoClass);
     }
     /**
-     * Extends the class with interfaces.
-     * @param ProtoClass
-     * @param {...function|boolean} [RestInterfaces]
+     * Extends the class with interfaces. 
+     * First, it sets inherited earlier the interfaces for the class, then sets the specified interfaces.
+     * @param {function} ProtoClass
+     * @param {...function} [RestInterfaces]
      * If the  RestInterfaces[0] of the array is "true" (boolean type), then apply extendClassFromOwnPrototypes before final assembly of ProtoClass. (then element[0] must be boolean type)
      */
     static extendAfter(ProtoClass, ...RestInterfaces) {
@@ -265,6 +276,15 @@ export class InterfaceBuilder{
         }
         return rules;
     }
+
+    /**
+     * Extends the class with interfaces.
+     * First,  sets the specified interfaces for the class, then  it sets inherited earlier the interfaces .
+     * @param {function} ProtoClass
+     * @param {...function} RestInterfaces
+     * If the  RestInterfaces[0] of the array is "true" (boolean type), then apply extendClassFromOwnPrototypes before final assembly of ProtoClass. (then element[0] must be boolean type)
+     * @returns {InterfaceData}
+     */
     static extendBefore(ProtoClass, ...RestInterfaces) {
         let firstRules = this.buildInterface(ProtoClass);
         let isExtend = false;
@@ -305,7 +325,12 @@ export class InterfaceBuilder{
     }
 
     /**
-     * @borrows extendAfter
+     * Extends the class with interfaces.
+     * If the current class is an interface then apply extendBefore. For a regular class applies extendAfter
+     * @param {function} ProtoClass
+     * @param {...function} RestInterfaces
+     * If the  RestInterfaces[0] of the array is "true" (boolean type), then apply extendClassFromOwnPrototypes before final assembly of ProtoClass. (then element[0] must be boolean type)
+     * @returns {InterfaceData}
      */
     static extend (ProtoClass, ...RestInterfaces){
         if(InterfaceBuilder.isInterface(ProtoClass)){
@@ -373,23 +398,6 @@ export class InterfaceBuilder{
         writeDescs = this.extractOwnDescriptors(writeDescs);
         Object.defineProperties(ProtoClass, writeDescs);
     }
-
-/*
-
-    
-    static expandInterfaces(ProtoClass, ...RestInterfaces) {
-        if (RestInterfaces.length > 0) {
-            if (typeof RestInterfaces[0] !== 'boolean') {
-                RestInterfaces.splice(0, 0, true);
-            } else {
-                RestInterfaces[0] = true;
-            }
-        }
-        InterfaceManager.extend(ProtoClass, ...RestInterfaces);
-    }*/
-
-
-
 }
 InterfaceData.addGlobalEndPoints(InterfaceBuilder);
 

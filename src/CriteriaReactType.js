@@ -36,15 +36,8 @@ import {CriteriaMethodType,CriteriaPropertyType, CriteriaType, InterfaceData, In
  * }
  * 
  * ```
- * 
- * @prop {object} options - settings for criteria
- * ```js
- * {
- *     options:{entryPoints:[],owner:''}
- * }
- * ```
- * 
-
+ *  @inheritDoc
+ *  @extends @.CriteriaType
  */
 export class CriteriaReactType extends CriteriaType {
     /**
@@ -97,13 +90,13 @@ export class CriteriaReactType extends CriteriaType {
                 enumerable:true,
                 configurable:true,
                 writable:true,
-                value:{}
+                value:undefined
             },
             set:{
                 enumerable:true,
                 configurable:true,
                 writable:true,
-                value:{}
+                value:undefined
             }
         });
         if(criteria.get === null || criteria.get===undefined){
@@ -126,21 +119,51 @@ export class CriteriaReactType extends CriteriaType {
     }
 
     /**
+     * @inheritDoc
+     */
+    initOptions(options={}){
+        super.initOptions(options);
+        if(this.get!==undefined){
+            this.get.initOptions(options);
+        }  
+        if(this.set!==undefined){
+            this.set.initOptions(options);
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     setOwner(owner){
         super.setOwner(owner);
-        this.get.setOwner(owner);
-        this.set.setOwner(owner);
+        if(this.get!==undefined){
+            this.get.setOwner(owner);
+        }
+        if(this.set!==undefined){
+            this.set.setOwner(owner);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    freeze(){
+        super.freeze();
+        if(this.get!==undefined){
+            this.get.freeze();
+        }
+        if(this.set!==undefined){
+            this.set.freeze();
+        }
     }
 
     /**
      * Initializes the getter
      * @param {object} criteria 
-     * @param {Array} entryPoints Indicate where the method call came from
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @throws {InterfaceError}
      */
-    initGet(criteria={},entryPoints=['not_defined']){
+    initGet(criteria={},entryPoints=[]){
         let tp= typeof criteria;
         if(!['object'].includes(tp)|| criteria==null){
             new InterfaceError('initGet',{message:'Object expected. Example:{types:["string","number"]} or {return:{types:["string","number"]}}'}).throw();
@@ -162,10 +185,10 @@ export class CriteriaReactType extends CriteriaType {
     /**
      * Initializes the setter
      * @param {object} criteria
-     * @param {Array} entryPoints Indicate where the method call came from
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @throws {InterfaceError}
      */
-    initSet(criteria={},entryPoints=['not_defined']){
+    initSet(criteria={},entryPoints=[]){
         let tp= typeof criteria;
         if(!['object'].includes(tp)|| criteria==null){
             new InterfaceError('initSet',{message:'Object expected. Example:{types:["string","number"]} or {return:{types:["string","number"]}}'}).throw();
@@ -183,17 +206,76 @@ export class CriteriaReactType extends CriteriaType {
         criteria = new CriteriaMethodType({arguments:[criteria],options});
         this.set=criteria;
     }
+    
+    build(data,criteria,entryPoints=[]){
+        if (criteria instanceof CriteriaReactType){
+            if (
+                data.get !== undefined &&
+                criteria.get!==undefined 
+            ) {
+                data.get = criteria.get.build(data.get, criteria.get, entryPoints);
+            }
+            if (
+                data.set !== undefined &&
+                criteria.set!==undefined
+            ) {
+                data.set = criteria.set.build(data.set, criteria.set, entryPoints);
+            }
+        }
+        return data;
+    }
 
     /**
+     * @inheritDoc
+     * @value {get:(undefined|*),set(undefined|*)}
+     */
+     validate (value, entryPoints=[]){
+        let errors=[];
+        if (!('get' in value) && !('set' in value)) {
+            new InterfaceError('ValidateReactDeclared', {
+                entryPoints: entryPoints.concat(['get/set']),
+                react_type: 'getter/setter'
+            }).throw();
+        }
+        if (this.get !== undefined && value.get === undefined) {
+            errors.push(new InterfaceError('ValidateReactDeclared', {
+                entryPoints: entryPoints.concat(['get']),
+                react_type: 'getter'
+            }));
+        } else if (this.get === undefined && value.get !== undefined) {
+            errors.push(new InterfaceError('ValidateReactDeclared', {
+                entryPoints: entryPoints.concat(['get']),
+                not: 'not',
+                react_type: 'getter'
+            }));
+        }
+        if (this.set !== undefined && value.set === undefined) {
+            errors.push(new InterfaceError('ValidateReactDeclared', {
+                entryPoints: entryPoints.concat(['set']),
+                react_type: 'setter'
+            }));
+        } else if (this.set === undefined && value.set !== undefined) {
+            errors.push(new InterfaceError('ValidateReactDeclared', {
+                entryPoints: entryPoints.concat(['set']),
+                not: 'not',
+                react_type: 'setter'
+            }));
+        }
+        if(errors.length>0){
+            new InterfaceError('ValidateReact',{errors}).throw();
+        }
+    }
+    
+    /**
      * Seter validation according to criteria
-     * If the seter is not set by the criteria, then an error will
+     * If the setter is not set by the criteria, then an error will
      * @param val
-     * @param {Array} entryPoints Indicate where the method call came from
-     * @returns {{types:boolean|*,includes:boolean|*,excludes:boolean|*}}
+     * @param {string[]} [entryPoints] Indicate where the method call came from
+     * @returns {{types:(boolean|*),includes:(boolean|*),excludes:(boolean|*)}}
      * If there are no exceptions will return the result of matches
      * @throws {InterfaceError} 
      */
-    validateSet(val,entryPoints=['not_defined']){
+    validateSet(val,entryPoints=[]){
         entryPoints=entryPoints.concat(['set']);
         if(! ('set' in this)){
             new InterfaceError('ValidateReactDeclared',{entryPoints,not:'not',react_type:'setter'}).throw();
@@ -203,14 +285,14 @@ export class CriteriaReactType extends CriteriaType {
 
     /**
      * Getter validation according to criteria
-     * If the geter is not set by the criteria, then an error will
+     * If the getter is not set by the criteria, then an error will
      * @param val
-     * @param {Array} entryPoints Indicate where the method call came from
-     * @returns {{types:boolean|*,includes:boolean|*,excludes:boolean|*}}
+     * @param {string[]} [entryPoints] Indicate where the method call came from
+     * @returns {{types:(boolean|*),includes:(boolean|*),excludes:(boolean|*)}}
      * If there are no exceptions will return the result of matches
      * @throws {InterfaceError} InterfaceError.type ===ValidateReactDeclared
      */
-    validateGet(val,entryPoints=['not_defined']){
+    validateGet(val,entryPoints=[]){
         entryPoints=entryPoints.concat(['get']);
         if(! ('get' in this)){
             new InterfaceError('ValidateReactDeclared',{entryPoints,not:'not',react_type:'getter'}).throw();
@@ -219,55 +301,55 @@ export class CriteriaReactType extends CriteriaType {
     }
 
     /**
-     * Compares criteria. Necessary when expanding criteria  
-     * Rules:
-     * - Getter/Setter must be present in the compared criteria, if the getter/setter is declared in the current object
-     * - Getter/Setter not must be present in the compared criteria, if the getter/setter is not declared in the current object
-     * @param {CriteriaReactType|CriteriaType} criteria If the criteria do not match the CriteriaReactType type
-     * then a BadCriteria error will be thrown
-     * @param entryPoints Indicate where the method call came from
+     * Compare criteria with current criteria.
+     * Used when an interface member is about to replace a member of the same name in another interface.  
+     * Rules:  
+     * - Getter/Setter must be present in the compared criteria, if the getter/setter is declared in the current criteria
+     * - Getter/Setter not must be present in the compared criteria, if the getter/setter is not declared in the current criteria
+     * @param {CriteriaReactType} criteria If the criteria do not match the CriteriaReactType type then a  error will be thrown
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @throws {InterfaceError} 
      */
-    compare(criteria,entryPoints=['not_defined']){
+    compare(criteria,entryPoints=[]){
         entryPoints=Object.assign([],entryPoints);
-        if(!(this instanceof Object.getPrototypeOf(criteria).constructor)){
-            new InterfaceError('BadCriteria',{entryPoints,className:Object.getPrototypeOf(criteria).constructor.name}).throw();
+        if(Object.getPrototypeOf(this).constructor !== Object.getPrototypeOf(criteria).constructor){
+            new InterfaceError('CompareReact',{entryPoints,message:'Criteria not comparable'}).throw();
         }
         if(this.hasOwnProperty('get')){
             if(!criteria.hasOwnProperty('get')){
-                new InterfaceError('CompareReact',{entryPoints,message:'getter not comparable'}).throw();
+                new InterfaceError('CompareReact',{entryPoints,message:'Getter not comparable'}).throw();
             } else {
                 try{
                     this.get.compare(criteria.get);
                 }catch (e) {
                     if(e instanceof InterfaceError){
-                        new InterfaceError('CompareReact',{entryPoints,message:'getter not comparable'}).throw();
+                        new InterfaceError('CompareReact',{entryPoints,message:'Getter not comparable'}).throw();
                     }
                     throw e;
                 }
             }
         } else if(criteria.hasOwnProperty('get')){
-            new InterfaceError('CompareReact',{entryPoints,message:'getter not comparable'}).throw();
+            new InterfaceError('CompareReact',{entryPoints,message:'Getter not comparable'}).throw();
         }
         if(this.hasOwnProperty('set')){
             if(!criteria.hasOwnProperty('set')){
-                new InterfaceError('CompareReact',{entryPoints,message:'setter not comparable'}).throw();
+                new InterfaceError('CompareReact',{entryPoints,message:'Setter not comparable'}).throw();
             } else {
                 try{
                     this.set.compare(criteria.set);
                 }catch (e) {
                     if(e instanceof InterfaceError){
-                        new InterfaceError('CompareReact',{entryPoints,message:'setter not comparable'}).throw();
+                        new InterfaceError('CompareReact',{entryPoints,message:'Setter not comparable'}).throw();
                     } 
                     throw e;
                 }
             }
         } else if(criteria.hasOwnProperty('set')){
-            new InterfaceError('CompareReact',{entryPoints,message:'setter not comparable'}).throw();
+            new InterfaceError('CompareReact',{entryPoints,message:'Setter not comparable'}).throw();
         }
     }
     
-    static formatStrictSyntaxToObject (data,entryPoints=['not_defined']){
+    static formatStrictSyntaxToObject (data,entryPoints=[]){
         if(data===null || data===undefined){
             data={};
         }
@@ -276,14 +358,15 @@ export class CriteriaReactType extends CriteriaType {
         }
         let result={};
         for (let prop of ['get','set']){
-            if(data.hasOwnProperty(prop)){
-                if(data[prop]===undefined){
-                    continue;
-                }
-                if(data[prop].hasOwnProperty('arguments')||data[prop].hasOwnProperty('return')){
-                    result[prop]=CriteriaMethodType.formatStrictSyntaxToObject(data[prop],entryPoints.concat(['get']));
+            if(data.hasOwnProperty(prop) && data[prop]!==undefined){
+                if(!(data[prop] instanceof CriteriaType)){
+                    if(data[prop].hasOwnProperty('arguments')||data[prop].hasOwnProperty('return')){
+                        result[prop]=CriteriaMethodType.formatStrictSyntaxToObject(data[prop],entryPoints.concat([prop]));
+                    } else {
+                        result[prop]=CriteriaPropertyType.formatStrictSyntaxToObject(data[prop],entryPoints.concat([prop]));
+                    }
                 } else {
-                    result[prop]=CriteriaPropertyType.formatStrictSyntaxToObject(data[prop],entryPoints.concat(['get']));
+                    result[prop].initOptions(entryPoints.concat([prop]));
                 }
             }
         }
@@ -291,6 +374,14 @@ export class CriteriaReactType extends CriteriaType {
             result.options={entryPoints};
         }
         return result;
+    }
+    
+    /**
+     * @inheritDoc
+     *
+     * */
+    static formatToObject(data,entryPoints=[]){
+        return this.formatStrictSyntaxToObject(data,entryPoints);
     }
 }
 InterfaceData.addGlobalEndPoints(CriteriaReactType);

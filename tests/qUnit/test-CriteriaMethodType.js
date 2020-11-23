@@ -11,7 +11,7 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
         return:{
             enumerable:true,
             writable:true,
-            value:{}
+            value:undefined
         },
         options:{
             enumerable:true,
@@ -35,7 +35,6 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                 excludes:[],
                 options:{
                     entryPoints:[
-                        'not_defined',
                         'return'
                     ]
                 },
@@ -43,7 +42,6 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
 
             options:{ 
                 entryPoints:[
-                    'not_defined'
                 ]
             }
         };
@@ -58,7 +56,7 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                     includes:[],
                     excludes:[],
                     options:{
-                        entryPoints:["not_defined", "arguments[0]"]
+                        entryPoints:["arguments[0]"]
                     }
                 }]
         }),'formatExtendedSyntaxToObject 2');
@@ -71,7 +69,6 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                 excludes:[],
                 options:{
                     entryPoints:[
-                        'not_defined',
                         'return'
                     ]
                 }
@@ -90,7 +87,6 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                     excludes:[],
                     options:{
                         entryPoints:[
-                            'not_defined',
                             'return.call()',
                             'return'
                         ]
@@ -98,7 +94,6 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                 },
                 options:{
                     entryPoints:[
-                        'not_defined',
                         'return.call()'
                     ]
                 }
@@ -167,7 +162,6 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
     // compare
     {
         {
-            console.log(criteria);
             let criteria2 = new CriteriaMethodType({
                 arguments: [
                     {

@@ -1,15 +1,10 @@
-import {InterfaceData} from "./InterfaceData.js";
-import {Descriptors} from "./Descriptors.js";
+/**
+ * @module @alexeyp0708/interface-manager
+ */
 
+
+import {InterfaceData,Descriptors} from "./export.js";
 export class InterfaceTools{
-
-    /*static isInterface(ProtoClass) {
-        return ProtoClass.hasOwnProperty('isInterface') && ProtoClass.isInterface;
-    }*/
-
-
-
-
     /**
      * Freezing class properties
      * @param {function} ProtoClass
@@ -30,9 +25,6 @@ export class InterfaceTools{
         }
         Object.defineProperties(ProtoClass, descs);
     }
-
-
-    
 }
 
 InterfaceData.addGlobalEndPoints(InterfaceTools);

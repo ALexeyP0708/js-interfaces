@@ -1,13 +1,16 @@
+/**
+ * @module @alexeyp0708/interface-manager
+ */
 
 import {
 } from "./export.js";
 
-export let interfaceData = Symbol.for('interfaceData');
+export let interfaceData = Symbol('interfaceData');
 export class InterfaceData{
     /**
      * 
      * @param {function} [ProtoClass]
-     * @param {InterfaceData|{[interfaces]:function[],[protoProps]:object,[staticProps]:object,[ownRules]:[],[end_points]:[]}} [data]
+     * @param {InterfaceData|{interfaces:Array.<function>,protoProps:object,staticProps:object,ownRules:Array,end_points:Array}} [data]
      */
     constructor(ProtoClass=undefined,data={}){
         if(ProtoClass!==undefined){
@@ -30,8 +33,8 @@ export class InterfaceData{
     
     /**
      * set interface data for the class
-     * @param {function|InterfaceData|{[interfaces]:function[],[protoProps]:object,[staticProps]:object,[ownRules]:[],[end_points]:[]}}  ProtoClass
-     * @param {InterfaceData|{[interfaces]:function[],[protoProps]:object,[staticProps]:object,[ownRules]:[],[end_points]:[]}} [data]
+     * @param {function|InterfaceData|{interfaces:Array.<function>,protoProps:object,staticProps:object,ownRules:Array,end_points:Array}}  ProtoClass
+     * @param {InterfaceData|{interfaces:Array.<function>,protoProps:object,staticProps:object,ownRules:Array,end_points:Array}} [data]
      */
     static set(ProtoClass, data={}) {
         //return new InterfaceData(ProtoClass,data);

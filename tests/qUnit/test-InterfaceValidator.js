@@ -130,8 +130,10 @@ QUnit.test('Methods test InterfaceValidator class',function(assert){
                 ],
                 protoProps:[
                     new InterfaceError('ValidateMethodDeclared',{entryPoints:['~InterfaceTest~','#method']}).message,
-                    new InterfaceError('ValidateReactDeclared',{entryPoints:['~InterfaceTest~','#react','get'],react_type:'getter',not:'not'}).message,
-                    new InterfaceError('ValidateReactDeclared',{entryPoints:['~InterfaceTest~','#react','set'],react_type:'setter'}).message,
+                    new InterfaceError('ValidateReact',{errors:[
+                            new InterfaceError('ValidateReactDeclared',{entryPoints:['~InterfaceTest~','#react','get'],react_type:'getter',not:'not'}),
+                            new InterfaceError('ValidateReactDeclared',{entryPoints:['~InterfaceTest~','#react','set'],react_type:'setter'}),
+                        ]}).message,
                     new InterfaceError('ValidateType',{errors:[],entryPoints:['~InterfaceTest~','#prop'],expectedTypes:'[number]',definedType:"string"}).message
                 ]
             };

@@ -1,3 +1,6 @@
+/**
+ * @module @alexeyp0708/interface-manager
+ */
 
 import {
     CriteriaMethodType,

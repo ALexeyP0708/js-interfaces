@@ -1,12 +1,19 @@
-import {InterfaceTools, interfaceData, InterfaceData, CriteriaType} from "./export.js";
+/**
+ * @module @alexeyp0708/interface-manager
+ */
 
+import {interfaceData, InterfaceData} from "./export.js";
+
+/**
+ * Class of static methods that works with object and function(class) descriptors 
+ */
 export class Descriptors{
 
 
     /**
      * Generates object descriptors.
      * @param {object|class} object
-     * @returns {object} Descriptor format
+     * @returns {{writable:boolean,enumerable:boolean,configurable:boolean,value:*,get:function,set:function,constructor:function}} Descriptor format
      * ```js
      * {
      *      property:{
@@ -17,7 +24,6 @@ export class Descriptors{
      *              get:function(){},
      *              set:function(v){},
      *              constructor:NameClass, // It indicates where the descriptor is taken from.
-     *              isBuilt:false // Indicates whether the class property is compiled
      *     }
      * }
      * ```
@@ -53,7 +59,7 @@ export class Descriptors{
      * Prototypes descriptors are added to the current descriptor.
      *
      * @param {object|function} object
-     * @returns {object}
+     * @returns {{writable:boolean,enumerable:boolean,configurable:boolean,value:*,get:function,set:function,constructor:function}}
      * Descriptor format
      * ```js
      * {
@@ -65,7 +71,6 @@ export class Descriptors{
      *              get:function(){},
      *              set:function(v){},
      *              constructor:NameClass, // It indicates where the descriptor is taken from.
-     *              isBuilt:false // Indicates whether the class property is compiled
      *     }
      * }
      * ```

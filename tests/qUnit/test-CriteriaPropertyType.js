@@ -468,13 +468,11 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
                     })
 
                 ]});
-
             assert.throws(
                 function(){
                     criteria.compareTypes(criteria2);
                 },
                 function(e){
-                    console.log([e]);
                     return e instanceof InterfaceError;
                 },
                 'compareTypes - throw 7'
@@ -655,7 +653,6 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     }
     // compare
     {
-        console.log(criteria);
         {
             let criteria2=new CriteriaPropertyType({
                 types:[A,'number',null,undefined],
@@ -673,7 +670,7 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     
     {
         let result=CriteriaPropertyType.formatStrictSyntaxToObject({});
-        let tpl={types:['mixed'],includes:[],excludes:[],options:{entryPoints:['not_defined']}};
+        let tpl={types:['mixed'],includes:[],excludes:[],options:{entryPoints:[]}};
         assert.propEqual(result,Object.assign({},tpl),'formatStrictSyntaxToObject 1');
 
         result=CriteriaPropertyType.formatStrictSyntaxToObject({types:['mixed','string']});
