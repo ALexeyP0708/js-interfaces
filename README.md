@@ -1,4 +1,4 @@
- 
+ cx
 # Requirements
 - ES6
 - Node (??? No testing)  
@@ -105,11 +105,26 @@ Each member of the interface must return criteria (objects with a data set) by w
 ```js
 	class TestInterface{
 		method(){
-			// return criteria for method	
+			// return criteria template for method	
 			return {
 				arguments:[],
 				return:{}
 			}
+		}
+		method2(){
+			// return criteria for method	
+			return new CriteriaMethodType({
+				arguments:[],
+				return:{}
+			})
+		}
+		prop(){
+			// return criteria for property (alternative alternative instead of TestInterface.prototype.prop)
+			return new CriteriaPropertyType({
+				types:[],
+				includes:[],
+				excludes:[]
+			});
 		}
 	}
 ```
@@ -119,10 +134,25 @@ There are three types of criteria (classes for criteria):
 - **CriteriaMethodType** - describes the class methods, method / function arguments and the return value of the method / function if such data should be callable.
 - **CriteriaReactType** - describes the reactive properties of the class.
 
+You can also create your own class criteria. For example for JSON Schema or for OpenApi 2/3.
+```js
+import {CriteriaType} from './export.js';
+export class MyCriteriaType extends CriteriaType {
+	validate(){....}
+	build(){....}
+	compare(){...}
+	...
+}
+```
+The creation of alternative criteria will be described later.
+Criteria objects are composition for the interface.
+Criteria objects are interface composition, which means criteria should only be created within the interface members. 
+It is forbidden to use the same criteria object in different places.
+You can use criteria templates instead of criteria.
 
+**The template for criteria** is a regular object that describes the structure of a criteria object of a particular class.
 
-
-### template for CriteriaPropertyType
+### Template for CriteriaPropertyType
 ```js
 {
 	/**
@@ -159,6 +189,7 @@ If the value is a function, then it sets the rules for it.
 /*
 any object will be checked against the specified interface.
 Designed to check the properties of an object for data correctness
+@deprecated
 */
 			class extends MirrorInterface{}
 
@@ -223,24 +254,31 @@ A.isInterface=true;
 
 ```js
 	{
-		arguments:[// optional
-		
-//arguments[1] -  CriteriaPropertyType template or  CriteriaMethodType template 
-			{}, 
-			
-//arguments[2] -  CriteriaPropertyType template or  CriteriaMethodType template 
+		/*
+			 - optional
+			set of objects from
+			CriteriaPropertyType(or its template), 
+			CriteriaMethodType(or its template),
+			`class extends CriteriaType{}` 
+		*/
+		arguments:[
+			{},   
 			{} 
 			...
 		],
 		
-// template CriteriaPropertyType or template CriteriaMethodType 
-		return:{} [// optional 
-
-/*
-optional. default -  true or your settings. 
-Denotes to run method / function in sandbox . 
-If false, then other method criteria will be for developer information only.
-*/
+		/*
+			- optional 
+			 CriteriaPropertyType(or its template) or 
+			 CriteriaMethodType(or its template) or 
+			 `class extends CriteriaType{}`
+		 */ 
+		return:{} 
+		/*
+		 - optional
+		 - default -  true or your settings. 
+		Denotes to run method / function in sandbox . 
+		*/
 		isBuildSandbox:true, 
 	}
 	
@@ -331,7 +369,7 @@ Using a reactive property must take a number and will return a number.
 	
 /* 
 Using a reactive property, a callable function should be 
-set that takes an object as an argument and returns a string. */
+"set" that takes an object as an argument  */
 	set react2(){
 		return {
 			arguments:[{
@@ -339,10 +377,7 @@ set that takes an object as an argument and returns a string. */
 					{
 						types:['object']
 					},
-				],
-				return:{
-					types:['string']
-				}
+				]
 			}]
 		}
 	}
@@ -370,24 +405,26 @@ or
 class TestInterface {  
     method(){}  
 }  
+TestInterface.isInterface=true;  
 class TestInterface2 {  
     method2(){}  
 }  
-TestInterface.isInterface=true;  
+TestInterface2.isInterface=true;  
+
 class Test{  // create abstract class
     method(){}  
 }  
 InterfaceApi.extend(Test,TestInterface,TestInterface2);
 ```
-
 or
 ```js
 class TestInterface {  
     method(){}  
 }  
+TestInterface.isInterface=true;  
 class TestInterface2 {  
     method2(){}  
-}  
+} 
 TestInterface.isInterface=true;  
 class Test{  // create abstract class
     method(){}  
@@ -407,20 +444,49 @@ InterfaceApi.implement(Test2);
 ## inherit interface  to interface
 
 Rules:
-- The criteria must be compatible.
-- The inheriting interface can restrict the rules of the master interface, but it is not allowed to extend them
+
+See [Liskov substitution principle](https://en.wikipedia.org/wiki/Liskov_substitution_principle)
+
+- Each subsequent interface replaces the criteria of the previous interfaces if the members match;
+- The criteria must be compatible(compared criteria must be created by the same class).
+- for CriteriaPropertyType criteria, the 'types' set must match, the 'includes' sets must match, the "excludes" sets must match.
+- for CriteriaMethodType criteria, criteria for the arguments and  criteria for  the return value must match. Also, the set of arguments must match. Adding criteria for the remaining arguments is allowed if such criteria in the set "types" are of type undefined or mixed.
+
+Examples for CriteriaPropertyType
 ```js
 //core criteria
 {
 	types:['string','number'],
 }
-// heir - good criteria
+// replaces- good criteria
+{
+	types:['string','number']
+}
+// replaces- bad criteria
+{
+	types:['string','object']
+}
+// replaces- bad criteria
 {
 	types:['string']
 }
-// heir - bad criteria
+// replaces- bad criteria
 {
-	types:['string','object']
+	types:['string','number','object']
+}
+
+class A{}
+//core criteria
+{
+	types:[A],
+}
+// replaces- good criteria
+{
+	types:[A],
+}
+// replaces- bad criteria
+{
+	types:[class extends A {}]
 }
 
 //core criteria
@@ -428,16 +494,20 @@ Rules:
 	types:['number'],
 	includes:[1,2,3,4,5],
 }
-
-// heir - good criteria
+// replaces- good criteria
+{
+	types:['number'],
+	includes:[1,2,3,4,5],
+}
+// replaces- bad criteria
 {
 	types:['number'],
 	includes:[1,2,3],
 }
-// heir - bad criteria
+// replaces - bad criteria
 {
 	types:['number'],
-	includes:[1,2,10],
+	includes:[1,2,3,4,5,6],
 }
 
 //core criteria
@@ -445,23 +515,98 @@ Rules:
 	types:['number'],
 	excludes:[1,2,3,4,5],
 }
-// heir - good criteria
+// replaces - good criteria
 {
 	types:['number'],
-	excludes:[1,2,3,4,5,6,7,8],
+	excludes:[1,2,3,4,5],
+}
+
+// replaces - bad criteria
+{
+	types:['number'],
+	excludes:[1,2,3],
+}
+// replaces - bad criteria
+{
+	types:['number'],
+	excludes:[1,2,3,4,5,6],
+}
+```
+Examples for CriteriaMethodType
+```js
+//core criteria
+{
+	arguments:[
+		{
+			types:['number']
+		}
+	],
+	return:{
+		types:['mixed']
+	}
+}
+// replaces - good criteria
+{
+	arguments:[
+		{
+			types:['number']
+		}
+	],
+	return:{
+		types:['mixed']
+	}
+}
+// replaces - good criteria
+{
+	arguments:[
+		{
+			types:['number']
+		},
+		{
+			types:['mixed']
+		},
+				{
+			types:['undefined','number']
+		},
+		{
+			types:['undefined'] //This approach helps reserve the  place .
+		}
+	]
+}
+// replaces - bad criteria
+{
+	arguments:[
+		{
+			types:['number']
+		},
+		{
+			types:['number']
+		},
+	]
+}
+// replaces - bad criteria
+{
+	arguments:[
+		{
+			types:['number']
+		}
+	],
+	return:{
+		types:['number']
+	}
 }
 ```
 
 ```js
 class TestInterface {  
     method(){}  
-    method3(){}  
+    method_replace(){}  
       
 }  
 TestInterface.isInterface=true;  
 class TestInterface2 extends TestInterface{  
     method2(){}  
-    method3(){}  
+    method_replace(){}  
 }  
 TestInterface2.isInterface=true;  
 InterfaceApi.extend(TestInterface2);
@@ -471,13 +616,13 @@ or
 ```js
 class TestInterface {  
     method(){}  
-    method3(){}  
+    method_replace(){}  
   
 }  
 TestInterface.isInterface=true;  
 class TestInterface2{  
     method2(){}  
-    method3(){}  
+    method_replace(){}  
 }  
 TestInterface2.isInterface=true;  
 InterfaceApi.extend(TestInterface2,TestInterface);
@@ -487,24 +632,24 @@ or hybrid
 ```js
 class TestInterface {  
     method(){}  
-    method3(){}  
+    method_replace(){}  
     method5(){}  
 }  
 TestInterface.isInterface=true;  
 class TestInterface2 extends TestInterface{  
     method2(){}  
-    method3(){}  
+    method_replace(){}  
 }  
 TestInterface2.isInterface=true;  
 class TestInterface3{  
     method3(){}  
-    method4(){}  
+    method_replace2(){}  
 }  
 TestInterface3.isInterface=true;  
   
 class TestInterface4 extends TestInterface3{  
-    method(){}  
-    method4(){}  
+    method_replace(){}  
+    method_replace2(){}  
 }  
 TestInterface4.isInterface=true;  
 InterfaceApi.extend(TestInterface4,TestInterface2);
@@ -533,7 +678,7 @@ iClass.isInterface=true;
 
 InterfaceApi.extendBefore(iClass4 ,iClass2,iClass3);
 // chain  =>iClass1=>iClass2=>iClass3=>iClass4=>(last rules)  
-//each subsequent interface will override the preceding interface
+//each subsequent interface will replace the preceding interface
 
 
 ```js
