@@ -670,7 +670,7 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     
     {
         let result=CriteriaPropertyType.formatStrictSyntaxToObject({});
-        let tpl={types:['mixed'],includes:[],excludes:[],options:{entryPoints:[]}};
+        let tpl={types:['mixed'],includes:[],excludes:[]};
         assert.propEqual(result,Object.assign({},tpl),'formatStrictSyntaxToObject 1');
 
         result=CriteriaPropertyType.formatStrictSyntaxToObject({types:['mixed','string']});

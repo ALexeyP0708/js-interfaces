@@ -81,9 +81,10 @@ export class CriteriaReactType extends CriteriaType {
      *     options:{entryPoints:[],owner:''}
      * }
      * ```
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @throws {InterfaceError}
      */
-    constructor(criteria={}){
+    constructor(criteria={},entryPoints=[]){
         super(criteria);
         Object.defineProperties(this,{
             get:{
@@ -102,25 +103,24 @@ export class CriteriaReactType extends CriteriaType {
         if(criteria.get === null || criteria.get===undefined){
             delete this.get;
         } else{
-            criteria.get=CriteriaPropertyType.formatToObject(criteria.get,this.options.entryPoints);
+            //criteria.get=CriteriaPropertyType.formatToObject(criteria.get);
             if(typeof criteria.get ==='object' && criteria.get!==null){
-                this.initGet(criteria.get,this.options.entryPoints);
+                this.initGet(criteria.get,entryPoints);
             } 
         }
         if(criteria.set === null || criteria.set===undefined){
             delete this.set;
         } else {
-            criteria.set=CriteriaPropertyType.formatToObject(criteria.set,this.options.entryPoints);
+            //criteria.set=CriteriaPropertyType.formatToObject(criteria.set);
             if(typeof criteria.set ==='object' && criteria.set!==null){
-                this.initSet(criteria.set,this.options.entryPoints);
+                this.initSet(criteria.set,entryPoints);
             } 
         }
-        //this.freeze();
     }
 
-    /**
+/*    /!**
      * @inheritDoc
-     */
+     *!/
     initOptions(options={}){
         super.initOptions(options);
         if(this.get!==undefined){
@@ -129,7 +129,7 @@ export class CriteriaReactType extends CriteriaType {
         if(this.set!==undefined){
             this.set.initOptions(options);
         }
-    }
+    }*/
 
     /**
      * @inheritdoc
@@ -177,8 +177,8 @@ export class CriteriaReactType extends CriteriaType {
             }
         }
         criteria=Object.assign({},criteria);
-        let options=Object.assign({},this.options,criteria.options,{entryPoints:entryPoints});
-        criteria = new CriteriaMethodType({return:criteria,options});
+        let options=Object.assign({},this.options,criteria.options);
+        criteria = new CriteriaMethodType({return:criteria,options},entryPoints);
         this.get=criteria;
     }
 
@@ -202,8 +202,8 @@ export class CriteriaReactType extends CriteriaType {
             }
         }
         criteria=Object.assign({},criteria);
-        let options=Object.assign({},this.options,criteria.options,{entryPoints:entryPoints});
-        criteria = new CriteriaMethodType({arguments:[criteria],options});
+        let options=Object.assign({},this.options,criteria.options);
+        criteria = new CriteriaMethodType({arguments:[criteria],options},entryPoints);
         this.set=criteria;
     }
     
@@ -349,7 +349,7 @@ export class CriteriaReactType extends CriteriaType {
         }
     }
     
-    static formatStrictSyntaxToObject (data,entryPoints=[]){
+    static formatStrictSyntaxToObject (data){
         if(data===null || data===undefined){
             data={};
         }
@@ -361,17 +361,12 @@ export class CriteriaReactType extends CriteriaType {
             if(data.hasOwnProperty(prop) && data[prop]!==undefined){
                 if(!(data[prop] instanceof CriteriaType)){
                     if(data[prop].hasOwnProperty('arguments')||data[prop].hasOwnProperty('return')){
-                        result[prop]=CriteriaMethodType.formatStrictSyntaxToObject(data[prop],entryPoints.concat([prop]));
+                        result[prop]=CriteriaMethodType.formatStrictSyntaxToObject(data[prop]);
                     } else {
-                        result[prop]=CriteriaPropertyType.formatStrictSyntaxToObject(data[prop],entryPoints.concat([prop]));
+                        result[prop]=CriteriaPropertyType.formatStrictSyntaxToObject(data[prop]);
                     }
-                } else {
-                    result[prop].initOptions(entryPoints.concat([prop]));
-                }
+                } 
             }
-        }
-        if(result['options']===undefined){
-            result.options={entryPoints};
         }
         return result;
     }

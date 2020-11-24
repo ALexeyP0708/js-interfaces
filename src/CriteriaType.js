@@ -18,13 +18,13 @@ import {InterfaceData} from "./export.js";
  * }
  * ```
  */
-export class CriteriaType{
+export class CriteriaType {
 
     /**
      * 
      * @param criteria
      */
-    constructor (criteria){
+    constructor (criteria,entryPoints=[]){
         Object.defineProperties(this,{
             options: {
                 enumerable: true,
@@ -49,7 +49,6 @@ export class CriteriaType{
         if(this.options===undefined){
             this.options={};
         }
-        this.options.entryPoints=options.entryPoints??this.options.entryPoints??[];
         this.options.owner=options.owner?? this.options.owner??class not_defined {};
     }
 
@@ -71,15 +70,14 @@ export class CriteriaType{
     freeze(){
         Object.freeze(this);
         Object.freeze(this.options);
-        Object.freeze(this.options.entryPoints);
     }
     
-    static generateObject (criteria,owner,entryPoints){
-        if(criteria instanceof CriteriaType){
-            criteria.initOptions({owner,entryPoints});
-        } else {
-            criteria=this.formatToObject(criteria,entryPoints);
-            criteria = new this(criteria);
+    static generateObject (criteria,owner){
+        if(!(criteria instanceof CriteriaType)){
+            criteria=this.formatToObject(criteria);
+            criteria = new this(criteria,typeof owner==='function'?[`~${owner.name}~`]:[]);
+        }
+        if(typeof owner==='function'){
             criteria.setOwner(owner);
         }
         criteria.freeze();
@@ -112,7 +110,7 @@ export class CriteriaType{
      * @returns {object} If there are no exceptions must return the result of matches
      * @throws {InterfaceError}
      */
-    validate(value, entryPoints) {
+    validate(value, entryPoints=[]) {
         throw new Error('no method');
     }
     
@@ -124,10 +122,9 @@ export class CriteriaType{
      * 
      * @abstract
      * @param {undefined|null|object} data
-     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @return {object}  The returned data depends on which class the method is applied in.
      */
-    static formatToObject(data,entryPoints=[]){
+    static formatToObject(data){
         throw new Error('no method');
     }
 }

@@ -62,9 +62,10 @@ export class CriteriaMethodType extends CriteriaType{
      *     }
      *  }
      * ```
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @throws {InterfaceError} 
      */
-    constructor(criteria={}){
+    constructor(criteria={},entryPoints=[]){
         super(criteria);
         Object.defineProperties(this,{
             arguments:{
@@ -98,7 +99,7 @@ export class CriteriaMethodType extends CriteriaType{
             }
         };
         try {
-            this.initReturn(criteria.return,this.options.entryPoints);
+            this.initReturn(criteria.return,[]);
         } catch (e) {
             if (e instanceof InterfaceError) {
                 errors.push(e);
@@ -107,13 +108,13 @@ export class CriteriaMethodType extends CriteriaType{
             }
         };
         if (errors.length > 0) {
-            new InterfaceError('Init_BadArgumentsOrReturn', {entryPoints: this.options.entryPoints, errors}).throw(true);
+            new InterfaceError('Init_BadArgumentsOrReturn', {entryPoints, errors}).throw(true);
         }
     }
 
-    /**
+/*    /!**
      * @inheritDoc
-     */
+     *!/
     initOptions(options={}){
         super.initOptions(options);
         if(this.arguments!==undefined){
@@ -124,7 +125,7 @@ export class CriteriaMethodType extends CriteriaType{
         if(this.return!==undefined){
             this.return.initOptions(this.options);
         }
-    }
+    }*/
     
     /**
      * @inheritdoc
@@ -159,18 +160,24 @@ export class CriteriaMethodType extends CriteriaType{
         if(!Array.isArray(args)){
             new InterfaceError('initArguments',{message:'Array expected. Example:{arguments:[{types["string","number"]},{arguments:[],return:{}}]}'}).throw();
         }
-        for(let arg of args) {
+        for(let key=0; key<args.length; key++) {
+            let arg=args[key];
             let criteria={};
             if(arg instanceof CriteriaType){
+                /*if(arg instanceof  CriteriaMethodType){
+                    arg.initOptions({entryPoints:entryPoints.concat([`arguments[${key}]`,'call()'])});
+                } else {
+                    arg.initOptions({entryPoints:entryPoints.concat([`arguments[${key}]`])});
+                }*/
                 this.arguments.push(arg);
                 continue;
             }
             criteria=Object.assign({},arg);
-            criteria.options=Object.assign({},this.options,criteria.options,{entryPoints:entryPoints});
+            criteria.options=Object.assign({},this.options,criteria.options);
             if(criteria.hasOwnProperty('arguments') || criteria.hasOwnProperty('return') ){
-                criteria=new CriteriaMethodType(criteria);
+                criteria=new CriteriaMethodType(criteria,entryPoints);
             } else {
-                criteria=new CriteriaPropertyType(criteria);
+                criteria=new CriteriaPropertyType(criteria,entryPoints);
             }
             this.arguments.push(criteria);
         }
@@ -196,11 +203,11 @@ export class CriteriaMethodType extends CriteriaType{
 /*            if(criteria.types===undefined){
                 criteria.types=['mixed'];
             }*/
-            criteria.options=Object.assign({},this.options,criteria.options,{entryPoints:entryPoints});
+            criteria.options=Object.assign({},this.options,criteria.options);
             if(criteria.hasOwnProperty('arguments') || criteria.hasOwnProperty('return') ){
-                criteria=new CriteriaMethodType(criteria);
+                criteria=new CriteriaMethodType(criteria,entryPoints);
             } else {
-                criteria=new CriteriaPropertyType(criteria);
+                criteria=new CriteriaPropertyType(criteria,entryPoints);
             }
         }
         this.return=criteria;
@@ -395,7 +402,6 @@ export class CriteriaMethodType extends CriteriaType{
      * Formats the declared criteria in order for further work.  
      * Formats strong syntax.
      * @param {undefined|null|object} data
-     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @returns {{arguments:Array,return:object}}
      * 
      * @example
@@ -426,7 +432,7 @@ export class CriteriaMethodType extends CriteriaType{
      * data={arguments:[...],return:{arguments:[],return:{types:['string']}}}
      * 
      */
-    static formatStrictSyntaxToObject (data,entryPoints=[]){
+    static formatStrictSyntaxToObject (data){
         if(data===null || data===undefined){
             data={};
         }
@@ -445,19 +451,7 @@ export class CriteriaMethodType extends CriteriaType{
                 };
             }
             if(!(result['arguments'][key] instanceof CriteriaType)){
-                if(result['arguments'][key].hasOwnProperty('arguments') || result['arguments'][key].hasOwnProperty('return') ){
-                    result['arguments'][key]=CriteriaMethodType.formatToObject(result['arguments'][key],entryPoints.concat(`arguments[${key}].call()`));
-                } else {
-                    result['arguments'][key]=CriteriaPropertyType.formatToObject(result['arguments'][key],entryPoints.concat(`arguments[${key}]`));
-                }
-            } else {
-                if(result['arguments'][key] instanceof CriteriaMethodType){
-                    result['arguments'][key].initOptions({entryPoints:entryPoints.concat(`arguments[${key}].call()`)});
-                } else {
-                    let ProtoClass=Object.getPrototypeOf(result['arguments'][key]).constructor;
-                    result['arguments'][key]=ProtoClass.generateObject(result['arguments'][key],undefined,entryPoints.concat(`arguments[${key}]`));
-                    console.log(21);
-                }
+                result['arguments'][key]=CriteriaPropertyType.formatToObject(result['arguments'][key]);
             }
         }
         if(!(result['return'] instanceof CriteriaType)){
@@ -469,20 +463,11 @@ export class CriteriaMethodType extends CriteriaType{
                 };
             }
             if(result['return'].hasOwnProperty('arguments') || result['return'].hasOwnProperty('return') ){
-                result['return']=CriteriaMethodType.formatStrictSyntaxToObject(result['return'],entryPoints.concat(`return.call()`));
+                result['return']=CriteriaMethodType.formatStrictSyntaxToObject(result['return']);
             } else {
-                result['return']=CriteriaPropertyType.formatStrictSyntaxToObject(result['return'],entryPoints.concat(`return`));
+                result['return']=CriteriaPropertyType.formatStrictSyntaxToObject(result['return']);
             }
-        } else {
-            if(result['return'] instanceof CriteriaMethodType){
-                result['return'].initOptions({entryPoints:entryPoints.concat(`return.call()`)});
-            } else {
-                result['return'].initOptions({entryPoints:entryPoints.concat(`return`)});
-            }
-        }
-        if(result['options']===undefined){
-            result.options={entryPoints};
-        }
+        } 
         return result;
     }
 
@@ -490,11 +475,11 @@ export class CriteriaMethodType extends CriteriaType{
      * @inheritDoc
      *
      * */
-    static formatToObject(data,entryPoints=[]){
+    static formatToObject(data){
         if(!this.isUseStrictSyntax){
-            return this.formatExtendedSyntaxToObject(data,entryPoints);
+            return this.formatExtendedSyntaxToObject(data);
         }
-        return this.formatStrictSyntaxToObject(data,entryPoints);
+        return this.formatStrictSyntaxToObject(data);
     }
   
 }

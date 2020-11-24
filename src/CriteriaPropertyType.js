@@ -67,6 +67,7 @@ export class CriteriaPropertyType extends CriteriaType{
     /**
      * 
      * @param {object} criteria  Object with criteria. In this parameters is passed the criteria for the property/argument/return function.
+     * @param {string[]} [entryPoints] Indicate where the method call came from
      * Example:
      *  ```js
      *  {
@@ -82,7 +83,7 @@ export class CriteriaPropertyType extends CriteriaType{
      *  ```
      * @throws {InterfaceError} 
      */
-    constructor(criteria = {}) {
+    constructor(criteria = {},entryPoints=[]) {
         super(criteria);
         Object.defineProperties(this, {
             types: {
@@ -105,7 +106,7 @@ export class CriteriaPropertyType extends CriteriaType{
             },
 
         });
-        this.initTypes(criteria.types, this.options.entryPoints);
+        this.initTypes(criteria.types, entryPoints);
         let errors = [];
         try {
             this.initIncludes(criteria.includes, []);
@@ -126,8 +127,7 @@ export class CriteriaPropertyType extends CriteriaType{
             }
         };
         if (errors.length > 0) {
-            //throw new InterfaceError('Init_BadIncludesOrExcludes', {entryPoints: this.options.entryPoints, errors});
-            new InterfaceError('Init_BadIncludesOrExcludes', {entryPoints: this.options.entryPoints, errors}).throw(true);
+            new InterfaceError('Init_BadIncludesOrExcludes', {entryPoints, errors}).throw(true);
         }
         //this.freeze();
     }
@@ -707,7 +707,6 @@ export class CriteriaPropertyType extends CriteriaType{
      * Formats the declared criteria in order for further work.
      * Formats strong syntax.
      * @param {undefined|null|object} data
-     * @param {string[]} [entryPoints] Indicate where the method call came from
      * @returns {{types:Array,includes:Array,excludes:Array}}
      * @example
      * 
@@ -724,7 +723,7 @@ export class CriteriaPropertyType extends CriteriaType{
      * data={types:['string'],includes:['1'],excludes:['1']};
      * 
      */
-    static formatStrictSyntaxToObject (data,entryPoints=[]){
+    static formatStrictSyntaxToObject (data){
         if(data===null || data===undefined){
             data={};
         }
@@ -758,9 +757,6 @@ export class CriteriaPropertyType extends CriteriaType{
         } else if (!Array.isArray(result.excludes)) {
             result.excludes = [result.excludes];
         }
-        if(result.options===undefined){
-            result.options={entryPoints};
-        }
         return result;
     }
 
@@ -768,11 +764,11 @@ export class CriteriaPropertyType extends CriteriaType{
      * @inheritDoc
      * 
      * */
-    static formatToObject(data,entryPoints=[]){
+    static formatToObject(data){
         if(!this.isUseStrictSyntax){
-            data=this.formatExtendedSyntaxToObject(data,entryPoints);
+            data=this.formatExtendedSyntaxToObject(data);
         }
-        return this.formatStrictSyntaxToObject(data,entryPoints);
+        return this.formatStrictSyntaxToObject(data);
     }
 }
 InterfaceData.addGlobalEndPoints(CriteriaPropertyType);

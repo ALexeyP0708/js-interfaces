@@ -33,17 +33,7 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                 types:['mixed'],
                 includes:[],
                 excludes:[],
-                options:{
-                    entryPoints:[
-                        'return'
-                    ]
-                },
             },
-
-            options:{ 
-                entryPoints:[
-                ]
-            }
         };
         result=CriteriaMethodType.formatStrictSyntaxToObject({});
         assert.propEqual(result,Object.assign({},tpl),'formatExtendedSyntaxToObject 1');
@@ -55,9 +45,6 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                     types:['string'],
                     includes:[],
                     excludes:[],
-                    options:{
-                        entryPoints:["arguments[0]"]
-                    }
                 }]
         }),'formatExtendedSyntaxToObject 2');
         
@@ -67,11 +54,6 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                 types:['string'],
                 includes:[],
                 excludes:[],
-                options:{
-                    entryPoints:[
-                        'return'
-                    ]
-                }
             }
         }),'formatExtendedSyntaxToObject 3');
 
@@ -85,18 +67,7 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
                     types:['string'],
                     includes:[],
                     excludes:[],
-                    options:{
-                        entryPoints:[
-                            'return.call()',
-                            'return'
-                        ]
-                    }
                 },
-                options:{
-                    entryPoints:[
-                        'return.call()'
-                    ]
-                }
                 
             }
         }),'formatExtendedSyntaxToObject 4');
