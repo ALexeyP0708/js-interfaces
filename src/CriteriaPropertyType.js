@@ -582,8 +582,8 @@ export class CriteriaPropertyType extends CriteriaType{
             new InterfaceError('CompareExcludes', {entryPoints}).throw();
         }
         for (let k in criteria.excludes) {
-            let include = criteria.excludes[k];
-            if(!this.excludes.includes(include)){
+            let exclude = criteria.excludes[k];
+            if(!this.excludes.includes(exclude)){
                 new InterfaceError('CompareExcludes',{entryPoints}).throw();
             }
         }
