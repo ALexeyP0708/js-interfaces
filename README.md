@@ -10,10 +10,30 @@
 `npm install -g --save-dev @babel/core @babel/cli @babel/preset-env`- global install;
 `npm install --save-dev @babel/core @babel/cli @babel/preset-env`- project install;
 
-# Documentation API
+## Documentation API
 
+##Config
 
-# Getting started
+To visually display errors in console, install an error handler.
+```js 
+import {InterfaceError} from './node_modules/alexeyp0708/classes-interfaces/export.js'
+InterfaceError.setHandlerHook()
+```
+
+To get an error message template or set a new template
+```js
+InterfaceError.types('default')// get template
+InterfaceError.types('default','new template {$var}')// set template
+InterfaceError.types('default',null)// unset template
+```
+
+## Getting started
+
+### InterfaceError
+
+errors list in `./node_modules/alexeyp0708/classes-interfaces/config/errors.js` file
+
+##
 
 Target of the component:
  -  create interfaces for interaction between JS components;

@@ -1,5 +1,5 @@
 {
-  "name": "@alexeyp0708/js-interfaces",
+  "name": "@alexeyp0708/classes-interfaces",
   "version": "1.0.1-dev",
   "ECMAScriptVersion": "^ECMAScript2022",
   "description": "Interface simulation for classes",
