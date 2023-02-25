@@ -1,11 +1,40 @@
+# @alexeyp0708/classes-interfaces
+##Plan
 
-# Requirements
-- ES6
+
+- рефакторинг
+  - реализоварть  Правила постановки Лисков
+  - назначение интерфейса с помощью цепочки методов
+  - проверка классов на заморозку и запечатование 
+  - предусматреть возможность расширения типов
+- интегрировать OpenAPI отдельной реализацией
+- интегрировать JSONSchema отдельной реализацией
+- интегрировать полную или частичную проверку значения по членнам обьекта или функции
+
+##Intro
+Данный компонент симулирует ООП интерфейсы.
+
+Не обязательно использовать TypeScript  чтобы писать Интерфейсы.
+
+Используйте данный компонент чтобы слегкостью проектировать 
+API нового расширения/приложения/взаимодействия в JS. 
+
+С помощью данного компонента можно писать контракты для компонентов.
+Реализовывать паттерны - Мост, Адаптер, Контракты и тд. 
+Эффективно заменять TDD тесты на входящие и исходящие параметры методов.
+"Мухи отдельно, котлеты отдельно" - интерфейсы можно писать таким образом, 
+что их использование не будет применяться в продакшене.
+Написанные интерфейсы будут иметь статический вид и никакой логики в их реализации,
+что стантартезирует взаимодействие между разработчиками.
+
+
+## Requirements
+- ES2022
 - Node (??? No testing)  
 
-# Installation
+## Installation
 
-# generate babel script for commonjs
+## generate babel script for commonjs
 
 `npm install -g --save-dev @babel/core @babel/cli @babel/preset-env`- global install;
 `npm install --save-dev @babel/core @babel/cli @babel/preset-env`- project install;
@@ -14,11 +43,50 @@
 
 ##Config
 
+### InterfaceError
 To visually display errors in console, install an error handler.
 ```js 
 import {InterfaceError} from './node_modules/alexeyp0708/classes-interfaces/export.js'
 InterfaceError.setHandlerHook()
 ```
+
+##Types
+Type Options  
+
+string
+
+```js
+const types=[
+    'null', 
+    'undefined', 
+    'object', 
+    'boolean', 
+    'number', 
+    'string', 
+    'symbol', 
+    'function', 
+    'mixed'
+]
+```
+values that are converted to strings
+
+```js
+const types=[
+  null,
+  undefined
+]
+```
+Classes (constructors) and objects
+
+```js
+class MyClass{}
+let obj={}
+const types=[
+  MyClass, // if a class is specified, it will check if the object or function is an instance of the class 
+  obj //Will check if the given object is the prototype of the checked object
+]
+```
+
 
 To get an error message template or set a new template
 ```js
@@ -29,7 +97,7 @@ InterfaceError.types('default',null)// unset template
 
 ## Getting started
 
-### InterfaceError
+
 
 errors list in `./node_modules/alexeyp0708/classes-interfaces/config/errors.js` file
 
