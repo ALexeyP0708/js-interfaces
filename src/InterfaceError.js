@@ -89,7 +89,7 @@ export class InterfaceError extends Error {
    * @returns {InterfaceError|Error}
    */
   setVars(vars){
-    this.#vars=Object.assign({},vars);
+    this.#vars=Object.assign(this.#vars,vars);
     return this
   }
   

@@ -5,15 +5,7 @@ import { COptions } from './COptions.js'
  * @abstract
  * Abstract class. Generates baseline properties and methods  for criteria classes
  * @prop {{entryPoints:Array.<string>,owner:function}} options
- *
- * ```js
- * {
- *     options:{
- *          entryPoints:[],
- *          owner:''
- *     }
- * }
- * ```
+
  */
 export class Criteria {
   /**
@@ -26,13 +18,13 @@ export class Criteria {
      * @param {object} criteria.options See COptions.export()
      *
      */
-  constructor (criteria, entryPoints = []) {
+  constructor (criteria) {
     if (criteria === undefined) {
-      console.warn(`Warn ${Object.getPrototypeOf(this).constructor.name} class:`, `Pay attention to criteria === undefined option and look for the place where undefined is passed`)
+      console.warn(`Warn debug: ${Object.getPrototypeOf(this).constructor.name} class:`, `Pay attention to criteria === undefined option and look for the place where undefined is passed`)
       // temporarily so that there are no errors
       criteria = {}
     }
-    this.#init(criteria, entryPoints)
+    this.#init(criteria)
   }
 
   /**
@@ -40,9 +32,9 @@ export class Criteria {
      * @param {object} criteria
      * @param criteria
      */
-  #init (criteria, entryPoints) {
+  #init (criteria) {
     this.#initOptions(criteria.options)
-    this.init(criteria, entryPoints)
+    this.init(criteria)
   }
 
   /**
@@ -57,7 +49,7 @@ export class Criteria {
   }
 
   init (criteria = {}) {
-    throw new Error('no method')
+    throw new Error('Method not implemented')
   }
 
   getOptions () {
@@ -90,7 +82,6 @@ export class Criteria {
 
   freeze () {
     Object.freeze(this)
-    Object.freeze(this.options)
   }
 
   static generateObject (criteria, owner) {
@@ -112,14 +103,14 @@ export class Criteria {
      * @param entryPoints
      */
   build (data, criteria, entryPoints = []) {
-    throw new Error('no method')
+    throw new Error('Method not implemented')
   }
 
   /**
      * @abstract
      */
   compare () {
-    throw new Error('no method')
+    throw new Error('Method not implemented')
   }
 
   /**
@@ -132,7 +123,7 @@ export class Criteria {
      * @throws {InterfaceError}
      */
   validate (value, entryPoints = []) {
-    throw new Error('no method')
+    throw new Error('Method not implemented')
   }
 
   /**
@@ -146,7 +137,7 @@ export class Criteria {
      * @return {object}  The returned data depends on which class the method is applied in.
      */
   static formatToObject (data) {
-    throw new Error('no method')
+    throw new Error('Method not implemented')
   }
 }
 Criteria.isUseStrictSyntax = true

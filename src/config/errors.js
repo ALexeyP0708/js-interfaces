@@ -1,7 +1,6 @@
 
 import {InterfaceError} from "../InterfaceError.js";
 
-const helpLink = 'http://sites/NodeJS/Interfaces/docs/ErrorTypes.html#.'
 
 InterfaceError.consoleNotification = true
 
@@ -48,7 +47,7 @@ InterfaceError.types('BadCriteria', '{$type}: {$entryPoints} - Criteria must mee
 //InterfaceError.types('Init_BadIncludesOrExcludes', '') // "{$type}: {$entryPoints} - {$errors}"
 
 /**
- * @var InitTypes
+ * @var BadTypes
  * An error is thrown in the following cases:
  * - when forming an interface member, if the passed types for the criteria are not correct.
  *
@@ -57,15 +56,16 @@ InterfaceError.types('BadCriteria', '{$type}: {$entryPoints} - Criteria must mee
  * Accompanied by errors: {@link ...InitTypes_badType}
  *
  */
-//InterfaceError.types('InitTypes', '')
+//InterfaceError.types('BadTypes', '')
 
 /**
- * @var InitTypes_badType
+ * @var BadType_Incorrect
  * An error is thrown in the following cases:
  * -when forming an interface member, if an inappropriate type is passed.
  */
 
-InterfaceError.types('InitTypes_badType', '{$type}: {$entryPoints} - Invalid parameter passed to {$className}.types=[{$dataType}].')
+InterfaceError.types('BadType_Incorrect', '{$type}: {$entryPoints} - Invalid parameter passed [{$dataType}].')
+InterfaceError.types('BadType_Duplicate', '{$type}: {$entryPoints} - duplicate type [{$dataType}].')
 
 /**
  * @var InitIncludes

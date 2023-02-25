@@ -36,7 +36,7 @@ export class COptions {
      *
      * @param {self|object} options
      */
-  merge (options) {
+/*  merge (options) {
     const SelfClass = Object.getPrototypeOf(this).constructor
     if (options instanceof SelfClass) {
       options = options.export()
@@ -51,7 +51,7 @@ export class COptions {
         throw Error(`"${prop}" property cannot be set.`)
       }
     }
-  }
+  }*/
 
   /**
      *

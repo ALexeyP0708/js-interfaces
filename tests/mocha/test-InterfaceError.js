@@ -1,21 +1,8 @@
-import * as chaiMod from '../../node_modules/chai/chai.js'
-import {InterfaceError,count} from '../../src/InterfaceError.js';
-import {} from '../../src/config/errors.js';
-
-const isNode=Boolean(globalThis.process?.versions?.node)
-
-let assert
-let expect
-if (isNode) {
-  assert = chaiMod.default.assert
-  expect = chaiMod.default.expect
-} else {
-  assert = globalThis.chai.assert
-  expect = globalThis.chai.expect
-}
+import {assert,expect,isNode} from './export.js'
+import {InterfaceError} from '../../src/InterfaceError.js';
+import '../../src/config/errors.js';
 
 describe('Class InterfaceError', () => {
-
   const bufDefaultTpl=InterfaceError.types('default')
   InterfaceError.types('default','{$type}: {$entryPoints} - {$message}{$errors}')
   it('InterfaceError.static types (get and set and unset)',()=>{
