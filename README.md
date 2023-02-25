@@ -102,35 +102,38 @@ let rules=InterfaceApi.extend(TestInterface);
 ## Criteria
 
 Each member of the interface must return criteria (objects with a data set) by which the data will be validated.
+
 ```js
-	class TestInterface{
-		method(){
-			// return criteria template for method	
-			return {
-				arguments:[],
-				return:{}
-			}
-		}
-		method2(){
-			// return criteria for method	
-			return new CriteriaMethodType({
-				arguments:[],
-				return:{}
-			})
-		}
-		prop(){
-			// return criteria for property (alternative alternative instead of TestInterface.prototype.prop)
-			return new CriteriaPropertyType({
-				types:[],
-				includes:[],
-				excludes:[]
-			});
-		}
-	}
+    class TestInterface {
+  method() {
+    // return criteria template for method	
+    return {
+      arguments: [],
+      return: {}
+    }
+  }
+
+  method2() {
+    // return criteria for method	
+    return new CriteriaMethodType({
+      arguments: [],
+      return: {}
+    })
+  }
+
+  prop() {
+    // return criteria for property (alternative alternative instead of TestInterface.prototype.prop)
+    return new PropertyCriteria({
+      types: [],
+      includes: [],
+      excludes: []
+    });
+  }
+}
 ```
 
 There are three types of criteria (classes for criteria):
-- **CriteriaPropertyType** - describes class properties, method / function arguments, method / function return value;
+- **PropertyCriteria** - describes class properties, method / function arguments, method / function return value;
 - **CriteriaMethodType** - describes the class methods, method / function arguments and the return value of the method / function if such data should be callable.
 - **CriteriaReactType** - describes the reactive properties of the class.
 
@@ -152,91 +155,103 @@ You can use criteria templates instead of criteria.
 
 **The template for criteria** is a regular object that describes the structure of a criteria object of a particular class.
 
-### Template for CriteriaPropertyType
+### Template for PropertyCriteria
+
 ```js
 {
-	/**
-	setting types to test a value
-	*/
-	types:[// optional
-			'null',// or null 
-			'undefined', // or undefined
-			'object', //typeof
-			'boolean',//typeof 
-			'number', //typeof
-			'string', //typeof
-			'symbol', //typeof
-			'function', //typeof
-			'mixed', // any types
-			
-// for check  object instanceof A or A.isPrototypeOf(function)
-			class A{}, 
-			
-// for check   protoObject.isPrototypeOf(object)
-			{protoObject}, 
+  /**
+   setting types to test a value
+   */
+  types:[// optional
+    'null',// or null 
+    'undefined', // or undefined
+    'object', //typeof
+    'boolean',//typeof 
+    'number', //typeof
+    'string', //typeof
+    'symbol', //typeof
+    'function', //typeof
+    'mixed', // any types
 
-/*
-Expands the current criteria with these criteria.It is used as a detached type.
-Use only in cases of complex interface implementation.
-*/
-			new CriteriaPropertyType({}) 
-			
-/*
-If the value is a function, then it sets the rules for it.
-*/
-			new CriteriaMethodType({}) 
-			
-/*
-any object will be checked against the specified interface.
-Designed to check the properties of an object for data correctness
-@deprecated
-*/
-			class extends MirrorInterface{}
-
-/*
- checks if an object or function implements a given interface
- */
-			Object.assign(class Interface{},{isInterface:true})
-		],
-		
-/**
-indicates which value the data should match.
-Any primitives  and the rules of relationship to classes and interfaces apply.
-Must match types.
-*/
-	includes:[ // optional
-		//any values ​​are strict comparison
-		1,
-		'hello',
-		
 // for check  object instanceof A or A.isPrototypeOf(function)
-		class A{}, 
-		
+    class A {
+    },
+
 // for check   protoObject.isPrototypeOf(object)
-		{protoObject}, 
+    {protoObject},
+
+    /*
+    Expands the current criteria with these criteria.It is used as a detached type.
+    Use only in cases of complex interface implementation.
+    */
+    new PropertyCriteria({})
+
+    /*
+    If the value is a function, then it sets the rules for it.
+    */
+    new CriteriaMethodType({})
+
+    /*
+    any object will be checked against the specified interface.
+    Designed to check the properties of an object for data correctness
+    @deprecated
+    */
+    class extends MirrorInterface {
+    }
+
+    /*
+     checks if an object or function implements a given interface
+     */
+    Object.assign(class Interface {
+    }, {isInterface: true})
+  ],
+
+    /**
+     indicates which value the data should match.
+     Any primitives  and the rules of relationship to classes and interfaces apply.
+     Must match types.
+     */
+    includes
+:
+  [ // optional
+    //any values ​​are strict comparison
+    1,
+    'hello',
+
+// for check  object instanceof A or A.isPrototypeOf(function)
+    class A {
+    },
+
+// for check   protoObject.isPrototypeOf(object)
+    {protoObject},
 
 //checks if an object or function implements a given interface
-		Object.assign(class Interface{},{isInterface:true})
-		
-	], 
-	
-/**
-indicates which value the data should not match
-*/
-	excludes:[// optional
-		//any values ​​are strict comparison
-		1,
-		'hello',
-		
+    Object.assign(class Interface {
+    }, {isInterface: true})
+
+  ],
+
+    /**
+     indicates which value the data should not match
+     */
+    excludes
+:
+  [// optional
+    //any values ​​are strict comparison
+    1,
+    'hello',
+
 // for check  object instanceof A or A.isPrototypeOf(function)
-		class A{}, 
+    class A {
+    },
 
 // for check   protoObject.isPrototypeOf(object)
-		{protoObject}, 
-		
+    {protoObject},
+
 //checks if an object or function implements a given interface
-		Object.assign(class Interface{},{isInterface:true})
-	] 
+    Object.assign(class Interface {
+    }, {isInterface: true})
+  ]
 }
 ```
 
@@ -257,7 +272,7 @@ A.isInterface=true;
 		/*
 			 - optional
 			set of objects from
-			CriteriaPropertyType(or its template), 
+			PropertyCriteria(or its template), 
 			CriteriaMethodType(or its template),
 			`class extends CriteriaType{}` 
 		*/
@@ -269,7 +284,7 @@ A.isInterface=true;
 		
 		/*
 			- optional 
-			 CriteriaPropertyType(or its template) or 
+			 PropertyCriteria(or its template) or 
 			 CriteriaMethodType(or its template) or 
 			 `class extends CriteriaType{}`
 		 */ 
@@ -283,7 +298,7 @@ A.isInterface=true;
 	}
 	
 /*
-CriteriaPropertyType template -describes  a value
+PropertyCriteria template -describes  a value
 CriteriaMethodType template - describes  callable function
 */
 ```
@@ -334,13 +349,13 @@ A.isInterface=true;
 or
 ```js
 	{
-		//  template CriteriaPropertyType 
+		//  template PropertyCriteria 
 		get:{
 			types:[],
 			includes:[],
 			excludes:[]
 		}
-		//  template CriteriaPropertyType 
+		//  template PropertyCriteria 
 		set:{
 			types:[],
 			includes:[],
@@ -449,10 +464,10 @@ See [Liskov substitution principle](https://en.wikipedia.org/wiki/Liskov_substit
 
 - Each subsequent interface replaces the criteria of the previous interfaces if the members match;
 - The criteria must be compatible(compared criteria must be created by the same class).
-- for CriteriaPropertyType criteria, the 'types' set must match, the 'includes' sets must match, the "excludes" sets must match.
+- for PropertyCriteria criteria, the 'types' set must match, the 'includes' sets must match, the "excludes" sets must match.
 - for CriteriaMethodType criteria, criteria for the arguments and  criteria for  the return value must match. Also, the set of arguments must match. Adding criteria for the remaining arguments is allowed if such criteria in the set "types" are of type undefined or mixed.
 
-Examples for CriteriaPropertyType
+Examples for PropertyCriteria
 ```js
 //core criteria
 {

@@ -1,4 +1,4 @@
-import {CriteriaPropertyType,CriteriaMethodType,InterfaceError} from '../../src/export.js';
+import {PropertyCriteria,CriteriaMethodType,InterfaceError} from '../../src/export.js';
 
 QUnit.module( 'Class CriteriaMethodType');
 QUnit.test('test methods CriteriaMethodType',function(assert){
@@ -12,14 +12,9 @@ QUnit.test('test methods CriteriaMethodType',function(assert){
             enumerable:true,
             writable:true,
             value:undefined
-        },
-        options:{
-            enumerable:true,
-            writable:true,
-            value:{}
         }
     });
-    
+    console.log(criteria.getOptions());
     criteria.initOptions({});
 
 

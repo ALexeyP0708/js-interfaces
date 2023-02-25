@@ -4,7 +4,7 @@ import {
     InterfaceRules,
     CriteriaMethodType,
     CriteriaReactType,
-    CriteriaPropertyType
+    PropertyCriteria
     
 } from '../../src/export.js';
 QUnit.module( 'Class InterfaceRules');
@@ -91,7 +91,7 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 static_prop:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaPropertyType({types:['mixed'], options: rules.staticProps.static_prop[0].criteria.options})
+                        criteria: new PropertyCriteria({types:['mixed'], options: rules.staticProps.static_prop[0].criteria.options})
                     }
                 ]
             },
@@ -111,7 +111,7 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 prop:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaPropertyType({types:['mixed'],options: rules.protoProps.prop[0].criteria.options})
+                        criteria: new PropertyCriteria({types:['mixed'],options: rules.protoProps.prop[0].criteria.options})
                     }
                 ]
             }
@@ -196,7 +196,7 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 static_prop:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaPropertyType({types:['mixed'], options:rules.staticProps.static_prop[0].criteria.options})
+                        criteria: new PropertyCriteria({types:['mixed'], options:rules.staticProps.static_prop[0].criteria.options})
                     }
                 ]
             },
@@ -216,7 +216,7 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                 prop:[
                     {
                         //class: InterfaceTest,
-                        criteria: new CriteriaPropertyType({types:['mixed'], options:rules.protoProps.prop[0].criteria.options})
+                        criteria: new PropertyCriteria({types:['mixed'], options:rules.protoProps.prop[0].criteria.options})
                     }
                 ]
             }
@@ -475,7 +475,7 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                     prop:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaPropertyType({types:['mixed'],includes:[],options:rules.protoProps.prop[0].criteria.options})
+                            criteria:new PropertyCriteria({types:['mixed'],includes:[],options:rules.protoProps.prop[0].criteria.options})
                         }
                     ]
                 },
@@ -495,7 +495,7 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                     static_prop:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaPropertyType({types:['mixed'],includes:[],options:rules.staticProps.static_prop[0].criteria.options})
+                            criteria:new PropertyCriteria({types:['mixed'],includes:[],options:rules.staticProps.static_prop[0].criteria.options})
                         }
                     ]
                 },
@@ -542,7 +542,7 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                     prop:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaPropertyType({types:['mixed'],includes:[],options:rules.protoProps.prop[0].criteria.options})
+                            criteria:new PropertyCriteria({types:['mixed'],includes:[],options:rules.protoProps.prop[0].criteria.options})
                         }
                     ]
                 },
@@ -562,7 +562,7 @@ QUnit.test('Methods test InterfaceRules class',function(assert){
                     static_prop:[
                         {
                             class:InterfaceTest,
-                            criteria:new CriteriaPropertyType({types:['mixed'],includes:[],options:rules.staticProps.static_prop[0].criteria.options})
+                            criteria:new PropertyCriteria({types:['mixed'],includes:[],options:rules.staticProps.static_prop[0].criteria.options})
                         }
                     ]
                 },

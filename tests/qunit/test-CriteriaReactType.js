@@ -23,22 +23,22 @@ QUnit.test('test methods CriteriaReactType ',function(assert){
             types:['mixed']
         });
         let match={
-            get:new CriteriaMethodType({return:{types:['mixed']},options:criteria.options}),
+            get:new CriteriaMethodType({return:{types:['mixed']}, options:criteria.getOptions()}),
             set:undefined,
-            options:criteria.options
+            options:criteria.getOptions()
         };
         assert.deepEqual(Object.assign({},criteria),match,'initGet');
         match={
-            get:new CriteriaMethodType({return:{types:['mixed']},options:criteria.options}),
+            get:new CriteriaMethodType({return:{types:['mixed']},options:criteria.getOptions()}),
             set:undefined,
-            options:criteria.options
+            options:criteria.getOptions()
         };
         criteria.initGet();
         assert.deepEqual(Object.assign({},criteria),match,'initGet 2');
         match={
-            get:new CriteriaMethodType({return:{types:['number']},options:criteria.options}),
+            get:new CriteriaMethodType({return:{types:['number']},options:criteria.getOptions()}),
             set:undefined,
-            options:criteria.options
+            options:criteria.getOptions()
         };
         criteria.initGet({
             return:{
@@ -54,17 +54,17 @@ QUnit.test('test methods CriteriaReactType ',function(assert){
             types:['mixed']
         });
         let match={
-            get:new CriteriaMethodType({return:{types:['number']},options:criteria.options}),
-            set:new CriteriaMethodType({arguments:[{types:['mixed']}],options:criteria.options}),
-            options:criteria.options
+            get:new CriteriaMethodType({return:{types:['number']},options:criteria.getOptions()}),
+            set:new CriteriaMethodType({arguments:[{types:['mixed']}],options:criteria.getOptions()}),
+            options:criteria.getOptions()
         };
         QUnit.dump.maxDepth=10;
         assert.propEqual(criteria,match,'initSet');
 
         match={
-            get:new CriteriaMethodType({return:{types:['number']},options:criteria.options}),
-            set:new CriteriaMethodType({arguments:[{types:['mixed']}],options:criteria.options}),
-            options:criteria.options
+            get:new CriteriaMethodType({return:{types:['number']},options:criteria.getOptions()}),
+            set:new CriteriaMethodType({arguments:[{types:['mixed']}],options:criteria.getOptions()}),
+            options:criteria.getOptions()
         };
         criteria.initSet();
         QUnit.dump.maxDepth=10;
@@ -72,9 +72,9 @@ QUnit.test('test methods CriteriaReactType ',function(assert){
 
 
         match={
-            get:new CriteriaMethodType({return:{types:['number']},options:criteria.options}),
-            set:new CriteriaMethodType({arguments:[{types:['number']}],options:criteria.options}),
-            options:criteria.options
+            get:new CriteriaMethodType({return:{types:['number']},options:criteria.getOptions()}),
+            set:new CriteriaMethodType({arguments:[{types:['number']}],options:criteria.getOptions()}),
+            options:criteria.getOptions()
         };
         criteria.initSet({
             arguments:[{

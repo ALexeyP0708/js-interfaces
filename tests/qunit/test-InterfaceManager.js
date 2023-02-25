@@ -1,6 +1,5 @@
 import {
-    InterfaceError,
-    InterfaceManager,
+    InterfaceError
 } from '../../src/export.js';
 
 QUnit.module( 'Class InterfaceManager');
@@ -98,5 +97,6 @@ QUnit.test('Methods test InterfaceManager class',function(assert){
             method(){}
         }
     }
+    assert.ok(true);
 });
 

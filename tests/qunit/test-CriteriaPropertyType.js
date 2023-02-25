@@ -1,4 +1,6 @@
-import {CriteriaMethodType, CriteriaPropertyType, InterfaceError} from '../../src/export.js';
+//import {CriteriaMethodType, PropertyCriteria, InterfaceError} from '../../src/export.js';
+import { PropertyCriteria, InterfaceError} from '../../src/export.js';
+
 Object.defineProperty(Object.prototype,'copy',{
     value:function(){
         let obj={};
@@ -8,49 +10,30 @@ Object.defineProperty(Object.prototype,'copy',{
         return Object.assign(obj,this);
     }
 });
+const criteria=new PropertyCriteria({
+    types:['mixed'],
+    includes:[],
+    excludes:[]
+});
+QUnit.module( 'Class PropertyCriteria');
+QUnit.test('Initialization PropertyCriteria',function(assert){
+ 
 
-QUnit.module( 'Class CriteriaPropertyType');
-QUnit.test('test methods CriteriaPropertyType',function(assert){
-
-    let criteria=Object.create(CriteriaPropertyType.prototype,{
-        types:{
-            enumerable:true,
-            configurable:true,
-            writable:true,
-            value:['mixed'],
-        },
-        includes:{
-            enumerable:true,
-            configurable:true,
-            writable:true,
-            value:[]
-        },
-        excludes:{
-            enumerable:true,
-            configurable:true,
-            writable:true,
-            value:[]
-        },
-        options:{
-            enumerable:true,
-            configurable:true,
-            writable:true,
-            value:{}
-        }
-    });
-    class A{};
-    class B extends A{};
-
-
-    // initOptions
     {
         let options={entryPoints:['test']};
         criteria.initOptions(options);
         let match=criteria.options!==options
-                    &&options.entryPoints[0]==='test';
+            &&options.entryPoints[0]==='test';
         assert.ok(match,'initOptions');
-
     }
+});
+QUnit.test('test methods PropertyCriteria',function(assert){
+
+
+    class A{};
+    class B extends A{};
+    // initOptions
+
     // initTypes
     {
         //let types=['mixed','number',A,null,undefined];
@@ -71,12 +54,12 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     // initTypes type  criteria 
     { 
         let types=[
-            new CriteriaPropertyType({types:['number']}),
+            new PropertyCriteria({types:['number']}),
             new CriteriaMethodType({arguments:[{types:['number']}]}),
             //()=>{return 'string';},// тип метод , который возвращает строку
             ()=>{return ()=>'string';}// тип метод , который возвращает строку
         ];
-        let criteria=new CriteriaPropertyType();
+        let criteria=new PropertyCriteria();
         criteria.initTypes(types);
     }
 
@@ -236,8 +219,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     {
 
         {
-            let criteria= new CriteriaPropertyType({types:[]});
-            let criteria2= new CriteriaPropertyType({types:[]});
+            let criteria= new PropertyCriteria({types:[]});
+            let criteria2= new PropertyCriteria({types:[]});
 
             let check=false;
             try {
@@ -254,8 +237,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         {
             class A{}
             class B extends A{};
-            let criteria= new CriteriaPropertyType({types:['mixed']});
-            let criteria2= new CriteriaPropertyType({types:[]});
+            let criteria= new PropertyCriteria({types:['mixed']});
+            let criteria2= new PropertyCriteria({types:[]});
 
             let check=false;
             try {
@@ -270,8 +253,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
             assert.ok(check,'compareTypes 2');
         }
         {
-            let criteria= new CriteriaPropertyType({types:[]});
-            let criteria2= new CriteriaPropertyType({types:['mixed']});
+            let criteria= new PropertyCriteria({types:[]});
+            let criteria2= new PropertyCriteria({types:['mixed']});
 
             let check=false;
             try {
@@ -286,8 +269,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
             assert.ok(check,'compareTypes 3');
         }
         {
-            let criteria= new CriteriaPropertyType({types:['mixed','number']});
-            let criteria2= new CriteriaPropertyType({types:['mixed']});
+            let criteria= new PropertyCriteria({types:['mixed','number']});
+            let criteria2= new PropertyCriteria({types:['mixed']});
 
             let check=false;
             try {
@@ -304,12 +287,12 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         {
             class A{}
             class B extends A{};
-            let criteria= new CriteriaPropertyType({types:[
+            let criteria= new PropertyCriteria({types:[
                     A,
                     'string',
                     'number'
                 ]});
-            let criteria2= new CriteriaPropertyType({types:[
+            let criteria2= new PropertyCriteria({types:[
                    
                     'number',
                     'string',
@@ -333,12 +316,12 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         {
             class A{}
             class B extends A{};
-            let criteria= new CriteriaPropertyType({types:[
+            let criteria= new PropertyCriteria({types:[
                     A,
                     'string',
                     'number'
                 ]});
-            let criteria2= new CriteriaPropertyType({types:[
+            let criteria2= new PropertyCriteria({types:[
 
                     'number',
                     'string',
@@ -358,12 +341,12 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         }
         {
             class A{}
-            let criteria= new CriteriaPropertyType({types:[
+            let criteria= new PropertyCriteria({types:[
                     A,
                     'string',
                     'number'
                 ]});
-            let criteria2= new CriteriaPropertyType({types:[
+            let criteria2= new PropertyCriteria({types:[
                     'number',
                     'string'
 
@@ -381,12 +364,12 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         }
         {
             class A{}
-            let criteria= new CriteriaPropertyType({types:[
+            let criteria= new PropertyCriteria({types:[
                     A,
                     'string',
                     'number'
                 ]});
-            let criteria2= new CriteriaPropertyType({types:[
+            let criteria2= new PropertyCriteria({types:[
                     'number',
                     'string',
                     A,
@@ -406,22 +389,22 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         }
         {
             class A{}
-            let criteria= new CriteriaPropertyType({types:[
+            let criteria= new PropertyCriteria({types:[
                     A,
                     'string',
                     'number',
-                    new CriteriaPropertyType({
+                    new PropertyCriteria({
                         types:[
                             'number',
                             'string'
                         ]
                     })
                 ]});
-            let criteria2= new CriteriaPropertyType({types:[
+            let criteria2= new PropertyCriteria({types:[
                     'number',
                     'string',
                     A,
-                    new CriteriaPropertyType({
+                    new PropertyCriteria({
                         types:[
                             'number',
                             'string',
@@ -444,22 +427,22 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         }
         {
             class A{}
-            let criteria= new CriteriaPropertyType({types:[
+            let criteria= new PropertyCriteria({types:[
                     A,
                     'string',
                     'number',
-                    new CriteriaPropertyType({
+                    new PropertyCriteria({
                         types:[
                             'number',
                             'string'
                         ]
                     })
                 ]});
-            let criteria2= new CriteriaPropertyType({types:[
+            let criteria2= new PropertyCriteria({types:[
                     'number',
                     'string',
                     A,
-                    new CriteriaPropertyType({
+                    new PropertyCriteria({
                         types:[
                             'number',
                             'string',
@@ -483,8 +466,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     // compareIncludes
     {
         {
-            let criteria= new CriteriaPropertyType({includes:[]});
-            let criteria2= new CriteriaPropertyType({includes:[]});
+            let criteria= new PropertyCriteria({includes:[]});
+            let criteria2= new PropertyCriteria({includes:[]});
 
             let check=false;
             try {
@@ -502,8 +485,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         {
             class A{}
             class B extends A{};
-            let criteria= new CriteriaPropertyType({includes:[1,2,A]});
-            let criteria2= new CriteriaPropertyType({includes:[A,2,1]});
+            let criteria= new PropertyCriteria({includes:[1,2,A]});
+            let criteria2= new PropertyCriteria({includes:[A,2,1]});
             let check=false;
             try {
 
@@ -521,8 +504,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         {
             class A{}
             class B extends A{};
-            let criteria= new CriteriaPropertyType({includes:[1,2,A]});
-            let criteria2= new CriteriaPropertyType({includes:[1,2,B]});
+            let criteria= new PropertyCriteria({includes:[1,2,A]});
+            let criteria2= new PropertyCriteria({includes:[1,2,B]});
 
             assert.throws(
                 function(){
@@ -536,8 +519,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         }
         {
             class A{}
-            let criteria= new CriteriaPropertyType({includes:[1,2,A]});
-            let criteria2= new CriteriaPropertyType({includes:[1,2]});
+            let criteria= new PropertyCriteria({includes:[1,2,A]});
+            let criteria2= new PropertyCriteria({includes:[1,2]});
 
             assert.throws(
                 function(){
@@ -551,8 +534,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         }
         {
             class A{}
-            let criteria= new CriteriaPropertyType({includes:[1,2,A]});
-            let criteria2= new CriteriaPropertyType({includes:[1,2,A,3]});
+            let criteria= new PropertyCriteria({includes:[1,2,A]});
+            let criteria2= new PropertyCriteria({includes:[1,2,A,3]});
 
             assert.throws(
                 function(){
@@ -569,8 +552,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     // compareExcludes
     {
         {
-            let criteria= new CriteriaPropertyType({excludes:[]});
-            let criteria2= new CriteriaPropertyType({excludes:[]});
+            let criteria= new PropertyCriteria({excludes:[]});
+            let criteria2= new PropertyCriteria({excludes:[]});
 
             let check=false;
             try {
@@ -588,8 +571,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         {
             class A{}
             class B extends A{};
-            let criteria= new CriteriaPropertyType({excludes:[1,2,A]});
-            let criteria2= new CriteriaPropertyType({excludes:[A,2,1]});
+            let criteria= new PropertyCriteria({excludes:[1,2,A]});
+            let criteria2= new PropertyCriteria({excludes:[A,2,1]});
             let check=false;
             try {
 
@@ -607,8 +590,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         {
             class A{}
             class B extends A{};
-            let criteria= new CriteriaPropertyType({excludes:[1,2,A]});
-            let criteria2= new CriteriaPropertyType({excludes:[1,2,B]});
+            let criteria= new PropertyCriteria({excludes:[1,2,A]});
+            let criteria2= new PropertyCriteria({excludes:[1,2,B]});
 
             assert.throws(
                 function(){
@@ -622,8 +605,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         }
         {
             class A{}
-            let criteria= new CriteriaPropertyType({excludes:[1,2,A]});
-            let criteria2= new CriteriaPropertyType({excludes:[1,2]});
+            let criteria= new PropertyCriteria({excludes:[1,2,A]});
+            let criteria2= new PropertyCriteria({excludes:[1,2]});
 
             assert.throws(
                 function(){
@@ -637,8 +620,8 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
         }
         {
             class A{}
-            let criteria= new CriteriaPropertyType({excludes:[1,2,A]});
-            let criteria2= new CriteriaPropertyType({excludes:[1,2,A,3]});
+            let criteria= new PropertyCriteria({excludes:[1,2,A]});
+            let criteria2= new PropertyCriteria({excludes:[1,2,A,3]});
 
             assert.throws(
                 function(){
@@ -654,7 +637,7 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     // compare
     {
         {
-            let criteria2=new CriteriaPropertyType({
+            let criteria2=new PropertyCriteria({
                 types:[A,'number',null,undefined],
                 includes:[null,10,undefined,A],
                 excludes:[B,10]
@@ -669,42 +652,42 @@ QUnit.test('test methods CriteriaPropertyType',function(assert){
     //formatStrictSyntaxToObject
     
     {
-        let result=CriteriaPropertyType.formatStrictSyntaxToObject({});
+        let result=PropertyCriteria.formatStrictSyntaxToObject({});
         let tpl={types:['mixed'],includes:[],excludes:[]};
         assert.propEqual(result,Object.assign({},tpl),'formatStrictSyntaxToObject 1');
 
-        result=CriteriaPropertyType.formatStrictSyntaxToObject({types:['mixed','string']});
+        result=PropertyCriteria.formatStrictSyntaxToObject({types:['mixed','string']});
         assert.propEqual(result,Object.assign({},tpl,{types:['mixed']}),'formatStrictSyntaxToObject 2');
         
-        result=CriteriaPropertyType.formatStrictSyntaxToObject({types:'string',includes:'1',excludes:'1'});
+        result=PropertyCriteria.formatStrictSyntaxToObject({types:'string',includes:'1',excludes:'1'});
         assert.propEqual(result,Object.assign({},tpl,{types:['string'],includes:['1'],excludes:['1']}),'formatStrictSyntaxToObject 3');
     }
 /*    // formatExtendedSyntaxToObject
     {
-        let result=CriteriaPropertyType.formatToObject('string|number');
+        let result=PropertyCriteria.formatToObject('string|number');
         let tpl={types:['mixed'],includes:[],excludes:[],options:{entryPoints:['not defined']}};
         assert.propEqual(result,Object.assign({},tpl,{types:['string','number']}),'formatExtendedSyntaxToObject 1');
 
-        result=CriteriaPropertyType.formatToObject(['string','number']);
+        result=PropertyCriteria.formatToObject(['string','number']);
         assert.propEqual(result,Object.assign({},tpl,{types:['string','number']}),'formatExtendedSyntaxToObject 2');
         
-        result=CriteriaPropertyType.formatToObject({types:['string','number']});
+        result=PropertyCriteria.formatToObject({types:['string','number']});
         assert.propEqual(result,Object.assign({},tpl,{types:['string','number']}),'formatExtendedSyntaxToObject 3');
 
-        result=CriteriaPropertyType.formatToObject({types:[]});
+        result=PropertyCriteria.formatToObject({types:[]});
         assert.propEqual(result,Object.assign({},tpl,{types:['mixed']}),'formatExtendedSyntaxToObject 4');
         
-        result=CriteriaPropertyType.formatToObject({types:'string|number|mixed'});
+        result=PropertyCriteria.formatToObject({types:'string|number|mixed'});
         assert.propEqual(result,Object.assign({},tpl,{types:['mixed']}),'formatExtendedSyntaxToObject 5');
         
         class A{};
-        result=CriteriaPropertyType.formatToObject(A);
+        result=PropertyCriteria.formatToObject(A);
         assert.propEqual(result,Object.assign({},tpl,{types:[A]}),'formatExtendedSyntaxToObject 6');
 
-        result=CriteriaPropertyType.formatToObject({types:A,includes:1,excludes:1});
+        result=PropertyCriteria.formatToObject({types:A,includes:1,excludes:1});
         assert.propEqual(result,Object.assign({},tpl,{types:[A],includes:[1],excludes:[1]}),'formatExtendedSyntaxToObject 7');
 
-        result=CriteriaPropertyType.formatToObject(()=>{});
+        result=PropertyCriteria.formatToObject(()=>{});
         assert.propEqual(result,Object.assign({},tpl,{types:[]}),'formatExtendedSyntaxToObject 8');
         
         

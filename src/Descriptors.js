@@ -2,15 +2,13 @@
  * @module @alexeyp0708/interface-manager
  */
 
-import {interfaceData, InterfaceData} from "./export.js";
+import { interfaceData, InterfaceData } from './export.js'
 
 /**
- * Class of static methods that works with object and function(class) descriptors 
+ * Class of static methods that works with object and function(class) descriptors
  */
-export class Descriptors{
-
-
-    /**
+export class Descriptors {
+  /**
      * Generates object descriptors.
      * @param {object|class} object
      * @returns {{writable:boolean,enumerable:boolean,configurable:boolean,value:*,get:function,set:function,constructor:function}} Descriptor format
@@ -28,33 +26,33 @@ export class Descriptors{
      * }
      * ```
      */
-    static get(object) {
-        let descriptors = Object.getOwnPropertyDescriptors(object);
-        if (typeof object === 'function') {
-            delete descriptors.length;
-            delete descriptors.name;
-            delete descriptors.prototype;
-            delete descriptors.isInterface;
-            delete descriptors[interfaceData];
-        } else {
-            if (descriptors.hasOwnProperty('constructor')) {
-                delete descriptors.constructor;
-            }
-        }
-
-        if (typeof object === 'function') {
-            for (let prop in descriptors) {
-                descriptors[prop].constructor = object;
-            }
-        } else {
-            for (let prop in descriptors) {
-                descriptors[prop].constructor = object.constructor;
-            }
-        }
-        return descriptors;
+  static get (object) {
+    const descriptors = Object.getOwnPropertyDescriptors(object)
+    if (typeof object === 'function') {
+      delete descriptors.length
+      delete descriptors.name
+      delete descriptors.prototype
+      delete descriptors.isInterface
+      delete descriptors[interfaceData]
+    } else {
+      if (descriptors.hasOwnProperty('constructor')) {
+        delete descriptors.constructor
+      }
     }
 
-    /**
+    if (typeof object === 'function') {
+      for (const prop in descriptors) {
+        descriptors[prop].constructor = object
+      }
+    } else {
+      for (const prop in descriptors) {
+        descriptors[prop].constructor = object.constructor
+      }
+    }
+    return descriptors
+  }
+
+  /**
      * Returns descriptors based on prototypes.
      * Prototypes descriptors are added to the current descriptor.
      *
@@ -75,26 +73,24 @@ export class Descriptors{
      * }
      * ```
      */
-    static getAll(object) {
-        let descriptors = {};
-        let proto = object;
-        let end_points = InterfaceData.getAllEndPoints(proto);
-        while (
-                !(typeof proto==='function'&& end_points.includes(proto)) &&
+  static getAll (object) {
+    const descriptors = {}
+    let proto = object
+    const end_points = InterfaceData.getAllEndPoints(proto)
+    while (
+      !(typeof proto === 'function' && end_points.includes(proto)) &&
                 !(proto.hasOwnProperty('constructor') && end_points.includes(proto.constructor))
-            ) 
-        {
-
-            let proto_descriptors = this.get(proto);
-            for (let pd in proto_descriptors) {
-                if (!(pd in descriptors)) {
-                    descriptors[pd] = proto_descriptors[pd];
-                }
-            }
-            proto = Object.getPrototypeOf(proto);
-            end_points.splice(end_points.length, 0, ...InterfaceData.getEndPoints(proto));
-        } 
-        return descriptors;
+    ) {
+      const proto_descriptors = this.get(proto)
+      for (const pd in proto_descriptors) {
+        if (!(pd in descriptors)) {
+          descriptors[pd] = proto_descriptors[pd]
+        }
+      }
+      proto = Object.getPrototypeOf(proto)
+      end_points.splice(end_points.length, 0, ...InterfaceData.getEndPoints(proto))
     }
+    return descriptors
+  }
 }
-InterfaceData.addGlobalEndPoints(Descriptors);
+InterfaceData.addGlobalEndPoints(Descriptors)
