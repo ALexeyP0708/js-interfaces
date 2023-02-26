@@ -26,7 +26,7 @@ InterfaceError.types('consoleGroup','{$type}:{$message}')
 InterfaceError.types('consoleMessage', '{$message}')
 
 /** Template for errors when no error is defined */
-InterfaceError.types('default','{$type}: {$entryPoints} - {$message}{$errors}\n------\nStack\n------\n{$stack}')
+InterfaceError.types('default','{$type}: {$entryPoints} - {$message}{$errors}')
 
 /**
  * @var  BadCriteria
@@ -70,7 +70,7 @@ InterfaceError.types('BadType_Duplicate', '{$type}: {$entryPoints} - duplicate t
 /**
  * @var InitIncludes
  * An error is thrown in the following cases:
- *  - when forming an interface member,  if the passed "includes" values ​​for the criteria are not correct.
+ *  - when forming an interface member,  if the passed "includes" values for the criteria are not correct.
  *
  *  Groups errors of all invalid "includes" values.
  *

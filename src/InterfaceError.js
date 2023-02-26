@@ -18,28 +18,28 @@ export class InterfaceError extends Error {
   
   #cacheMessage
   
-  #constructorArgs
+  //#constructorArgs
   static #console=console;
   
-  constructor(...args) {
-    super(...args);
-    this.#constructorArgs=args;
-    this.#message=this.message;
+  constructor(message,fileName,lineNumber) {
+    super();
+    //this.#constructorArgs=args;
+    this.#message=message;
     this.#stack=this.stack;
     Object.defineProperties(this,{
-      /*message:{
+      message:{
         get:()=>{
-          return this.getMessage(this.getType()??'default',false,true)
+          return this.getMessage(this.getType(),true,true)
         }
       },
       stack:{
         get:()=>{
-          return this.getStack()
+          return this.message+'\n'+this.getStack()
         },
         set:(v)=>{
           this.setStack(v)
         }
-      }*/
+      }
     })
   }
   
@@ -58,7 +58,7 @@ export class InterfaceError extends Error {
    * @returns {string}
    */
   getType(){
-    return this.#type??'default'
+    return this.#type
   }
 
   /**
@@ -181,16 +181,26 @@ export class InterfaceError extends Error {
    * @returns {string|undefined|boolean} 
    */
   static types(type,message){
-    if(message===undefined){
-      return this.#types[type] 
+    switch (message){
+      case undefined:
+        switch (this.#types[type]){
+          case undefined:
+            type='default'
+          default:
+            if(this.#types[type]===undefined) throw new Error('Missing "default" type message template')
+            return this.#types[type]
+            break
+        }
+        break
+      case null:
+        return delete this.#types[type];
+        break;
+      default:
+        if(typeof message !== 'string'){
+          throw Error('Argument message must be string type.');
+        }
+        this.#types[type]=message
     }
-    if(message === null){
-      return delete this.#types[type];
-    }
-    if(typeof message !== 'string'){
-      throw Error('Argument message must be string type.');
-    }
-    this.#types[type]=message
   }
 
   /**
@@ -203,9 +213,7 @@ export class InterfaceError extends Error {
    */
   static getMessage(type,vars={},deep=false,checkCache=true){
     vars=Object.assign({},vars)
-    if (!InterfaceError.types(type)) {
-      type = 'default'
-    }
+
     let tpl = InterfaceError.types(type);
     const pattern_vars = Object.keys(vars).join('|')
     vars.entryPoints=vars.entryPoints??'';
@@ -227,7 +235,7 @@ export class InterfaceError extends Error {
       // let pattern =new RegExp('\\${('+pattern_vars+')}','ig');
       const pattern = new RegExp('{\\$([\\w]+)}', 'ig')
       return tpl.replace(pattern, (match, p1) => {
-        if (p1 in vars) {
+        if (p1 in vars && vars[p1]!==undefined) {
           return vars[p1]
         }
         return '' //`{$${p1}}`

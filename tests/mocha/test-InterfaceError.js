@@ -1,7 +1,6 @@
 import {assert,expect,isNode} from './export.js'
-import {InterfaceError} from '../../src/InterfaceError.js';
-import '../../src/config/errors.js';
-
+import {InterfaceError} from '../../src/export.js';
+//import '../../src/config/errors.js';
 describe('Class InterfaceError', () => {
   const bufDefaultTpl=InterfaceError.types('default')
   InterfaceError.types('default','{$type}: {$entryPoints} - {$message}{$errors}')
@@ -11,7 +10,7 @@ describe('Class InterfaceError', () => {
     assert.ok(InterfaceError.types('test_message')===msg)
     // unset
     InterfaceError.types('test_message',null)
-    assert.ok(InterfaceError.types('test_message')===undefined)
+    assert.ok(InterfaceError.types('test_message')===InterfaceError.types('default'))
   })
   it('InterfaceError.setType and getType',()=>{
     assert.ok(new InterfaceError().setType('test').getType() ==='test','test setType and getType')
@@ -182,8 +181,8 @@ describe('Class InterfaceError', () => {
      expect(result,'generate again message (disabled cache )').to.equal(msg)
     done()
   })
- /* it('react InterfaceError.message',()=>{
-    /!* see InterfaceError.getMessage test *!/
+  it('react InterfaceError.message',()=>{
+    /* see InterfaceError.getMessage test */
     let message='test message';
     InterfaceError.types('test_message','Error message: {$message}')
     let ie=new InterfaceError(message).setType('test_message')
@@ -191,12 +190,12 @@ describe('Class InterfaceError', () => {
     InterfaceError.types('test_message',null)
   })
   it('react InterfaceError.stack',()=>{
-    /!* see InterfaceError.getMessage test *!/
-    let message='test message';
+    /* see InterfaceError.getMessage test */
+/*    let message='test message';
     InterfaceError.types('test_message','Error message: {$message}')
     let ie=new InterfaceError(message).setType('test_message')
-    expect(ie.message).to.equal('Error message: test message')
-  })*/
+    expect(ie.message).to.equal('Error message: test message')*/
+  })
 
 
   // server tests

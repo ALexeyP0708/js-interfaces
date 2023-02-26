@@ -49,7 +49,15 @@ To visually display errors in console, install an error handler.
 import {InterfaceError} from './node_modules/alexeyp0708/classes-interfaces/export.js'
 InterfaceError.setHandlerHook()
 ```
+To get an error message template or set a new template
+```js
+InterfaceError.types('default')// get template
+InterfaceError.types('default','new template {$var}')// set template
+InterfaceError.types('default',null)// unset template
 
+//If there is no template for the type, it will return the default template (type "default").
+InterfaceError.types('NO_TPL_TYPE')===InterfaceError.types('default')
+```
 ##Types
 Type Options  
 
@@ -88,12 +96,6 @@ const types=[
 ```
 
 
-To get an error message template or set a new template
-```js
-InterfaceError.types('default')// get template
-InterfaceError.types('default','new template {$var}')// set template
-InterfaceError.types('default',null)// unset template
-```
 
 ## Getting started
 

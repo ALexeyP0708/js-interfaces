@@ -66,7 +66,8 @@ export class CTypes{
       buf.push(types[k])
     }
     if (errors.length > 0) {
-      throw new InterfaceError().setType('BadTypes').setErrors(errors)
+      let error=new InterfaceError().setType('BadTypes').setErrors(errors)
+      throw error
     }
   }
 }
