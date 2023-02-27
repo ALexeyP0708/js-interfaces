@@ -24,6 +24,9 @@ describe('Class InterfaceError', () => {
     res=ie.getEntryPoints();
     expect(res).to.not.eql(entryPoints)
   })
+  it('InterfaceError.addEntryPoint')
+  it('InterfaceError.addBeforeEntryPoint')
+  
   it('InterfaceError.setVars and getVars',()=>{
     let vars={var1:'var1',var2:'var2'}
     let ie=new InterfaceError()

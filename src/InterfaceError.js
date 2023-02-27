@@ -83,6 +83,16 @@ export class InterfaceError extends Error {
     this.#entryPoints.push(point);
     return this
   }
+
+  /**
+   * @param {string} point
+   * @returns {InterfaceError}
+   */
+  addBeforeEntryPoint(point){
+    this.#entryPoints.splice(0,0,point)
+    return this
+  }
+
   /**
    * 
    * @param {object} vars

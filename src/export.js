@@ -1,7 +1,12 @@
-import {InterfaceError} from './InterfaceError.js'
+export {InterfaceError} from './InterfaceError.js'
 import './config/errors.js'
-export {InterfaceError}
+
 export * from './CTypes.js'
+
+export * from './COptions.js'
+
+export * from './Criteria.js'
+
 
 //export * as buffer from './buffer.js'
 

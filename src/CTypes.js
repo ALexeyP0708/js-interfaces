@@ -13,7 +13,11 @@ export class CTypes{
   ]
   
   #types
-  
+
+  /**
+   * 
+   * @param {Array.<Function|object|string|null|undefined>} types
+   */
   constructor(types){
     if (!Array.isArray(types)) {
       throw new Error('"types" argument  must be an array')
@@ -29,9 +33,6 @@ export class CTypes{
     types=Object.assign([],types)
     this.#validate(types)
     this.#types=types;
-  }
-  getTypes(){
-    return this.#types
   }
   #validate (types) {
     const errors = []
@@ -70,4 +71,9 @@ export class CTypes{
       throw error
     }
   }
+  
+  export(){
+    return Object.assign([],this.#types)
+  }
+
 }

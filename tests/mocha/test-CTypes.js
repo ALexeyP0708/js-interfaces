@@ -16,11 +16,11 @@ describe('Class CTypes', () => {
     expect(()=>{new CTypes(['string','string'])},'Check duplicate').to.throw(InterfaceError)
     
   })
-  it('CTypes getTypes',()=>{
+  it('CTypes.export',()=>{
     class FuncType {}
     let objType={}
     let cTypes=new CTypes([null,undefined,'object', 'boolean', 'number', 'string', 'symbol', 'function', 'mixed',FuncType,objType])
     let actual=['null','undefined','object', 'boolean', 'number', 'string', 'symbol', 'function', 'mixed',FuncType,objType]
-    expect(cTypes.getTypes()).to.eql(actual).which.not.equal(actual)
+    expect(cTypes.export()).to.eql(actual).which.not.equal(actual)
   })
 })

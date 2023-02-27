@@ -4,10 +4,13 @@ export class COptions {
 
   /**
      *
-     * @param options
+     * @param {[owner]:Function} options
      * @param {Function} options.owner
      */
   constructor (options) {
+    if (typeof options !=='object') {
+      throw new Error('"options" argument  must be an object')
+    }
     if (options.owner !== undefined) {
       this.setOwner(options.owner)
     }
@@ -27,7 +30,7 @@ export class COptions {
      */
   setOwner (owner) {
     if (typeof owner !== 'function') {
-      throw new TypeError('Argument owner must be Function type.')
+      throw new Error('Argument "owner" must be function type.')
     }
     this.#owner = owner
   }
