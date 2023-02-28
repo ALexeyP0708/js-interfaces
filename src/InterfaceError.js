@@ -1,9 +1,8 @@
 /**
  *
  */
-export let count =0
 export class InterfaceError extends Error {
-  static #types={}
+  static #templates={}
   #type='default'
   
   #errors=[]
@@ -17,13 +16,17 @@ export class InterfaceError extends Error {
   #message
   
   #cacheMessage
-  
   //#constructorArgs
   static #console=console;
-  
+
+  static #handlerHook
   constructor(message,fileName,lineNumber) {
     super();
     //this.#constructorArgs=args;
+    let SelfClass=Object.getPrototypeOf(this).constructor
+    if(SelfClass.isTemplate(message)){
+      this.setType(message)
+    }
     this.#message=message;
     this.#stack=this.stack;
     Object.defineProperties(this,{
@@ -186,33 +189,36 @@ export class InterfaceError extends Error {
    * Reads or writes the error type
    * If you pass the message parameter, it will create an error type with the given message.
    * If the message is of type undefined or not passed, then return messages of type error (return result)
-   * @param {string} type  Error type
+   * @param {string} name  Error name
    * @param {undefined|null|string} [message] Error Message Template  undefined type - get message, string type - set message, null type - unset message  
    * @returns {string|undefined|boolean} 
    */
-  static types(type,message){
+  static template(name,message){
     switch (message){
       case undefined:
-        switch (this.#types[type]){
+        switch (this.#templates[name]){
           case undefined:
-            type='default'
+            name='default'
           default:
-            if(this.#types[type]===undefined) throw new Error('Missing "default" type message template')
-            return this.#types[type]
+            if(this.#templates[name]===undefined) throw new Error('Missing "default" type message template')
+            return this.#templates[name]
             break
         }
         break
       case null:
-        return delete this.#types[type];
+        return delete this.#templates[name];
         break;
       default:
         if(typeof message !== 'string'){
           throw Error('Argument message must be string type.');
         }
-        this.#types[type]=message
+        this.#templates[name]=message
     }
   }
 
+  static isTemplate(type){
+    return  Object.prototype.hasOwnProperty.call(this.#templates,type)
+  }
   /**
    *
    * @param {string} type Message type
@@ -221,10 +227,11 @@ export class InterfaceError extends Error {
    * @param {boolean} [checkCache=true]  - determines whether to query child error messages from the cache or generate messages again
    * @returns {string} return Error message
    */
+
   static getMessage(type,vars={},deep=false,checkCache=true){
     vars=Object.assign({},vars)
 
-    let tpl = InterfaceError.types(type);
+    let tpl = InterfaceError.template(type);
     const pattern_vars = Object.keys(vars).join('|')
     vars.entryPoints=vars.entryPoints??'';
     if (vars.entryPoints instanceof Array) {
@@ -354,7 +361,6 @@ export class InterfaceError extends Error {
     // close core groups
     cnsl.groupEnd()
   }
-  static #handlerHook
   /**
    * Sets a hook to run an error handler for uncaught errors
    * sets an error handler globally
@@ -408,7 +414,7 @@ export class InterfaceError extends Error {
   static isServer () {
     return  Boolean(globalThis.process?.versions?.node)
   }
-
+  
   static _t_member(member_name, ...args) {
     let member=eval(`this.${member_name}`)
     if(typeof member === 'function'){
@@ -431,6 +437,33 @@ export class InterfaceError extends Error {
       return member;
     }
   }
+
+  /**
+   * 
+   * @param {InterfaceError|string} container
+   * @param {Array.<InterfaceError,Error,string>} errors
+   * @returns {InterfaceError}
+   */
+  static combineErrors (container,errors){
+    if(typeof container === 'string'){
+      container=new InterfaceError().setType(container)
+    }
+    let container_errors=container.getErrors()
+    for(const error of errors){
+      if(error instanceof InterfaceError){
+        let child_errors=error.getErrors()
+        if(child_errors.length>0){
+          container_errors.splice(-1,0,...child_errors)
+        } else {
+          container_errors.push(error)
+        }
+      } else {
+        container_errors.push(error)
+      }
+    }
+    container.setErrors(container_errors)
+    return container
+  } 
 }
 
 Object.defineProperty(InterfaceError.prototype, 'name', {

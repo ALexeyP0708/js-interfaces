@@ -20,35 +20,45 @@ import {
 export class InterfaceRules {
   static generateForDescriptors (descriptors, isStatic = false) {
     const rules = {}
-    const prefix = isStatic ? '.' : '#'
+    const prefix = isStatic ? '.' : '#'// Disposition: change notation
     for (const prop of Object.getOwnPropertyNames(descriptors)) {
       const desc = descriptors[prop]
       const entryPoints = [`~${descriptors[prop].constructor.name}~`, `${prefix}${prop}`]
-      if ('get' in desc || 'set' in desc) {
-        let getCriteria
-        if (desc.get !== undefined) {
-          getCriteria = desc.get()
+      try {
+        if ('get' in desc || 'set' in desc) {
+          let getCriteria
+          if (desc.get !== undefined) {
+            getCriteria = desc.get()
+          }
+          let setCriteria
+          if (desc.set !== undefined) {
+            const rtrn = {}
+            setCriteria = desc.set(rtrn)
+            setCriteria = setCriteria ?? rtrn
+          }
+          let criteria = {
+            get: getCriteria,
+            set: setCriteria
+          }
+          criteria = CriteriaReactType.generateObject(criteria)
+          rules[prop] = [{ criteria }]
+        } else if (typeof desc.value === 'function' && desc.value.prototype === undefined) {
+          let criteria = desc.value()
+          criteria = CriteriaMethodType.generateObject(criteria)
+          rules[prop] = [{ criteria }]
+        } else {
+          let criteria = desc.value
+          criteria = PropertyCriteria.generateObject(criteria)
+          rules[prop] = [{ criteria }]
         }
-        let setCriteria
-        if (desc.set !== undefined) {
-          const rtrn = {}
-          setCriteria = desc.set(rtrn)
-          setCriteria = setCriteria ?? rtrn
+        criteria.setOwner(descriptors[prop].constructor)
+      } catch (e){
+        // Disposition: collect all errors in one stack and generate into a new error
+        if(e instanceof InterfaceError){
+          e.addBeforeEntryPoint(`${prefix}${prop}`)
+          e.addBeforeEntryPoint(`~${descriptors[prop].constructor.name}~`)
         }
-        let criteria = {
-          get: getCriteria,
-          set: setCriteria
-        }
-        criteria = CriteriaReactType.generateObject(criteria, descriptors[prop].constructor, entryPoints)
-        rules[prop] = [{ criteria }]
-      } else if (typeof desc.value === 'function' && desc.value.prototype === undefined) {
-        let criteria = desc.value()
-        criteria = CriteriaMethodType.generateObject(criteria, descriptors[prop].constructor, entryPoints)
-        rules[prop] = [{ criteria }]
-      } else {
-        let criteria = desc.value
-        criteria = PropertyCriteria.generateObject(criteria, descriptors[prop].constructor, entryPoints)
-        rules[prop] = [{ criteria }]
+        throw e
       }
     }
     return rules

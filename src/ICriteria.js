@@ -19,15 +19,25 @@ export class ICriteria {
   }
 
   /**
-   * Validation of incoming parameters according to the established current criteria (object)
-   *
    * @abstract
-   * @param value
-   * @param {string[]} [entryPoints] Indicate where the method call came from
-   * @returns {object} If there are no exceptions must return the result of matches
-   * @throws {InterfaceError}
+   * The method should throw an exception InterfaceError if the validation fails.
+   *  Validation of incoming parameters according to the established current criteria (object)
+   * @param {*} value
+   * @param {boolean} [isThrow=true] disables throwing an exception
+   * @returns {*|false} If not false, then return the type to which the validation matches
    */
-  validate (value, entryPoints = []) {
+  validate (value, isThrow=true) {
+    throw new Error(`${Object.getPrototypeOf(this).constructor.name}.validate method not implemented.`)
+  }
+
+  /**
+   * @abstract
+   * The method should throw an exception InterfaceError if the validation fails.
+   * @param value
+   * @param {boolean} [isThrow=true] disables throwing an exception
+   * @returns {*|false} If not false, then return the type to which the validation matches
+   */
+  validateByType (value, isThrow=true) {
     throw new Error(`${Object.getPrototypeOf(this).constructor.name}.validate method not implemented.`)
   }
 
@@ -43,5 +53,13 @@ export class ICriteria {
    */
   getOwner(){
     throw new Error(`${Object.getPrototypeOf(this).constructor.name}.getOwner method not implemented.`)
+  }
+
+
+  /**
+   * @abstract
+   */
+  toString(){
+    throw new Error(`${Object.getPrototypeOf(this).constructor.name}.toString method not implemented.`)
   }
 }

@@ -62,13 +62,12 @@ import {
  *  @inheritDoc
  */
 export class PropertyCriteria extends Criteria {
-  #types = ['mixed']
-  includes = []
-  excludes = []
+  //#types = ['mixed']
+  #includes = []
+  #excludes = []
   /**
      *
      * @param {object} criteria  Object with criteria. In this parameters is passed the criteria for the property/argument/return function.
-     * @param {string[]} [entryPoints] Indicate where the method call came from
      * Example:
      *  ```js
      *  {
@@ -85,74 +84,56 @@ export class PropertyCriteria extends Criteria {
      * @throws {InterfaceError}
      */
 
-  init (criteria, entryPoints) {
-    this.#initTypes(criteria.types, entryPoints)
+  init (criteria) {
     const errors = []
     try {
-      this.initIncludes(criteria.includes, [])
+      this.#initIncludes(criteria.includes)
     } catch (e) {
       if (e instanceof InterfaceError) {
         errors.push(e)
       } else {
         throw e
       }
-    };
-    try {
-      this.initExcludes(criteria.excludes, [])
-    } catch (e) {
-      if (e instanceof InterfaceError) {
-        errors.push(e)
-      } else {
-        throw e
-      }
-    };
-    if (errors.length > 0) {
-      new InterfaceError('Init_BadIncludesOrExcludes', { entryPoints, errors }).throw(true)
     }
-    // this.freeze();
+    try {
+      this.#initExcludes(criteria.excludes)
+    } catch (e) {
+      if (e instanceof InterfaceError) {
+        errors.push(e)
+      } else {
+        throw e
+      }
+    }
+    if (errors.length > 0) {
+      throw  InterfaceError.combineErrors('Init_BadIncludesOrExcludes',errors)
+    }
   }
-
-  /**
-     * Define the data type of the property.
-     * @param {Array} types
-     * if string, then null|undefined|object|boolean|number|string|symbol|function|mixed
-     * If a function is written in the shorthand type `() => {}`, it is considered the interface of the function and will call it.
-     * @param {string[]} [entryPoints] Indicate where the method call came from
-
-     */
-  #initTypes (types = ['mixed'], entryPoints = []) {
-    entryPoints = Object.assign([], entryPoints)
-    types=new CTypes(types);
-    this.types = types
-  }
-
+  
   /**
      * Define what values the property should include.
      * Rules:
      * -Must match the of current criteria types
      * @param {Array} values
-     * @param {string[]} [entryPoints] Indicate where the method call came from
      */
-  initIncludes (values = [], entryPoints = []) {
-    entryPoints = Object.assign([], entryPoints)
+  #initIncludes (values = []) {
     values = Object.assign([], values)
     const errors = []
     for (const k in values) {
       const value = values[k]
       try {
-        this.validateType(value, [`includes[${k}]`])
+        this.validateType(value)
       } catch (e) {
-        if (e instanceof InterfaceError) {
-          errors.push(e)
-        } else {
+        if (!(e instanceof InterfaceError)) {
           throw e
         }
+        e.addBeforeEntryPoint(`includes[${k}]`)
+        errors.push(e)
       }
     }
     if (errors.length > 0) {
-      new InterfaceError('InitIncludes', { entryPoints, errors }).throw(true)
+      new InterfaceError().setType('InitIncludes').setErrors(errors)
     }
-    this.includes = values
+    this.#includes = values
   }
 
   /**
@@ -162,7 +143,7 @@ export class PropertyCriteria extends Criteria {
      * @param {Array} values
      * @param {string[]} [entryPoints]  Indicate where the method call came from
      */
-  initExcludes (values = [], entryPoints = []) {
+  #initExcludes (values = [], entryPoints = []) {
     entryPoints = Object.assign([], entryPoints)
     values = Object.assign([], values)
     const errors = []
@@ -189,142 +170,56 @@ export class PropertyCriteria extends Criteria {
   }
 
   /**
-     * Validation of incoming parameters according to the established current criteria (object)
-     * @param value
-     * @param {string[]} [entryPoints] Indicate where the method call came from
-     * @returns {{types:(boolean|*),includes:(boolean|*),excludes:(boolean|*)}}
-     * If there are no exceptions will return the result of matches
-     * @throws {InterfaceError}
-     */
-  validate (value, entryPoints = []) {
-    entryPoints = Object.assign([], entryPoints)
-    const result = {
-      types: undefined,
-      includes: undefined,
-      excludes: undefined
+   * Validation of incoming parameters according to the established current criteria (object)
+   * @param value
+   * @param {boolean} [isThrow=true]
+   * @return {boolean} 
+   * @throws {InterfaceError}
+   */
+  validate (value, isThrow=true) {
+    let result=false
+    result=this.#validateByType(value,isThrow)
+    if(!result){
+      return false
     }
-    result.types = this.validateType(value, entryPoints)
     const errors = []
     try {
-      result.includes = this.validateInIncludes(value, [])
+      result=this.#validateByIncludes(value,isThrow)
+      if(!result){
+        return false
+      }
     } catch (e) {
-      if (e instanceof InterfaceError) {
-        errors.push(e)
-      } else {
-        // sc.allowToSpeak();
+      if (!(e instanceof InterfaceError)) {
         throw e
       }
+      errors.push(e)
     }
     try {
-      result.excludes = this.validateInExcludes(value, [])
+      result=this.#validateByExcludes(value,isThrow)
+      if(!result){
+        return false
+      }
     } catch (e) {
-      if (e instanceof InterfaceError) {
-        errors.push(e)
-      } else {
-        // sc.allowToSpeak();
+      if (!(e instanceof InterfaceError)) {
         throw e
       }
+      errors.push(e)
     }
-    // sc.allowToSpeak();
-    if (errors.length > 0) {
-      new InterfaceError('Validate', { entryPoints, errors }).throw(true)
+    if (isThrow && errors.length > 0) {
+      new InterfaceError().setType('Validate').setErrors(errors)
     }
     return result
   }
-
+  
   /**
-     * Validation of incoming parameters by data type according to current the criteria (object)
-     * Rules:
-     * - The type of the passed value must match the criteria of the current object.
-     * - If a class or object is passed, then they must inherit Class or Interface or object  specified
-     * in the types of the current criteria
-     * - If the criteria set an interface inheriting the MirrorInterface interface,
-     * then any object or class passed must meet the criteria set by this interface
-     * @param value
-     * @param {string[]} [entryPoints] Indicate where the method call came from
-     * @returns {boolean|*} Returns a match or false. If there are no exceptions and false, then the set is empty.
+     * data type validation
+     * @param {*} value
+     * @param {boolean} [isThrow=true]  
+     * @returns {false|*} value
      * @throws {InterfaceError}
      */
-  validateType (value, entryPoints = []) {
-    entryPoints = Object.assign([], entryPoints)
-    if (this.types.includes('mixed')) {
-      return 'mixed'
-    }
-    let tv = typeof value
-    const types_string = []
-    if (value === null) {
-      tv = 'null'
-    }
-    const errors = []
-    let check = false
-    let result = false
-    for (const type of this.types) {
-      let tt = typeof type
-      if (type === null) { tt = 'null' }
-      if (tt === 'string') {
-        types_string.push(type)
-      } else if (tt === 'object') {
-        if (type instanceof CriteriaMethodType) {
-          types_string.push('function')
-        } else if (type instanceof PropertyCriteria) {
-          types_string.push(`[${type.types.toString()}]`)
-        } else {
-          types_string.push(`[object ${Object.getPrototypeOf(type).constructor.name}]`)
-        }
-      } else {
-        types_string.push(`[function ${type.name}]`)
-      }
-      if (['object', 'function'].includes(tt) && ['object', 'function'].includes(tv)) {
-        if (tt === 'object' && type instanceof CriteriaType) {
-          try {
-            result = type.validate(value, entryPoints)
-            result = result.types
-            check = true
-            break
-          } catch (e) {
-            if (!(e instanceof InterfaceError)) {
-              throw e
-            }
-            errors.push(e)
-          }
-        } /* else// refactoring -there is already a check for the CriteriaType
-                if(tv==='function' && tt==='object' && this.instanceOf(type, MirrorInterface)){
-                    try {
-                        result=type.validate(value,entryPoints);
-                        check=true;
-                        break;
-                    } catch (e) {
-                        if(! (e instanceof InterfaceError) || e.type!=='Validate_BadMirrorProperties'){
-                            //sc.allowToSpeak();
-                            throw e;
-                        }
-                        errors.push(e);
-                    }
-                }  */
-        else if (value === type || this.instanceOf(value, type)) {
-          result = type
-          check = true
-          break
-        }
-      } else
-      if (
-        tt === 'string' && (type === 'mixed' || tv === type)
-      ) {
-        result = type
-        check = true
-        break
-      }
-    }
-    // sc.allowToSpeak();
-    if (!check) {
-      if (tv === 'object') {
-        tv = `[object ${Object.getPrototypeOf(value).constructor.name}]`
-      } else if (tv === 'function') {
-        tv = `[function ${value.name}]`
-      }
-      new InterfaceError('ValidateType', { entryPoints, expectedTypes: `[${types_string.join(',')}]`, definedType: tv, errors }).throw(true)
-    }
-    return result
+  #validateByType (value,isThrow=true) {
+    return this.getTypes().validateData(value,isThrow)
   }
 
   /**
@@ -333,7 +228,7 @@ export class PropertyCriteria extends Criteria {
      * @param {Array} equalValues
      * @returns {boolean|*} Returns a match or false.
      */
-  isIncludeInValues (value, equalValues = []) {
+  #isIncludeInValues (value, equalValues = []) {
     let check = false
     let result = false
     for (const equal of equalValues) {
@@ -354,17 +249,17 @@ export class PropertyCriteria extends Criteria {
   }
 
   /**
-     * Validation incoming parameters for compliance with the values ​​set in the "includes" criteria
+     * Validation incoming parameters for compliance with the values set in the "includes" criteria
      * @param value
-     * @param {string[]} [entryPoints] Indicate where the method call came from
-     * @returns {boolean|*} Returns a match or false. If there are no exceptions and false, then the set is empty.
+     * @param {boolean} [isThrow=true]
+     * @returns {boolean} 
      * @throws {InterfaceError}
      */
-  validateInIncludes (value, entryPoints = []) {
-    const equalValues = this.includes
+  #validateByIncludes (value, isThrow=true) {
+    const equalValues = this.#includes
     let result = false
     if (equalValues.length > 0) {
-      result = this.isIncludeInValues(value, equalValues)
+      result = this.#isIncludeInValues(value, equalValues)
       if (result === false) {
         // Does not match the values [${values}].
         switch (typeof value) {
@@ -386,13 +281,13 @@ export class PropertyCriteria extends Criteria {
   }
 
   /**
-     * Validation incoming parameters for compliance with the values ​​set in the "excludes" criteria
-     * @param value
-     * @param {string[]} [entryPoints] Indicate where the method call came from
-     * @returns {boolean|*} Returns a match or false. If there are no exceptions and false, then the set is empty.
-     * @throws {InterfaceError}
-     */
-  validateInExcludes (value, entryPoints = []) {
+   * Validation incoming parameters for compliance with the values set in the "includes" criteria
+   * @param value
+   * @param {boolean} [isThrow=true]
+   * @returns {boolean}
+   * @throws {InterfaceError}
+   */
+  #validateByExcludes (value, isThrow=true) {
     const equalValues = this.excludes
     let result = false
     if (equalValues.length > 0) {

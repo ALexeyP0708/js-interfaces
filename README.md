@@ -51,12 +51,12 @@ InterfaceError.setHandlerHook()
 ```
 To get an error message template or set a new template
 ```js
-InterfaceError.types('default')// get template
-InterfaceError.types('default','new template {$var}')// set template
-InterfaceError.types('default',null)// unset template
+InterfaceError.template('default')// get template
+InterfaceError.template('default','new template {$var}')// set template
+InterfaceError.template('default',null)// unset template
 
 //If there is no template for the type, it will return the default template (type "default").
-InterfaceError.types('NO_TPL_TYPE')===InterfaceError.types('default')
+InterfaceError.template('NO_TPL_TYPE')===InterfaceError.template('default')
 ```
 ##Types
 Type Options  
@@ -65,7 +65,7 @@ string
 
 ```js
 const types=[
-    'null', 
+    'null',  // value===null
     'undefined', 
     'object', 
     'boolean', 
@@ -80,7 +80,6 @@ values that are converted to strings
 
 ```js
 const types=[
-  null,
   undefined
 ]
 ```
@@ -90,11 +89,22 @@ Classes (constructors) and objects
 class MyClass{}
 let obj={}
 const types=[
-  MyClass, // if a class is specified, it will check if the object or function is an instance of the class 
-  obj //Will check if the given object is the prototype of the checked object
+
+  // Object.prototype.isPrototypeOf.call(MyClass,FunctionOrObject)
+  MyClass,
+
+  // Object.prototype.isPrototypeOf.call(MyClass.prototype,FunctionOrObject)       
+  MyClass.prototype,
+
+  // Object.prototype.isPrototypeOf.call(obj,FunctionOrObject)
+  obj,
+
+  // typeof value ==='object' && (value===null || !Object.prototype.isPrototypeOf.call(Object.prototype,value))
+  null   
 ]
 ```
-
+To calculate that an object does  have a prototype of null (`Object.create(null)`), it is checked 
+by the combination `value===null || !Object.prototype.isPrototypeOf.call(Object.prototype,value)`
 
 
 ## Getting started
@@ -475,7 +485,7 @@ Using a reactive property must take a number and will return a number.
 /* 
 Using a reactive property, a callable function should be 
 "set" that takes an object as an argument  */
-	set react2(){
+	set react2(v){
 		return {
 			arguments:[{
 				arguments:[

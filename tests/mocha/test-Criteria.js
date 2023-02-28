@@ -7,11 +7,13 @@ describe('Class Criteria', () => {
     //expect(()=>{new Criteria({})}).to.throw("\"options\" argument  must be an object")
     expect(()=>{new Criteria({options:{owner:'string'}})}).to.throw('Argument "owner" must be function type.')
     expect(()=>{new Criteria({options:{}})}).to.throw('Criteria.init method not implemented.')
-    expect(()=>{Criteria.formatToObject({})}).to.throw('Criteria.formatToObject static method not implemented.')
   })
   class TestCriteria extends Criteria{
     init(criteria){
       
+    }
+    static formatToObject(data){
+      return data
     }
   }
   class Test{} 
@@ -35,6 +37,14 @@ describe('Class Criteria', () => {
     expect(criteria.setOwner(Test).getOwner()).equal(Test)
     expect(criteria.exportOptions()).eql({owner:Test})
   })
-  it('static Criteria.formatToObject')
-  it('static Criteria.generateObject')
+  it('static Criteria.formatToObject',()=>{
+    expect(()=>{Criteria.formatToObject({})}).to.throw('Criteria.formatToObject static method not implemented.')
+  })
+  it('static Criteria.generateObject',()=>{
+    expect(()=>{Criteria.generateObject({types:['string','string']})}).to.throw('Criteria.formatToObject static method not implemented.')
+    expect(()=>{TestCriteria.generateObject({types:['string','string']})})
+      .to.throw(InterfaceError,'Init:  - \n  BadType_Duplicate: [types[1]] - duplicate type [string].')
+    let criteria=new TestCriteria({})
+    expect(TestCriteria.generateObject(criteria)).to.equal(criteria)
+  })
 })

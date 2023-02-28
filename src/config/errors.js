@@ -18,15 +18,15 @@ InterfaceError.consoleNotification = true
  * @var consoleGroup
  *  Template for the header of grouped error messages
  */
-InterfaceError.types('consoleGroup','{$type}:{$message}')
+InterfaceError.template('consoleGroup','{$type}:{$message}')
 
 /**
  * @var  consoleMessage
  * Console message template */
-InterfaceError.types('consoleMessage', '{$message}')
+InterfaceError.template('consoleMessage', '{$message}')
 
 /** Template for errors when no error is defined */
-InterfaceError.types('default','{$type}: {$entryPoints} - {$message}{$errors}')
+InterfaceError.template('default','{$type}: {$entryPoints} - {$message}{$errors}')
 
 /**
  * @var  BadCriteria
@@ -35,7 +35,7 @@ InterfaceError.types('default','{$type}: {$entryPoints} - {$message}{$errors}')
  * ([template  .PropertyCriteria], [template .CriteriaMethodType], [template .CriteriaReactType])
  * - Criteria are not comparable when comparing interfaces
  */
-InterfaceError.types('BadCriteria', '{$type}: {$entryPoints} - Criteria must meet [object {$className}].')
+InterfaceError.template('BadCriteria', '{$type}: {$entryPoints} - Criteria must meet [object {$className}].')
 
 /**
  * @var Init_BadIncludesOrExcludes
@@ -44,7 +44,7 @@ InterfaceError.types('BadCriteria', '{$type}: {$entryPoints} - Criteria must mee
  *
  * Accompanied by errors: {@link ...InitIncludes},  {@link ...InitExcludes}
  */
-//InterfaceError.types('Init_BadIncludesOrExcludes', '') // "{$type}: {$entryPoints} - {$errors}"
+//InterfaceError.template('Init_BadIncludesOrExcludes', '') // "{$type}: {$entryPoints} - {$errors}"
 
 /**
  * @var BadTypes
@@ -56,7 +56,7 @@ InterfaceError.types('BadCriteria', '{$type}: {$entryPoints} - Criteria must mee
  * Accompanied by errors: {@link ...InitTypes_badType}
  *
  */
-//InterfaceError.types('BadTypes', '')
+//InterfaceError.template('BadTypes', '')
 
 /**
  * @var BadType_Incorrect
@@ -64,8 +64,8 @@ InterfaceError.types('BadCriteria', '{$type}: {$entryPoints} - Criteria must mee
  * -when forming an interface member, if an inappropriate type is passed.
  */
 
-InterfaceError.types('BadType_Incorrect', '{$type}: {$entryPoints} - Invalid parameter passed [{$dataType}].')
-InterfaceError.types('BadType_Duplicate', '{$type}: {$entryPoints} - duplicate type [{$dataType}].')
+InterfaceError.template('BadType_Incorrect', '{$type}: {$entryPoints} - Invalid parameter passed [{$dataType}].')
+InterfaceError.template('BadType_Duplicate', '{$type}: {$entryPoints} - duplicate type [{$dataType}].')
 
 /**
  * @var InitIncludes
@@ -74,10 +74,10 @@ InterfaceError.types('BadType_Duplicate', '{$type}: {$entryPoints} - duplicate t
  *
  *  Groups errors of all invalid "includes" values.
  *
- *  Accompanied by errors: {@link ...ValidateType}
+ *  Accompanied by errors: {@link ...ValidateData}
  */
 
-//InterfaceError.types('InitIncludes', '')
+//InterfaceError.template('InitIncludes', '')
 /**
  * @var InitExcludes
  * An error is thrown in the following cases:
@@ -85,9 +85,9 @@ InterfaceError.types('BadType_Duplicate', '{$type}: {$entryPoints} - duplicate t
  *
  * Groups errors of all invalid "excludes" values.
  *
- * Accompanied by errors:  {@link ...ValidateType}
+ * Accompanied by errors:  {@link ...ValidateData}
  */
-//InterfaceError.types('InitExcludes', '')
+//InterfaceError.template('InitExcludes', '')
 /**
  * @var Init_BadArgumentsOrReturn
  * An error is thrown in the following cases:
@@ -97,7 +97,7 @@ InterfaceError.types('BadType_Duplicate', '{$type}: {$entryPoints} - duplicate t
  *
  * Accompanied by errors: {@link ...BadCriteria} {@link ...InitTypes} {@link ...Init_BadIncludesOrExcludes}
  */
-//InterfaceError.types('Init_BadArgumentsOrReturn', '')
+//InterfaceError.template('Init_BadArgumentsOrReturn', '')
 /**
  *
  * @var Validate
@@ -109,37 +109,37 @@ InterfaceError.types('BadType_Duplicate', '{$type}: {$entryPoints} - duplicate t
  *
  * Accompanied by errors: {@link ...ValidateInIncludes}, {@link ...validateInExcludes}
  */
-//InterfaceError.types('Validate', '')
+//InterfaceError.template('Validate', '')
 
 /**
- * @var ValidateType
+ * @var ValidateData
  * An error is thrown in the following cases:
  * -  When validate class members according to interface criteria , If the value does not match the types from the interface criteria
  *
  * Accompanied by errors:  {@link ...Validate_BadMirrorProperties} (if one of the types is extends [class  .MirrorInterface])
  */
-InterfaceError.types('ValidateType', '{$type}: {$entryPoints} - Expected type of "{$expectedTypes}"  but defined by "{$definedType}".{$errors}')
+InterfaceError.template('ValidateData', '{$type}: {$entryPoints} - Expected type of "{$expectedTypes}"  but defined by "{$definedType}".{$errors}')
 
 /**
  * @var ValidateInIncludes
  * An error is thrown in the following cases:
  * -When validate class members according to interface criteria , if the value does not match the value on the "includes" stack
  */
-InterfaceError.types('ValidateInIncludes', "{$type}: {$entryPoints} - \"{$value}\" is not present in 'includes' stack")
+InterfaceError.template('ValidateInIncludes', "{$type}: {$entryPoints} - \"{$value}\" is not present in 'includes' stack")
 
 /**
  * @var ValidateInExcludes
  * An error is thrown in the following cases:
  *  -When validate class members according to interface criteria , if the value matches one of the values ​​on the "excludes" stack
  */
-InterfaceError.types('ValidateInExcludes', "{$type}: {$entryPoints} - \"{$value}\" is present in 'excludes' stack")
+InterfaceError.template('ValidateInExcludes', "{$type}: {$entryPoints} - \"{$value}\" is present in 'excludes' stack")
 
 /**
  * @var ValidateMethodDeclared
  * An error is thrown in the following cases:
  * -When validated  class members from criteria, if class member is not a method.
  */
-InterfaceError.types('ValidateMethodDeclared', '{$type}: {$entryPoints} - The property must be Function.')
+InterfaceError.template('ValidateMethodDeclared', '{$type}: {$entryPoints} - The property must be Function.')
 
 /**
  * @var ValidateArguments
@@ -148,9 +148,9 @@ InterfaceError.types('ValidateMethodDeclared', '{$type}: {$entryPoints} - The pr
  *
  *  Groups errors for arguments
  *
- *  Accompanied by errors:  {@link ...Validate}, {@link ...ValidateType}
+ *  Accompanied by errors:  {@link ...Validate}, {@link ...ValidateData}
  */
-//InterfaceError.types('ValidateArguments', '')
+//InterfaceError.template('ValidateArguments', '')
 
 /**
  * @var ValidateReactDeclared
@@ -158,14 +158,14 @@ InterfaceError.types('ValidateMethodDeclared', '{$type}: {$entryPoints} - The pr
  *  -when validated the reactive property values ​​,if getter / setter should be declared or not declared,
  *  - when a reactive property is to be declared.
  */
-InterfaceError.types('ValidateReactDeclared', '{$type}: {$entryPoints} - "{$react_type}" {$not} must be declared')
+InterfaceError.template('ValidateReactDeclared', '{$type}: {$entryPoints} - "{$react_type}" {$not} must be declared')
 
 /**
  * @var ValidateMemberDeclared
  * An error is thrown in the following cases:
  * -When validated  class members from criteria, if there is no member in the class.
  */
-InterfaceError.types('ValidateMemberDeclared', '{$type}: {$entryPoints} - The member must be declared.')
+InterfaceError.template('ValidateMemberDeclared', '{$type}: {$entryPoints} - The member must be declared.')
 
 /**
  * @var Validate_BadMembers
@@ -179,9 +179,9 @@ InterfaceError.types('ValidateMemberDeclared', '{$type}: {$entryPoints} - The me
  * {@link ...ValidateReactDeclared},
  * {@link ...ValidateMethodDeclared},
  * {@link ...Validate}
- * {@link ...ValidateType}
+ * {@link ...ValidateData}
  */
-//InterfaceError.types('Validate_BadMembers', '')
+//InterfaceError.template('Validate_BadMembers', '')
 
 /**
  * @var Validate_BadMirrorProperties
@@ -190,7 +190,7 @@ InterfaceError.types('ValidateMemberDeclared', '{$type}: {$entryPoints} - The me
  *
  * Accompanied by errors: {@link ...Validate_BadMembers}
  */
-//InterfaceError.types('Validate_BadMirrorProperties', '')
+//InterfaceError.template('Validate_BadMirrorProperties', '')
 
 /**
  * @var Compare
@@ -201,28 +201,28 @@ InterfaceError.types('ValidateMemberDeclared', '{$type}: {$entryPoints} - The me
  *
  * Accompanied by errors:  {@link ...CompareIncludes}, {@link ...CompareExcludes}
  */
-//InterfaceError.types('Compare', '')
+//InterfaceError.template('Compare', '')
 
 /**
  * @var CompareTypes
  * An error is thrown in the following cases:
  * - When comparing criteria for interface members, if the criteria "types" do not match
  */
-InterfaceError.types('CompareTypes', '{$type}: {$entryPoints} - not matching stacks "types"')// "{$type}: {$entryPoints} - type \"{$value}\" is not present in 'types' stack",
+InterfaceError.template('CompareTypes', '{$type}: {$entryPoints} - not matching stacks "types"')// "{$type}: {$entryPoints} - type \"{$value}\" is not present in 'types' stack",
 
 /**
  * @var CompareIncludes
  * An error is thrown in the following cases:
  * - When comparing criteria for interface members, if the criteria "includes" do not match
  */
-InterfaceError.types('CompareIncludes', '{$type}: {$entryPoints} - not matching stacks "includes"')
+InterfaceError.template('CompareIncludes', '{$type}: {$entryPoints} - not matching stacks "includes"')
 
 /**
  * @var CompareExcludes
  * An error is thrown in the following cases:
  * - When comparing criteria for interface members, if the criteria "excludes" do not match
  */
-InterfaceError.types('CompareExcludes', '{$type}: {$entryPoints} - not matching stacks "excludes"')
+InterfaceError.template('CompareExcludes', '{$type}: {$entryPoints} - not matching stacks "excludes"')
 
 /**
  * @var CompareMethod
@@ -230,14 +230,14 @@ InterfaceError.types('CompareExcludes', '{$type}: {$entryPoints} - not matching 
  *  -When comparing criteria for interface members, if in the method the arguments or return do not match the rules of the matched interface
  *
  */
-//InterfaceError.types('CompareMethod', '')
+//InterfaceError.template('CompareMethod', '')
 
 /**
  * @var CompareReact
  *  An error is thrown in the following cases:
  *  - if getter or setter is not declared or criteria are not matched.
  */
-//InterfaceError.types('CompareReact', '')
+//InterfaceError.template('CompareReact', '')
 
 
 /**
@@ -246,4 +246,4 @@ InterfaceError.types('CompareExcludes', '{$type}: {$entryPoints} - not matching 
  * - When  [method .InterfaceBuilder.implementInterfaces] is called and the first argument is an interface.
  * Build and validation happens only for classes.
  */
-//InterfaceError.types('ImplementInterfaceError', '')
+//InterfaceError.template('ImplementInterfaceError', '')

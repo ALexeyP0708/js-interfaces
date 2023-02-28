@@ -2,15 +2,15 @@ import {assert,expect,isNode} from './export.js'
 import {InterfaceError} from '../../src/export.js';
 //import '../../src/config/errors.js';
 describe('Class InterfaceError', () => {
-  const bufDefaultTpl=InterfaceError.types('default')
-  InterfaceError.types('default','{$type}: {$entryPoints} - {$message}{$errors}')
-  it('InterfaceError.static types (get and set and unset)',()=>{
+  const bufDefaultTpl=InterfaceError.template('default')
+  InterfaceError.template('default','{$type}: {$entryPoints} - {$message}{$errors}')
+  it('InterfaceError.static template (get and set and unset)',()=>{
     let msg='Hello'
-    InterfaceError.types('test_message',msg)
-    assert.ok(InterfaceError.types('test_message')===msg)
+    InterfaceError.template('test_message',msg)
+    assert.ok(InterfaceError.template('test_message')===msg)
     // unset
-    InterfaceError.types('test_message',null)
-    assert.ok(InterfaceError.types('test_message')===InterfaceError.types('default'))
+    InterfaceError.template('test_message',null)
+    assert.ok(InterfaceError.template('test_message')===InterfaceError.template('default'))
   })
   it('InterfaceError.setType and getType',()=>{
     assert.ok(new InterfaceError().setType('test').getType() ==='test','test setType and getType')
@@ -50,7 +50,7 @@ describe('Class InterfaceError', () => {
     assert.ok(typeof ie.getStack()==='string')
   })
   it('static InterfaceError.getMessage', (done) => {
-    InterfaceError.types('test','type={$type}\nentryPoints={$entryPoints}\nerrors={$errors}\nvar1={$var1}\nvar2={$var2}');
+    InterfaceError.template('test','type={$type}\nentryPoints={$entryPoints}\nerrors={$errors}\nvar1={$var1}\nvar2={$var2}');
     let subInterfaceError=new InterfaceError()
       .setType('NO_TYPE')
       .setVars({message: 'sub error'})
@@ -187,15 +187,15 @@ describe('Class InterfaceError', () => {
   it('react InterfaceError.message',()=>{
     /* see InterfaceError.getMessage test */
     let message='test message';
-    InterfaceError.types('test_message','Error message: {$message}')
+    InterfaceError.template('test_message','Error message: {$message}')
     let ie=new InterfaceError(message).setType('test_message')
     expect(ie.message).to.equal('Error message: test message')
-    InterfaceError.types('test_message',null)
+    InterfaceError.template('test_message',null)
   })
   it('react InterfaceError.stack',()=>{
     /* see InterfaceError.getMessage test */
 /*    let message='test message';
-    InterfaceError.types('test_message','Error message: {$message}')
+    InterfaceError.template('test_message','Error message: {$message}')
     let ie=new InterfaceError(message).setType('test_message')
     expect(ie.message).to.equal('Error message: test message')*/
   })
@@ -322,12 +322,12 @@ describe('Class InterfaceError', () => {
         ])
       ])
     
-    const consoleGroupTpl=InterfaceError.types('consoleGroup');
-    const consoleMessageTpl=InterfaceError.types('consoleMessage');
-    const defaultTpl=InterfaceError.types('default');
-    InterfaceError.types('consoleGroup','{$type}-group');
-    InterfaceError.types('consoleMessage','{$message}');
-    InterfaceError.types('default','{$type}-message');
+    const consoleGroupTpl=InterfaceError.template('consoleGroup');
+    const consoleMessageTpl=InterfaceError.template('consoleMessage');
+    const defaultTpl=InterfaceError.template('default');
+    InterfaceError.template('consoleGroup','{$type}-group');
+    InterfaceError.template('consoleMessage','{$message}');
+    InterfaceError.template('default','{$type}-message');
     const counter={
       groupCollapsed:0,
       message:0,
@@ -375,9 +375,9 @@ describe('Class InterfaceError', () => {
         "Plain text error"
       ])
     } finally {
-      InterfaceError.types('consoleGroup',consoleGroupTpl);
-      InterfaceError.types('consoleMessage',consoleMessageTpl);
-      InterfaceError.types('default',defaultTpl);
+      InterfaceError.template('consoleGroup',consoleGroupTpl);
+      InterfaceError.template('consoleMessage',consoleMessageTpl);
+      InterfaceError.template('default',defaultTpl);
       InterfaceError.setConsole(console)
     }
   })
@@ -481,4 +481,5 @@ describe('Class InterfaceError', () => {
       globalThis=window
     }
   })
+  it('static InterfaceError.combineErrors')
 })

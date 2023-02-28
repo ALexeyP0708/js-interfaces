@@ -23,4 +23,8 @@ describe('Class CTypes', () => {
     let actual=['null','undefined','object', 'boolean', 'number', 'string', 'symbol', 'function', 'mixed',FuncType,objType]
     expect(cTypes.export()).to.eql(actual).which.not.equal(actual)
   })
+  it('CTypes.validateData')
+  it('static CTypes.isValidateData')
+  it('CTypes.toString')
+  it('CTypes.instanceOf')
 })

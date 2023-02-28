@@ -38,8 +38,27 @@ export class Criteria extends ICriteria {
      */
   #init (criteria) {
     this.#initOptions(criteria.options)
-    this.#initTypes(criteria.types)
-    this.init(criteria)
+    const errors=[];
+    try{
+      this.#initTypes(criteria.types)
+    }catch (e){
+      if(!(e instanceof InterfaceError)){
+        throw e
+      }
+      errors.push(e)
+    }
+    try{
+      this.init(criteria)  
+    }catch (e){
+      if(!(e instanceof InterfaceError)){
+        throw e
+      }
+      errors.push(e)
+    }
+    if(errors.length>0){
+      //throw new InterfaceError().setType('Init').setErrors(errors)
+      throw InterfaceError.combineErrors('Init',errors)
+    }
   }
   
   #initOptions (options) {
@@ -64,7 +83,7 @@ export class Criteria extends ICriteria {
       this.#types= new CTypes(types)
     }
   }
-
+  
   /**
    * @deprecated
    */
@@ -78,6 +97,14 @@ export class Criteria extends ICriteria {
   
   exportTypes () {
     return this.#types.export()
+  }
+
+  /**
+   * 
+   * @returns {CTypes}
+   */
+  getTypes(){
+    return this.#types
   }
   
   /**
@@ -101,23 +128,12 @@ export class Criteria extends ICriteria {
   /**
    * Generates a new Criteria object
    * @param {*} criteria
-   * @param {Function} [owner]
    * @returns {Criteria}
    */
-  static generateObject (criteria, owner) {
-    if (!(criteria instanceof this)) {
+  static generateObject (criteria) {
+    if (!(criteria instanceof ICriteria)) {
       criteria = this.formatToObject(criteria)
-      try {
-        criteria = new this(criteria)  
-      } catch (e) {
-        if(e instanceof InterfaceError && typeof owner === 'function'){
-          e.addBeforeEntryPoint(`~${owner.name}~`) 
-        }
-        throw e
-      }
-    }
-    if (typeof owner === 'function') {
-      criteria.setOwner(owner)
+      criteria = new this(criteria)
     }
     return criteria
   }
