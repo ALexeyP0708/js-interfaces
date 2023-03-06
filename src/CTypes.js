@@ -2,7 +2,7 @@ import {InterfaceError} from "./InterfaceError.js";
 import {InterfaceData} from "./InterfaceData.js";
 import {ICriteria} from "./ICriteria.js";
 import {IType} from "./IType.js";
-import {ContainerType} from "./ContainerType.js";
+import {AndContainerType} from "./AndContainerType.js";
 
 /**
  * Defines interface types
@@ -58,8 +58,8 @@ export class CTypes{
       if(types.includes('mixed') && types.length>1){
         errors.push (new InterfaceError('The mixed type must not be specified with other types').setType('BadType_mixed').setEntryPoints(entryPoints))
       }
-      if(typeof types[k] ==='object' && type!==null && Object.getPrototypeOf(type)===Array.prototype && Array.isArray(type)){
-        types[k] = new ContainerType(types[k])
+      if(typeof types[k] ==='object' && types[k]!==null && Object.getPrototypeOf(types[k])===Array.prototype && Array.isArray(types[k])){
+        types[k] = new AndContainerType(types[k])
       } else
       if (!this.#isCorrectType(types[k])) {
         const error = new InterfaceError()
@@ -119,14 +119,15 @@ export class CTypes{
 
   /**
    * 
-   * @param types
+   * @param {CTypes} types
    * @return {CTypes}
    */
   merge(types){
     //experiment
+    const comparedTypes=types.export()
     let diff_stack=[]
-    let currentTypes=this.#types
-    for(const type of types){
+    let currentTypes=this.#types//this.export()
+    for(const type of comparedTypes){
       const typeType=typeof type
       if(['string','function'].includes(typeType)){
         if(!currentTypes.includes(type)){
@@ -174,7 +175,7 @@ export class CTypes{
     if(diff_stack.length>0){
       currentTypes.push(...diff_stack)
     }
-    return currentTypes
+    return this
   }
 
   /**
@@ -184,12 +185,23 @@ export class CTypes{
    * @return {boolean}
    */
   compare(types,method='strict'){
-    let currentTypes=this.export()
-    let comparedTypes=types.export()
+    return CTypes.compareTypes(this.export(),types.export(),method)
+  }
+
+  /**
+   * 
+   * @param {(string|object|function|IType)[]} currentTypes
+   * @param {(string|object|function|IType)[]} comparedTypes
+   * @param {string}[method='strict'] strict|restrict|expand
+   * @return {boolean}
+   */
+  static compareTypes(currentTypes,comparedTypes,method='strict'){
     let check=false;
+    currentTypes=Object.assign([],currentTypes)
+    comparedTypes=Object.assign([],comparedTypes)
     for(const currentType of currentTypes){
       if(comparedTypes.length<=0 && ['strict','expand'].includes(method)){
-          check=false
+        check=false
         break
       }
       check=false
@@ -203,30 +215,67 @@ export class CTypes{
           const CurrentTypeClass=Object.getPrototypeOf(currentType).constructor
           for(let key=0; key<comparedTypes.length; key++){
             const comparedType=comparedTypes[key]
-            if(comparedType instanceof CurrentTypeClass){
+            const ComparedTypeClass=Object.getPrototypeOf(comparedType).constructor
+            if(CurrentTypeClass===ComparedTypeClass){//comparedType instanceof CurrentTypeClass
               check=currentType.compare(comparedType,method)
               if(check){ comparedTypes.splice(key,1); break}
             }
           }
-        } else if(currentType instanceof ICriteria) {
-          
         } else {
+          let key=comparedTypes.indexOf(currentType)
+          check=key>-1
+          if(check){
+            comparedTypes.splice(key,1)
+          } else if(['restrict','expand'].includes(method)){
+            for(let key=0; key<comparedTypes.length; key++){
+              const comparedType=comparedTypes[key]
+              if(typeof comparedType==='object' && !(comparedType instanceof IType)){
+                switch(method){
+                  case 'restrict': // for return results methods
+                    check=CTypes.instanceOf(comparedType,currentType) // covariance
+                    break
+                  case 'expand': // for arguments  methods
+                    check=CTypes.instanceOf(currentType,comparedType) // contravariance
+                    break
+                }
+                if(check){ comparedTypes.splice(key,1); break}
+              }
+            }
+          }
 
         }
-      } else if(currentTypeType==='function'){
-
+      } else if(currentTypeType==='function') {
+        let key = comparedTypes.indexOf(currentType)
+        check = key > -1
+        if (check) {
+          comparedTypes.splice(key, 1)
+        } else if (['restrict', 'expand'].includes(method)) {
+          for (let key = 0; key < comparedTypes.length; key++) {
+            const comparedType = comparedTypes[key]
+            if (typeof comparedType === 'function') {
+              switch (method) {
+                case 'restrict': // for return results methods
+                  check = CTypes.instanceOf(comparedType, currentType) // covariance
+                  break
+                case 'expand': // for arguments  methods
+                  check = CTypes.instanceOf(currentType, comparedType) // contravariance
+                  break
+              }
+              if (check) {
+                comparedTypes.splice(key, 1);
+                break
+              }
+            }
+          }
+        }
       }
-
-      for(let key=0; key<comparedTypes.length; key++){
-        if(check){comparedTypes.splice(key,1); break}
-      }
+      if(!check){break}
     }
-    if(check && comparedTypes.length>0 && ['strict','restrict'].includes(command)){
+    if(check && comparedTypes.length>0 && ['strict','restrict'].includes(method)){
       check=false
     }
     return check
   }
-  
   /**
    * @param {*} data
    * @param {string|object|function|IType|Array} type
@@ -255,6 +304,11 @@ export class CTypes{
     return checkType
   }
 
+  /**
+   * 
+   * @param {*[]} types
+   * @return {string}
+   */
   static typesString(types){
     let typesString=[];
     for (const type of types){
@@ -290,7 +344,7 @@ export class CTypes{
       return this.#types_string
     }
     const SelfClass=Object.getPrototypeOf(this).constructor
-    this.#types_string = SelfClass.typesString(this.#types)
+    this.#types_string = SelfClass.typesString(this.export())
     return this.#types_string
   }
   static instanceOf(value,target){

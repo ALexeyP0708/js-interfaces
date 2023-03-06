@@ -1,5 +1,6 @@
 import {assert,expect} from './export.js'
 import {CTypes,InterfaceError} from "../../src/export.js"
+import {AndContainerType} from "../../src/AndContainerType.js"
 
 describe('Class CTypes', () => {
   it('CTypes constructor',()=>{
@@ -24,7 +25,7 @@ describe('Class CTypes', () => {
     let actual=['undefined','null','object', 'boolean', 'number', 'string', 'symbol', 'function', null,FuncType,objType]
     expect(cTypes.export()).to.eql(actual).which.not.equal(actual)
   })
-  it('CTypes.instanceOf' ,()=>{
+  it('static CTypes.instanceOf' ,()=>{
     class A{}
     class B extends A {}
     let objB=new B()
@@ -45,20 +46,17 @@ describe('Class CTypes', () => {
     assert.ok(CTypes.instanceOf(obj,proto))
     //assert.ok(false,'Перенести в подходящий класс')
   })
-  it('CTypes.toString',()=>{
-    class Test{}
-    expect(new CTypes(['number','string',Test,Test.prototype,new Test(),{},['string',Test]]).toString()).to.eql('number,string,[function Test],[object Test],[object [object Test]],[object [object Object]],[string,[function Test]]')
-  })
+
   it('static CTypes.isValidateData',()=>{
     CTypes.isValidateData()
     assert.ok(CTypes.isValidateData('hello','mixed'))
     assert.ok(CTypes.isValidateData('hello','string'))
     assert.ok(!CTypes.isValidateData(1,'string'))
     assert.ok(CTypes.isValidateData(null,'null'))
-    assert.ok(CTypes.isValidateData('hello',['string']))
-    assert.ok(!CTypes.isValidateData('hello',['string','number']))
-    assert.ok(CTypes.isValidateData('hello',['string',String.prototype]))
-    assert.ok(CTypes.isValidateData('hello',['string',String.prototype]))
+    assert.ok(CTypes.isValidateData('hello',new AndContainerType(['string'])))
+    assert.ok(!CTypes.isValidateData('hello',new AndContainerType(['string','number'])))
+    assert.ok(CTypes.isValidateData('hello',new AndContainerType(['string',String.prototype])))
+    assert.ok(CTypes.isValidateData('hello',new AndContainerType(['string',String.prototype])))
     class A{}
     class B extends A{}
     assert.ok(CTypes.isValidateData(B,B))
@@ -86,7 +84,19 @@ describe('Class CTypes', () => {
     assert.ok(CTypes.isValidateData(new NumberTest(1),Number.prototype))
   })
   it ('CTypes.validate')
-  it ('CTypes.merge')
+
+  it ('static CTypes.compareTypes',()=>{})
   it ('CTypes.compare')
-  it ('static CTypes.typesString')
+  
+  it ('CTypes.merge')
+  it ('static CTypes.typesString and CTypes.toString',()=>{
+    class Test{}
+    const types=new CTypes(['number','string',Test,Test.prototype,new Test(),{},['string',Test],null,Object.create(null)])
+    const eq='number,string,[function Test],[object Test],[object [object Test]],[object [object Object]],[string,[function Test]],[object null],[object [object null]]'
+    expect(CTypes.typesString(types.export())).to.equal(eq)
+    expect(types.toString()).to.equal(eq)
+  })
+
+  
+  
 })

@@ -106,7 +106,7 @@ export class Criteria extends ICriteria {
 
   /**
    * 
-   * @return {}
+   * @return {object}
    */
   exportTypes () {
     return this.#types.export()
@@ -178,19 +178,7 @@ export class Criteria extends ICriteria {
     }
     return this.getTypes().compare(criteria.getTypes(),method)
   }
-  // 1. Постановка Лисков применяется в реализации интерфейсов
-  // Множество вариантов:
-  // Дано: Class implements interface A, implements interface B  
-  // При совпадении имен методов, критерии аргументов метода интрефейса B,
-  // должны соответствовать критериям аргументов метода интерфейса A, 
-  // и могут расширяться (ковариантность для расширения критериев, но контрвариантность для самих типов)
-  // При совпадении имен методов, критерии результата метода интерфейса B могут соотвествовать критериям результата метода интерфейса А,
-  // могут сокращаться, но запрещено расширяться.Для самих типов применено правило ковариантности.
-  // При совпадении имен свойств, критерии класса B должны соответствовать классу A (инвариантность). 
-  // 
-  // При этом типы результата Класса B должны быть ковариантны классу А.
   
-
    /**
    *
     * @deprecated
@@ -267,18 +255,15 @@ export class Criteria extends ICriteria {
     }
     return check
   }
-
- 
-
+  
   /**
    *
    * @param {Criteria} criteria
-   * @return {boolean|IType}
+   * @return {this}
    */
   merge(criteria){
-    //let currentTypes=this.exportTypes()
-    let comparedTypes=criteria.exportTypes()
-    this.getTypes().merge(types)
+    this.getTypes().merge(criteria.getTypes())
+    return this
   }
   
   /**
@@ -316,7 +301,5 @@ export class Criteria extends ICriteria {
       return member;
     }
   }
-
-
 }
 Criteria.isUseStrictSyntax = true
