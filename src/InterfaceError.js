@@ -130,11 +130,11 @@ export class InterfaceError extends Error {
 
   /**
    * 
-   * @param {Error|string} error
+   * @param {InterfaceError,Error,string} error
    * @returns {InterfaceError}
    */
-  addError(error){
-    this.#errors.push(error)
+  addError(...error){
+    this.#errors.push(...error)
     return this
   }
 /*  setStack(){
@@ -415,33 +415,12 @@ export class InterfaceError extends Error {
     return  Boolean(globalThis.process?.versions?.node)
   }
   
-  static _t_member(member_name, ...args) {
-    let member=eval(`this.${member_name}`)
-    if(typeof member === 'function'){
-      if(/^(?:function[\s]*\(|\(?[\w,]*\)?\s*=>)/i.test(member.toString())){
-        return member;
-      }
-      return member.call(this,...args);
-    } else {
-      return member;
-    }
-  }  
-  _t_member(member_name, ...args) {
-    let member=eval(`this.${member_name}`)
-    if(typeof member === 'function'){
-      if(/^(?:function[\s]*\(|\(?[\w,]*\)?\s*=>)/i.test(member.toString())){
-        return member;
-      }
-      return member.call(this,...args);
-    } else {
-      return member;
-    }
-  }
+
 
   /**
    * 
    * @param {InterfaceError|string} container
-   * @param {Array.<InterfaceError,Error,string>} errors
+   * @param {(string | Error | InterfaceError)[]} errors
    * @returns {InterfaceError}
    */
   static combineErrors (container,errors){
@@ -453,15 +432,14 @@ export class InterfaceError extends Error {
       if(error instanceof InterfaceError){
         let child_errors=error.getErrors()
         if(child_errors.length>0){
-          container_errors.splice(-1,0,...child_errors)
+          container.addError(...child_errors)
         } else {
-          container_errors.push(error)
+          container.addError(error)
         }
       } else {
-        container_errors.push(error)
+        container.addError(error)
       }
     }
-    container.setErrors(container_errors)
     return container
   } 
 }

@@ -24,8 +24,13 @@ describe('Class InterfaceError', () => {
     res=ie.getEntryPoints();
     expect(res).to.not.eql(entryPoints)
   })
-  it('InterfaceError.addEntryPoint')
-  it('InterfaceError.addBeforeEntryPoint')
+  
+  it('InterfaceError.addEntryPoint and addBeforeEntryPoint',()=>{
+    const err=new InterfaceError().setEntryPoints(['point1','point2'])
+    err.addEntryPoint('point3')
+    err.addBeforeEntryPoint('point0')
+    expect(err.getEntryPoints()).to.eql(['point0','point1','point2','point3'])
+  })
   
   it('InterfaceError.setVars and getVars',()=>{
     let vars={var1:'var1',var2:'var2'}
@@ -45,10 +50,12 @@ describe('Class InterfaceError', () => {
     res=ie.getErrors();
     expect(res).to.not.eql(errors)
   })
+  
   it('InterfaceError.getStack',()=>{
     let ie=new InterfaceError()
     assert.ok(typeof ie.getStack()==='string')
   })
+  
   it('static InterfaceError.getMessage', (done) => {
     InterfaceError.template('test','type={$type}\nentryPoints={$entryPoints}\nerrors={$errors}\nvar1={$var1}\nvar2={$var2}');
     let subInterfaceError=new InterfaceError()
@@ -116,6 +123,7 @@ describe('Class InterfaceError', () => {
     expect(result,'generate again message (disabled cache )').to.equal(msg)
     done()
   })
+  
   it('InterfaceError.getMessage', (done) => {
     let subInterfaceError=new InterfaceError()
       .setType('NO_TYPE')
@@ -184,6 +192,7 @@ describe('Class InterfaceError', () => {
      expect(result,'generate again message (disabled cache )').to.equal(msg)
     done()
   })
+  
   it('react InterfaceError.message',()=>{
     /* see InterfaceError.getMessage test */
     let message='test message';
@@ -192,6 +201,7 @@ describe('Class InterfaceError', () => {
     expect(ie.message).to.equal('Error message: test message')
     InterfaceError.template('test_message',null)
   })
+  
   it('react InterfaceError.stack',()=>{
     /* see InterfaceError.getMessage test */
 /*    let message='test message';
@@ -217,6 +227,7 @@ describe('Class InterfaceError', () => {
       }
 
     })
+    
     it('(server)InterfaceError.isBrowser',()=>{
       assert.ok(!InterfaceError.isBrowser())
       globalThis={
@@ -250,6 +261,7 @@ describe('Class InterfaceError', () => {
       }
     })
   }
+  
   if(!isNode){
     it('(browser)InterfaceError.isWorker',()=>{
       assert.ok(!InterfaceError.isWorker())
@@ -264,6 +276,7 @@ describe('Class InterfaceError', () => {
         globalThis=window
       }
     })
+    
     it('(browser)InterfaceError.isBrowser',()=>{
       assert.ok(InterfaceError.isBrowser())
       globalThis={
@@ -280,6 +293,7 @@ describe('Class InterfaceError', () => {
         globalThis=window;
       }
     })
+    
     it('(browser)InterfaceError.isServer',()=>{
       assert.ok(!InterfaceError.isServer())
       globalThis={
@@ -308,6 +322,7 @@ describe('Class InterfaceError', () => {
       InterfaceError.setConsole(console)
     }
   })
+  
   it('InterfaceError.handler',()=>{
     let ie=new InterfaceError()
       .setType('TEST_TYPE')
@@ -464,6 +479,7 @@ describe('Class InterfaceError', () => {
       }
     })
   }
+  
   it('(browser)InterfaceError.setHandlerHook',()=>{
     let window=globalThis
     globalThis=new EventTarget()
@@ -481,5 +497,15 @@ describe('Class InterfaceError', () => {
       globalThis=window
     }
   })
-  it('static InterfaceError.combineErrors')
+  
+  it('static InterfaceError.combineErrors',()=>{
+    InterfaceError.template('error3','error3')
+    InterfaceError.template('error4','error4')
+    let err=InterfaceError.combineErrors('group_error',['error1',new Error('error2'),new InterfaceError().setErrors([new InterfaceError().setType('error3')])])
+    let err2=InterfaceError.combineErrors(err,[new InterfaceError().setType('error4')])
+    assert.ok(err instanceof InterfaceError && err===err2)
+    expect(err.message).to.eql(`group_error:  - \n  error1\n  error2\n  error3\n  error4`)
+    InterfaceError.template('error3',null)
+    InterfaceError.template('error4',null)
+  })
 })

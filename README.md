@@ -1,9 +1,11 @@
 # @alexeyp0708/classes-interfaces
 ##Plan
 
-
 - рефакторинг
-  - реализоварть  Правила постановки Лисков
+  - реализоварть  Правила постановки Лисков/ контрвариация / ковариация / инвариация
+    - должна быть возможность назначить интерфейс класса (интерфейс созданный непосредственно под класс)
+    - общие интерфейсы - интерфейсы  созданные для расширения. Если нет интерфейса для класса, 
+      то интерфейс для класса сформируется за счет правил назначеных интерфейсов
   - назначение интерфейса с помощью цепочки методов
   - проверка классов на заморозку и запечатование 
   - предусматреть возможность расширения типов
@@ -106,6 +108,14 @@ const types=[
 To calculate that an object does  have a prototype of null (`Object.create(null)`), it is checked 
 by the combination `value===null || !Object.prototype.isPrototypeOf.call(Object.prototype,value)`
 
+types Container
+```js
+const types=[
+  ['number',new MyCriteria()] // container (array). the value must match all types in the container
+]
+```
+Контенеры были введены в целях комбинирования условий критериев.  
+Контейнер считается как типом, где в нем должны быть выполнены все условия. 
 
 ## Getting started
 

@@ -1,8 +1,5 @@
-/**
- * @module @alexeyp0708/interface-manager
- */
 
-import { InterfaceData, Descriptors } from './export.js'
+//import { InterfaceData, Descriptors } from './export.js'
 export class InterfaceTools {
   /**
      * Freezing class properties
@@ -26,4 +23,4 @@ export class InterfaceTools {
   }
 }
 
-InterfaceData.addGlobalEndPoints(InterfaceTools)
+//InterfaceData.addGlobalEndPoints(InterfaceTools)

@@ -47,4 +47,41 @@ describe('Class Criteria', () => {
     let criteria=new TestCriteria({})
     expect(TestCriteria.generateObject(criteria)).to.equal(criteria)
   })
+
+  it('Criteria.compareStrictly',()=>{
+    class TestCriteria extends Criteria{
+      init (){}
+    }
+    class Test{}
+    assert.ok(
+      new TestCriteria({options:{},types:['string']})
+        .compareStrictly(new TestCriteria({options:{},types:['string']}),false)
+      ,'compare strictly  types string- equal types')
+    assert.ok(
+      !new TestCriteria({options:{},types:['string']})
+        .compareStrictly(new TestCriteria({options:{},types:['number']}),false)
+      ,'compare strictly  types string- different types')
+    assert.ok(
+      new TestCriteria({options:{},types:[Test.prototype]})
+        .compareStrictly(new TestCriteria({options:{},types:[Test.prototype]}),false)
+      ,'compare strictly  types with function- equal types')
+    assert.ok(
+      new TestCriteria({options:{},types:[Test]})
+        .compareStrictly(new TestCriteria({options:{},types:[Test]}),false)
+      ,'compare strictly container with  function- equal types')
+    assert.ok(
+      new TestCriteria({options:{},types:['string',['string',Test.prototype]]})
+        .compareStrictly(new TestCriteria({options:{},types:['string',['string',Test.prototype]]}),false)
+      ,'compare strictly container with object- equal types')
+   
+    assert.ok(
+      new TestCriteria({options:{},types:[new TestCriteria({types:['string']})]})
+        .compareStrictly(new TestCriteria({options:{},types:[new TestCriteria({types:['string']})]}),false)
+      ,'compare strictly ICriteria object- equal criteria ')
+    assert.ok(
+      !new TestCriteria({options:{},types:[new TestCriteria({types:['string']})]})
+        .compareStrictly(new TestCriteria({options:{},types:[new TestCriteria({types:['number']})]}),false)
+    ,'compare strictly ICriteria object- different criteria ')
+    
+  })
 })

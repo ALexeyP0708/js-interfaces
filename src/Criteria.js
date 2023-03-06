@@ -8,12 +8,15 @@ import {ICriteria} from './ICriteria.js'
 export class Criteria extends ICriteria {
  
   #options
-  
+
+  /**
+   * @vars {CTypes} #types
+   */
   #types
   
   /**
      * @param  criteria
-     * @param {{[owner]:Function}} criteria.options  See [COptions]{@link COptions#constructor}
+     * @param {{[owner]:Function}} [criteria.options]  See [COptions]{@link COptions#constructor}
      * @param {CTypes|Array} [criteria.types]  See [CTypes]{@link CTypes#constructor}
     */
   constructor (criteria) {
@@ -22,12 +25,6 @@ export class Criteria extends ICriteria {
     if(typeof criteria !== 'object'){
       throw new Error(`Argument "criteria" of type ${type}. Argument must be of type object.`)
     }
-    /*if (criteria === undefined) {
-    
-      console.warn(`Warn debug: ${Object.getPrototypeOf(this).constructor.name} class:`, `Pay attention to criteria === undefined option and look for the place where undefined is passed`)
-      // temporarily so that there are no errors
-      criteria = {}
-    }*/
     this.#init(criteria)
   }
 
@@ -83,29 +80,39 @@ export class Criteria extends ICriteria {
       this.#types= new CTypes(types)
     }
   }
-  
+
   /**
-   * @deprecated
+   * 
+   * @return {COptions}
    */
   getOptions () {
-    this.exportOptions()
-  }
-  
-  exportOptions(){
-    return this.#options.export()
-  }
-  
-  exportTypes () {
-    return this.#types.export()
+    return this.#options
   }
 
   /**
    * 
+   * @return {{owner}}
+   */
+  exportOptions(){
+    return this.#options.export()
+  }
+  /**
+   *
    * @returns {CTypes}
    */
   getTypes(){
     return this.#types
   }
+
+  /**
+   * 
+   * @return {}
+   */
+  exportTypes () {
+    return this.#types.export()
+  }
+
+
   
   /**
      * Sets the owner of the criteria
@@ -141,6 +148,139 @@ export class Criteria extends ICriteria {
     throw new Error(`${Object.getPrototypeOf(this).constructor.name}.init method not implemented.`)
   }
   
+  build (data, criteria, entryPoints = []) {
+    return data
+  }
+
+  /**
+   * Validation of incoming parameters according to the established current criteria (object)
+   * @param {*} value
+   * @return {boolean}
+   */
+  validate (value) {
+    return this.getTypes().validate(value)
+  }
+
+  /**
+   * Compare criteria with current criteria.
+   * Compare types criteria with current types criteria.
+   * Used when assigning new interfaces
+   * Used when an interface member is about to replace a member of the same name in another interface.
+   * @param {Criteria} criteria
+   * @param {string} [method='strict'] strict|restrict|expand
+   * @return {boolean}
+   */
+  compare (criteria,method='strict') {
+    const SelfClass=Object.getPrototypeOf(this).constructor
+    const CriteriaClass=Object.getPrototypeOf(criteria).constructor
+    if (CriteriaClass!==SelfClass && !Object.prototype.isPrototypeOf.call(CriteriaClass,SelfClass)) {
+      return false
+    }
+    return this.getTypes().compare(criteria.getTypes(),method)
+  }
+  // 1. Постановка Лисков применяется в реализации интерфейсов
+  // Множество вариантов:
+  // Дано: Class implements interface A, implements interface B  
+  // При совпадении имен методов, критерии аргументов метода интрефейса B,
+  // должны соответствовать критериям аргументов метода интерфейса A, 
+  // и могут расширяться (ковариантность для расширения критериев, но контрвариантность для самих типов)
+  // При совпадении имен методов, критерии результата метода интерфейса B могут соотвествовать критериям результата метода интерфейса А,
+  // могут сокращаться, но запрещено расширяться.Для самих типов применено правило ковариантности.
+  // При совпадении имен свойств, критерии класса B должны соответствовать классу A (инвариантность). 
+  // 
+  // При этом типы результата Класса B должны быть ковариантны классу А.
+  
+
+   /**
+   *
+    * @deprecated
+   * @param {Criteria} criteria
+   * @param {boolean} [isTrow=true]
+   */
+  compareStrictly (criteria,isTrow=true){
+     //experiment
+    let thisTypes=this.exportTypes()
+    let comparedTypes=criteria.exportTypes()
+    let check=false;
+    if(thisTypes.length===comparedTypes.length){
+      for (const thisType of thisTypes){
+        check=false
+        let thisTypeType = typeof thisType
+        if (thisTypeType === 'string') {
+          let key=comparedTypes.indexOf(thisType)
+          check=key>-1
+          if(check){comparedTypes.splice(key,1)}
+        } else {
+          if(Object.getPrototypeOf(thisType)===Array.prototype && Array.isArray(thisType)){
+            // container
+            const ThisTypeContainerClass=Object.getPrototypeOf(this).constructor
+            const thisTypeContainer=new ThisTypeContainerClass({types:thisType})
+            for(let key=0; key<comparedTypes.length; key++){
+              const comparedType=comparedTypes[key]
+              if(Object.getPrototypeOf(comparedType)===Array.prototype && Array.isArray(comparedType)){
+                const ComparedTypeContainerClass=Object.getPrototypeOf(criteria).constructor
+                const comparedTypeContainer=new ComparedTypeContainerClass({types:comparedType})
+                check=thisTypeContainer.compareStrictly(comparedTypeContainer,false)
+              }
+              if(check){ comparedTypes.splice(key,1); break}
+            }
+          } else if(thisType instanceof ICriteria) {
+            // compare criteria
+            let SelfClass=Object.getPrototypeOf(thisType).constructor
+            for(let key=0; key<comparedTypes.length; key++){
+              const comparedType=comparedTypes[key]
+              if(comparedType instanceof SelfClass){
+                check=thisType.compareStrictly(comparedType,false)
+                if(check){ comparedTypes.splice(key,1); break}
+              }
+            }
+          } else if(thisTypeType==='function'){
+            for(let key=0; key<comparedTypes.length; key++){
+              const comparedType=comparedTypes[key]
+              if(typeof comparedType==='function'){
+                // instanceof
+                check=thisType===comparedType//CTypes.instanceOf(thisType, comparedType)
+                if(check){ comparedTypes.splice(key,1); break}
+              }
+            }
+          } else if(thisTypeType==='object'){
+            for(let key=0; key<comparedTypes.length; key++){
+              const comparedType=comparedTypes[key]
+              if(typeof comparedType==='object'){
+                // instanceof
+                check=thisType===comparedType//CTypes.instanceOf(thisType, comparedType)
+                if(check){comparedTypes.splice(key,1); break}
+              }
+            }
+          } 
+        }
+        if(!check){
+          break
+        }
+      }
+      if(comparedTypes.length>0){
+        check=false
+      }
+    }
+    if(isTrow && !check){
+      throw new InterfaceError().setType('BadCriteria_compareStrictly')
+    }
+    return check
+  }
+
+ 
+
+  /**
+   *
+   * @param {Criteria} criteria
+   * @return {boolean|IType}
+   */
+  merge(criteria){
+    //let currentTypes=this.exportTypes()
+    let comparedTypes=criteria.exportTypes()
+    this.getTypes().merge(types)
+  }
+  
   /**
      * Formats the declared criteria in order for further work.
      * The constructor of the class that implements the CriteriaType class takes an object as an argument,
@@ -154,5 +294,29 @@ export class Criteria extends ICriteria {
   static formatToObject (data) {
     throw new Error(`${this.name}.formatToObject static method not implemented.`)
   }
+  static _t_member(member_name, ...args) {
+    let member=eval(`this.${member_name}`)
+    if(typeof member === 'function'){
+      if(/^(?:function[\s]*\(|\(?[\w,]*\)?\s*=>)/i.test(member.toString())){
+        return member;
+      }
+      return member.call(this,...args);
+    } else {
+      return member;
+    }
+  }
+  _t_member(member_name, ...args) {
+    let member=eval(`this.${member_name}`)
+    if(typeof member === 'function'){
+      if(/^(?:function[\s]*\(|\(?[\w,]*\)?\s*=>)/i.test(member.toString())){
+        return member;
+      }
+      return member.call(this,...args);
+    } else {
+      return member;
+    }
+  }
+
+
 }
 Criteria.isUseStrictSyntax = true
