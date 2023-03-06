@@ -35,7 +35,7 @@ export class AndContainerType extends IType {
    * @return {boolean}
    */
   compare(type, method = 'strict') {
-    return CTypes.compareTypes(this.#types,type.getTypes())
+    return CTypes.compareTypes(this.getTypes(),type.getTypes())
   }
   toString() {
     if(this.#types_string){

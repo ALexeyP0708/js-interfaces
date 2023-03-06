@@ -85,7 +85,7 @@ describe('Class CTypes', () => {
   })
   it ('CTypes.validate')
 
-  it ('static CTypes.compareTypes',()=>{})
+  it ('static CTypes.compareTypes')
   it ('CTypes.compare')
   
   it ('CTypes.merge')
